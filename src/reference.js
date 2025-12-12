@@ -14,13 +14,13 @@ class ReferencePanel {
     return {
       keywords: [
         { name: 'let', desc: 'declare a variable' },
-        { name: 'if', desc: 'conditional' },
-        { name: 'else', desc: 'conditional branch' },
-        { name: 'while', desc: 'loop' },
-        { name: 'function', desc: 'define a function' },
-        { name: 'return', desc: 'return from function' },
+        { name: 'if', desc: 'conditional (coming soon)' },
+        { name: 'else', desc: 'conditional branch (coming soon)' },
+        { name: 'while', desc: 'loop (coming soon)' },
+        { name: 'function', desc: 'define a function (coming soon)' },
+        { name: 'return', desc: 'return from function (coming soon)' },
         { name: 'print', desc: 'output to console' },
-        { name: 'stop', desc: 'pause execution (debugger)' },
+        { name: 'stop', desc: 'pause execution (coming soon)' },
         { name: 'true', desc: 'boolean true' },
         { name: 'false', desc: 'boolean false' },
       ],
@@ -30,10 +30,25 @@ class ReferencePanel {
         { name: '== !=', desc: 'equality' },
         { name: '< > <= >=', desc: 'comparison' },
       ],
+      variables: [
+        { name: 'Declaration', desc: 'let name = value' },
+        { name: 'Assignment', desc: 'name = newValue' },
+        { name: 'Dynamic typing', desc: 'Variables can change type' },
+      ],
       examples: [
+        '// Declare and use variables',
         'let x = 42',
         'print x + 1',
-        'if (x > 0) { print "positive" }',
+        '',
+        '// Reassign variables',
+        'let count = 0',
+        'count = count + 1',
+        'print count',
+        '',
+        '// Dynamic typing - types can change',
+        'let value = 10',
+        'value = "hello"',
+        'print value',
       ]
     };
   }
@@ -86,6 +101,12 @@ class ReferencePanel {
           <h3>Operators</h3>
           <dl class="ref-list">
             ${content.operators.map(o => `<dt>${o.name}</dt><dd>${o.desc}</dd>`).join('')}
+          </dl>
+        </section>
+        <section>
+          <h3>Variables</h3>
+          <dl class="ref-list">
+            ${content.variables.map(v => `<dt>${v.name}</dt><dd>${v.desc}</dd>`).join('')}
           </dl>
         </section>
         <section>

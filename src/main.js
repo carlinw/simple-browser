@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
   const codeEditor = document.getElementById('code-editor');
   const codeDisplay = document.getElementById('code-display');
-  const output = document.getElementById('output');
   const parseBtn = document.getElementById('parse-btn');
   const runBtn = document.getElementById('run-btn');
   const runFastBtn = document.getElementById('run-fast-btn');
@@ -36,11 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
 
-  // Managers
+  // Renderers
+  const parserRenderer = new ParserRenderer(tabTokens);
+  const outputRenderer = new OutputRenderer(tabOutput);
+  const astRenderer = new ASTRenderer(tabAst);
+
+  // Other Managers
   const visualizer = new CodeVisualizer(codeDisplay);
   const referencePanel = new ReferencePanel();
   const examplesManager = new ExamplesManager();
-  const astRenderer = new ASTRenderer(tabAst);
 
   // State
   let state = 'edit';  // 'edit' | 'stepping' | 'done' | 'running'
@@ -96,163 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render scanning state and tokens to output
-  function renderScanState(scanResult, tokens) {
-    let html = '';
-
-    // Show current scanning info
-    html += '<div class="scan-section">\n';
-    html += '<div class="scan-header">Scanner State:</div>\n';
-
-    if (scanResult) {
-      // Current position
-      html += `<div class="scan-line"><span class="scan-label">Line:</span> ${scanResult.line}</div>\n`;
-      html += `<div class="scan-line"><span class="scan-label">Column:</span> ${scanResult.column}</div>\n`;
-      html += `<div class="scan-line"><span class="scan-label">Character:</span> '${scanResult.charDisplay}'</div>\n`;
-
-      // Current state
-      const stateDisplay = scanResult.newState || scanResult.state;
-      if (stateDisplay && stateDisplay !== 'IDLE') {
-        html += `<div class="scan-line"><span class="scan-label">Building:</span> ${stateDisplay}</div>\n`;
-      }
-
-      // Buffer
-      if (scanResult.newBuffer || scanResult.buffer) {
-        const buf = scanResult.newBuffer || scanResult.buffer;
-        if (buf) {
-          const displayBuf = buf.replace(/\n/g, '\\n').replace(/ /g, '·');
-          html += `<div class="scan-line"><span class="scan-label">Buffer:</span> "${displayBuf}"</div>\n`;
-        }
-      }
-
-      // Action taken
-      html += `<div class="scan-action">${scanResult.action}</div>\n`;
-    }
-
-    html += '</div>\n';
-
-    // Show tokens
-    html += '<div class="tokens-section">\n';
-    html += '<div class="tokens-header">Tokens:</div>\n';
-
-    if (tokens.length === 0) {
-      html += '<div class="token-line token-empty">(none yet)</div>\n';
-    } else {
-      for (let i = 0; i < tokens.length; i++) {
-        const token = tokens[i];
-        const isNew = scanResult && scanResult.tokenEmitted === token;
-        const arrow = isNew ? '→ ' : '  ';
-
-        // Determine CSS class based on token type
-        let tokenClass = '';
-        if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
-          tokenClass = 'token-skipped';
-        } else if (token.type === 'EOF') {
-          tokenClass = 'token-eof';
-        }
-        if (isNew) {
-          tokenClass += ' token-new';
-        }
-
-        const pos = `${token.line}:${token.column}`.padEnd(6);
-        const type = token.type.padEnd(12);
-
-        let displayValue;
-        if (token.type === 'EOF') {
-          displayValue = '';
-        } else if (token.type === 'WHITESPACE') {
-          displayValue = '(skipped)';
-        } else if (token.type === 'COMMENT') {
-          displayValue = token.raw;
-        } else {
-          displayValue = typeof token.value === 'string' ? token.value : String(token.value);
-        }
-
-        html += `<div class="token-line ${tokenClass}">${arrow}${pos} ${type} ${displayValue}</div>`;
-      }
-    }
-
-    html += '</div>\n';
-
-    tabTokens.innerHTML = html;
-    switchTab('tokens');
-  }
-
   // Helper to get source code (handles stepping mode)
   function getSource() {
     if (state === 'stepping' || state === 'done') {
       return scanner ? scanner.source : codeEditor.value;
     }
     return codeEditor.value;
-  }
-
-  // Helper to render tokens with stats and column labels
-  function renderTokens(tokens, source) {
-    let tokensText = '';
-
-    // Show character and line counts at top
-    const charCount = source.length;
-    const lineCount = source.split('\n').length;
-    tokensText += `Characters: ${charCount}\n`;
-    tokensText += `Lines: ${lineCount}\n\n`;
-
-    // Column labels
-    tokensText += 'Line  Col   Type         Value\n';
-    tokensText += '────  ────  ───────────  ─────────────────\n';
-
-    for (const token of tokens) {
-      if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
-        continue;
-      }
-      if (token.type === 'EOF') {
-        const line = String(token.line).padEnd(6);
-        const col = String(token.column).padEnd(6);
-        tokensText += `${line}${col}EOF\n`;
-      } else {
-        const line = String(token.line).padEnd(6);
-        const col = String(token.column).padEnd(6);
-        const type = token.type.padEnd(13);
-        const value = typeof token.value === 'string' ? token.value : String(token.value);
-        tokensText += `${line}${col}${type}${value}\n`;
-      }
-    }
-    tabTokens.textContent = tokensText;
-  }
-
-  // Helper to render errors
-  function renderErrors(lexErrors, parseErrors, runtimeErrors) {
-    let outputText = '';
-    if (lexErrors.length > 0) {
-      outputText += 'Lexer Errors:\n';
-      for (const error of lexErrors) {
-        outputText += `  Line ${error.line}, Column ${error.column}: ${error.message}\n`;
-      }
-      outputText += '\n';
-    }
-    if (parseErrors.length > 0) {
-      outputText += 'Parser Errors:\n';
-      for (const error of parseErrors) {
-        outputText += `  Line ${error.line}, Column ${error.column}: ${error.message}\n`;
-      }
-      outputText += '\n';
-    }
-    if (runtimeErrors.length > 0) {
-      outputText += 'Runtime Errors:\n';
-      for (const error of runtimeErrors) {
-        outputText += `  ${error.message}\n`;
-      }
-      outputText += '\n';
-    }
-    tabOutput.textContent = outputText;
-  }
-
-  // Helper to render output values
-  function renderOutput(values) {
-    if (values.length === 0) {
-      tabOutput.textContent = '(no output)';
-    } else {
-      tabOutput.textContent = values.map(v => String(v)).join('\n');
-    }
   }
 
   // Parse only - tokenize and parse, no execution
@@ -273,9 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle empty input
     if (!source.trim()) {
-      tabTokens.textContent = '';
-      tabAst.innerHTML = '';
-      tabOutput.textContent = 'Hello, Connor!';
+      parserRenderer.clear();
+      astRenderer.clear();
+      outputRenderer.renderMessage('Hello, Connor!');
       switchTab('output');
       currentParseResult = null;
       currentLexResult = null;
@@ -285,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tokenize the source code
     const lex = new Lexer(source);
     currentLexResult = lex.tokenize();
-    renderTokens(currentLexResult.tokens, source);
+    parserRenderer.renderTokens(currentLexResult.tokens, source);
 
     // Parse the tokens
     const parser = new Parser(currentLexResult.tokens);
@@ -294,13 +146,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Show errors if any
     if (currentLexResult.errors.length > 0 || currentParseResult.errors.length > 0) {
-      renderErrors(currentLexResult.errors, currentParseResult.errors, []);
+      outputRenderer.renderErrors(currentLexResult.errors, currentParseResult.errors, []);
       switchTab('output');
       return false;
     }
 
     // No errors - switch to AST tab
-    tabOutput.textContent = '';
+    outputRenderer.clear();
     switchTab('ast');
     return true;
   }
@@ -323,11 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const result = await interpreter.interpret(currentParseResult.ast);
       astRenderer.clearHighlights();
-      renderOutput(result.output);
+      outputRenderer.renderOutput(result.output);
       switchTab('output');
     } catch (error) {
       astRenderer.clearHighlights();
-      renderErrors([], [], [{ message: error.message }]);
+      outputRenderer.renderErrors([], [], [{ message: error.message }]);
       switchTab('output');
     }
 
@@ -344,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const result = await interpreter.interpret(currentParseResult.ast);
-      renderOutput(result.output);
+      outputRenderer.renderOutput(result.output);
       switchTab('output');
     } catch (error) {
-      renderErrors([], [], [{ message: error.message }]);
+      outputRenderer.renderErrors([], [], [{ message: error.message }]);
       switchTab('output');
     }
   }
@@ -358,9 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Initialize stepping
       const source = codeEditor.value;
       if (!source.trim()) {
-        tabTokens.textContent = '';
-        tabAst.innerHTML = '';
-        tabOutput.textContent = 'Hello, Connor!';
+        parserRenderer.clear();
+        astRenderer.clear();
+        outputRenderer.renderMessage('Hello, Connor!');
         switchTab('output');
         return;
       }
@@ -373,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateUI();
 
       // Show initial state
-      renderScanState(null, []);
+      parserRenderer.renderScanState(null, [], switchTab);
       return;
     }
 
@@ -386,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     visualizer.highlightChar(span.currentChar, span.start, span.end);
 
     // Render scan state and tokens
-    renderScanState(result, scanner.getTokens());
+    parserRenderer.renderScanState(result, scanner.getTokens(), switchTab);
 
     // Check if done
     if (result.done) {
@@ -402,9 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
     lastScanResult = null;
     currentParseResult = null;
     currentLexResult = null;
-    tabTokens.textContent = '';
-    tabAst.innerHTML = '';
-    tabOutput.textContent = '';
+    parserRenderer.clear();
+    astRenderer.clear();
+    outputRenderer.clear();
     visualizer.clear();
     visualizer.hide();
     astRenderer.clearHighlights();

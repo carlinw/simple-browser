@@ -222,4 +222,10 @@ class ASTRenderer {
       el.classList.remove('ast-executing');
     });
   }
+
+  // Clear the container
+  clear() {
+    this.container.innerHTML = '';
+    this.nodeElements.clear();
+  }
 }

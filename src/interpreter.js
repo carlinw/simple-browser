@@ -1,11 +1,53 @@
 // Simple Interpreter - Expression Evaluator
 // Walks the AST and computes values
 
+// Environment class - stores variable bindings
+// Variables are dynamically typed (can change type after declaration)
+class Environment {
+  constructor() {
+    this.values = new Map();
+  }
+
+  // Define a new variable
+  define(name, value) {
+    this.values.set(name, value);
+  }
+
+  // Get a variable's value
+  get(name) {
+    if (this.values.has(name)) {
+      return this.values.get(name);
+    }
+    throw new RuntimeError(`Undefined variable: ${name}`);
+  }
+
+  // Assign a new value to an existing variable
+  // Dynamic typing: any type can be assigned to any variable
+  assign(name, value) {
+    if (this.values.has(name)) {
+      this.values.set(name, value);
+      return;
+    }
+    throw new RuntimeError(`Undefined variable: ${name}`);
+  }
+
+  // Check if a variable exists
+  has(name) {
+    return this.values.has(name);
+  }
+
+  // Get all variable names (for future visualization)
+  getAll() {
+    return Array.from(this.values.entries());
+  }
+}
+
 class Interpreter {
   constructor(options = {}) {
     this.onNodeEnter = options.onNodeEnter || (() => {});
     this.onNodeExit = options.onNodeExit || (() => {});
     this.stepDelay = options.stepDelay || 0;
+    this.environment = new Environment();
   }
 
   // Main entry point - evaluate a program (async for animation support)
@@ -32,24 +74,38 @@ class Interpreter {
       case 'ExpressionStatement':
         result = await this.evaluate(node.expression);
         break;
+
       case 'PrintStatement':
         result = await this.evaluate(node.value);
         break;
-      case 'LetStatement':
-        // Variables come in Release 7
-        throw new RuntimeError(`Variables not yet supported (coming in Release 7)`);
-      case 'AssignStatement':
-        throw new RuntimeError(`Assignment not yet supported (coming in Release 7)`);
+
+      case 'LetStatement': {
+        const value = await this.evaluate(node.value);
+        this.environment.define(node.name, value);
+        result = value;
+        break;
+      }
+
+      case 'AssignStatement': {
+        const value = await this.evaluate(node.value);
+        this.environment.assign(node.name, value);
+        result = value;
+        break;
+      }
+
       case 'IfStatement':
         throw new RuntimeError(`If statements not yet supported (coming in Release 9)`);
+
       case 'WhileStatement':
         throw new RuntimeError(`While loops not yet supported (coming in Release 11)`);
+
       case 'Block':
         // Execute all statements in block
         for (const stmt of node.statements) {
           result = await this.execute(stmt);
         }
         break;
+
       default:
         result = null;
     }
@@ -81,8 +137,8 @@ class Interpreter {
         break;
 
       case 'Identifier':
-        // Variables come in Release 7
-        throw new RuntimeError(`Undefined variable: ${node.name}`);
+        result = this.environment.get(node.name);
+        break;
 
       default:
         throw new RuntimeError(`Unknown expression type: ${node.type}`);
@@ -156,5 +212,5 @@ class RuntimeError extends Error {
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Interpreter, RuntimeError };
+  module.exports = { Interpreter, RuntimeError, Environment };
 }
