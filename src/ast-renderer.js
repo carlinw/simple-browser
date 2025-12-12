@@ -62,6 +62,18 @@ class ASTRenderer {
         <div class="ast-legend-color legend-boolean"></div>
         <span class="ast-legend-label">Boolean</span>
       </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-array"></div>
+        <span class="ast-legend-label">Array</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-builtin"></div>
+        <span class="ast-legend-label">Built-in</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-unary"></div>
+        <span class="ast-legend-label">Unary</span>
+      </div>
     `;
     return legend;
   }
@@ -164,6 +176,16 @@ class ASTRenderer {
         return `"${this.escapeHtml(node.value)}"`;
       case 'BooleanLiteral':
         return `<strong>${node.value}</strong>`;
+      case 'ArrayLiteral':
+        return '[ ]';
+      case 'IndexExpression':
+        return '[ ]';
+      case 'IndexAssignStatement':
+        return '[ ]=';
+      case 'BuiltinCall':
+        return `<em>${this.escapeHtml(node.name)}</em>()`;
+      case 'UnaryExpression':
+        return `<strong>${this.escapeHtml(node.operator)}</strong>`;
       default:
         return node.type;
     }
@@ -277,6 +299,45 @@ class ASTRenderer {
         }
         if (node.right) {
           children.push({ node: node.right });
+        }
+        break;
+
+      case 'ArrayLiteral':
+        for (const elem of node.elements) {
+          children.push({ node: elem });
+        }
+        break;
+
+      case 'IndexExpression':
+        if (node.object) {
+          children.push({ label: 'arr', node: node.object });
+        }
+        if (node.index) {
+          children.push({ label: 'idx', node: node.index });
+        }
+        break;
+
+      case 'IndexAssignStatement':
+        if (node.object) {
+          children.push({ label: 'arr', node: node.object });
+        }
+        if (node.index) {
+          children.push({ label: 'idx', node: node.index });
+        }
+        if (node.value) {
+          children.push({ label: 'val', node: node.value });
+        }
+        break;
+
+      case 'BuiltinCall':
+        if (node.argument) {
+          children.push({ node: node.argument });
+        }
+        break;
+
+      case 'UnaryExpression':
+        if (node.operand) {
+          children.push({ node: node.operand });
         }
         break;
     }

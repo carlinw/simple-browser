@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const runFastBtn = document.getElementById('run-fast-btn');
   const stepBtn = document.getElementById('step-btn');
   const resetBtn = document.getElementById('reset-btn');
-  const helpBtn = document.getElementById('help-btn');
   const exampleBtn = document.getElementById('example-btn');
   const output = document.getElementById('output');
 
@@ -18,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabTokens = document.getElementById('tab-tokens');
   const tabAst = document.getElementById('tab-ast');
   const tabMemory = document.getElementById('tab-memory');
+  const tabSyntax = document.getElementById('tab-syntax');
 
   // Tab switching
   function switchTab(tabName) {
@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tabTokens.classList.toggle('active', tabName === 'tokens');
     tabAst.classList.toggle('active', tabName === 'ast');
     tabMemory.classList.toggle('active', tabName === 'memory');
+    tabSyntax.classList.toggle('active', tabName === 'syntax');
   }
 
   // Add click handlers to tabs
@@ -41,10 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const outputRenderer = new OutputRenderer(output);
   const astRenderer = new ASTRenderer(tabAst);
   const memoryRenderer = new MemoryRenderer(tabMemory);
+  const referenceRenderer = new ReferenceRenderer(tabSyntax);
 
   // Other Managers
   const visualizer = new CodeVisualizer(codeDisplay);
-  const referencePanel = new ReferencePanel();
   const examplesManager = new ExamplesManager();
 
   // State
@@ -335,12 +336,11 @@ document.addEventListener('DOMContentLoaded', () => {
   runFastBtn.addEventListener('click', runFast);
   stepBtn.addEventListener('click', stepOne);
   resetBtn.addEventListener('click', reset);
-  helpBtn.addEventListener('click', () => referencePanel.toggle());
   exampleBtn.addEventListener('click', showExamples);
 
-  // Keyboard navigation for AST/Memory panels
+  // Keyboard navigation for AST/Memory/Syntax panels
   const SCROLL_AMOUNT = 50;
-  [tabAst, tabMemory].forEach(panel => {
+  [tabAst, tabMemory, tabSyntax].forEach(panel => {
     panel.setAttribute('tabindex', '0');
     panel.addEventListener('keydown', (e) => {
       switch (e.key) {

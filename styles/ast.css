@@ -1,0 +1,210 @@
+/* AST Tree - Graphical Style */
+.ast-tree {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 1rem;
+  overflow: visible;
+  display: inline-block;
+}
+
+/* Scrollable wrapper for AST */
+#tab-ast {
+  overflow: auto;
+  position: relative;
+}
+
+#tab-ast:focus {
+  outline: none;
+}
+
+#tab-ast:focus-visible {
+  outline: 2px solid #4a7aff;
+  outline-offset: -2px;
+}
+
+/* Node container - handles vertical layout */
+.ast-node-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The actual node box */
+.ast-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 2px solid #555;
+  background: #2a2a2a;
+  color: #ddd;
+  text-align: center;
+  min-width: 40px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.ast-node strong {
+  color: #fff;
+}
+
+.ast-node em {
+  font-style: normal;
+  color: #4dd0e1;
+}
+
+.ast-has-children {
+  cursor: pointer;
+}
+
+.ast-has-children:hover {
+  border-color: #888;
+  background: #333;
+}
+
+/* Node type colors */
+.ast-program { border-color: #666; background: #333; }
+.ast-letstatement { border-color: #64b5f6; }
+.ast-assignstatement { border-color: #64b5f6; }
+.ast-printstatement { border-color: #81c784; }
+.ast-expressionstatement { border-color: #888; }
+.ast-ifstatement { border-color: #ba68c8; }
+.ast-whilestatement { border-color: #ba68c8; }
+.ast-block { border-color: #888; border-style: dashed; }
+.ast-binaryexpression { border-color: #ffb74d; }
+.ast-identifier { border-color: #4dd0e1; background: #1a3a3a; }
+.ast-numberliteral { border-color: #fff176; background: #3a3a1a; }
+.ast-stringliteral { border-color: #81c784; background: #1a3a1a; }
+.ast-booleanliteral { border-color: #f48fb1; background: #3a1a2a; }
+
+/* Array node types */
+.ast-arrayliteral { border-color: #ce93d8; background: #2a1a3a; }
+.ast-indexexpression { border-color: #ce93d8; }
+.ast-indexassignstatement { border-color: #ce93d8; }
+.ast-builtincall { border-color: #4db6ac; background: #1a3a3a; }
+.ast-unaryexpression { border-color: #ffcc80; background: #3a2a1a; }
+
+/* Connector line from parent to children */
+.ast-connector {
+  width: 2px;
+  height: 20px;
+  background: #555;
+}
+
+/* Children container - horizontal layout */
+.ast-children {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  padding-top: 0;
+}
+
+/* Horizontal line connecting children */
+.ast-children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  height: 2px;
+  background: #555;
+}
+
+/* Single child - no horizontal line needed */
+.ast-children:has(.ast-child:only-child)::before {
+  display: none;
+}
+
+/* Each child branch */
+.ast-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Vertical line down to each child */
+.ast-child::before {
+  content: '';
+  width: 2px;
+  height: 15px;
+  background: #555;
+}
+
+/* Edge labels */
+.ast-edge-label {
+  font-size: 10px;
+  color: #888;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+}
+
+/* Collapse/expand */
+.ast-collapsed > .ast-connector,
+.ast-collapsed > .ast-children {
+  display: none;
+}
+
+.ast-collapsed > .ast-node::after {
+  content: ' ...';
+  color: #666;
+}
+
+/* Execution visualization */
+.ast-executing {
+  animation: ast-pulse 0.8s ease-in-out infinite;
+  box-shadow: 0 0 12px 4px rgba(74, 122, 255, 0.6);
+  border-color: #4a7aff !important;
+}
+
+@keyframes ast-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px 4px rgba(74, 122, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px 8px rgba(74, 122, 255, 0.8);
+  }
+}
+
+/* Color Key/Legend for AST */
+.ast-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #252525;
+  border-radius: 4px;
+  margin-top: auto;
+  font-size: 11px;
+}
+
+.ast-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ast-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  border: 2px solid;
+}
+
+.ast-legend-color.legend-statement { border-color: #64b5f6; background: #2a2a2a; }
+.ast-legend-color.legend-control { border-color: #ba68c8; background: #2a2a2a; }
+.ast-legend-color.legend-print { border-color: #81c784; background: #2a2a2a; }
+.ast-legend-color.legend-expression { border-color: #ffb74d; background: #2a2a2a; }
+.ast-legend-color.legend-identifier { border-color: #4dd0e1; background: #1a3a3a; }
+.ast-legend-color.legend-number { border-color: #fff176; background: #3a3a1a; }
+.ast-legend-color.legend-string { border-color: #81c784; background: #1a3a1a; }
+.ast-legend-color.legend-boolean { border-color: #f48fb1; background: #3a1a2a; }
+.ast-legend-color.legend-array { border-color: #ce93d8; background: #2a1a3a; }
+.ast-legend-color.legend-builtin { border-color: #4db6ac; background: #1a3a3a; }
+.ast-legend-color.legend-unary { border-color: #ffcc80; background: #3a2a1a; }
+
+.ast-legend-label {
+  color: #999;
+}

@@ -105,6 +105,16 @@ class Interpreter {
         throw new ReturnValue(value);
       }
 
+      case 'IndexAssignStatement': {
+        const object = await this.evaluate(node.object);
+        const index = await this.evaluate(node.index);
+        const value = await this.evaluate(node.value);
+        this.validateArrayAccess(object, index);
+        object[index] = value;
+        this.onVariableChange(null, object, 'update');
+        break;
+      }
+
       default:
         result = null;
     }
@@ -134,6 +144,25 @@ class Interpreter {
       case 'BinaryExpression':
         result = await this.evaluateBinary(node);
         break;
+
+      case 'UnaryExpression': {
+        const operand = await this.evaluate(node.operand);
+
+        switch (node.operator) {
+          case 'not':
+            result = !this.isTruthy(operand);
+            break;
+          case '-':
+            if (typeof operand !== 'number') {
+              throw new RuntimeError('Unary minus requires a number');
+            }
+            result = -operand;
+            break;
+          default:
+            throw new RuntimeError(`Unknown unary operator: ${node.operator}`);
+        }
+        break;
+      }
 
       case 'Identifier':
         result = this.environment.get(node.name);
@@ -191,6 +220,42 @@ class Interpreter {
         break;
       }
 
+      case 'ArrayLiteral': {
+        const elements = [];
+        for (const elem of node.elements) {
+          elements.push(await this.evaluate(elem));
+        }
+        result = elements;
+        break;
+      }
+
+      case 'IndexExpression': {
+        const object = await this.evaluate(node.object);
+        const index = await this.evaluate(node.index);
+        this.validateArrayAccess(object, index);
+        result = object[index];
+        break;
+      }
+
+      case 'BuiltinCall': {
+        const arg = await this.evaluate(node.argument);
+
+        switch (node.name) {
+          case 'len':
+            if (Array.isArray(arg)) {
+              result = arg.length;
+            } else if (typeof arg === 'string') {
+              result = arg.length;
+            } else {
+              throw new RuntimeError('len() requires an array or string');
+            }
+            break;
+          default:
+            throw new RuntimeError(`Unknown built-in function: ${node.name}`);
+        }
+        break;
+      }
+
       default:
         throw new RuntimeError(`Unknown expression type: ${node.type}`);
     }
@@ -206,8 +271,39 @@ class Interpreter {
     return true;  // numbers (including 0) and strings are truthy
   }
 
+  // DRY helper for array access validation
+  validateArrayAccess(object, index) {
+    if (!Array.isArray(object)) {
+      throw new RuntimeError('Cannot index non-array value');
+    }
+    if (typeof index !== 'number' || !Number.isInteger(index)) {
+      throw new RuntimeError('Array index must be an integer');
+    }
+    if (index < 0 || index >= object.length) {
+      throw new RuntimeError(`Array index ${index} out of bounds (length: ${object.length})`);
+    }
+  }
+
   // Evaluate binary expression
   async evaluateBinary(node) {
+    // Short-circuit evaluation for 'and' and 'or'
+    if (node.operator === 'and') {
+      const left = await this.evaluate(node.left);
+      if (!this.isTruthy(left)) {
+        return left; // Short-circuit: return falsy value
+      }
+      return await this.evaluate(node.right);
+    }
+
+    if (node.operator === 'or') {
+      const left = await this.evaluate(node.left);
+      if (this.isTruthy(left)) {
+        return left; // Short-circuit: return truthy value
+      }
+      return await this.evaluate(node.right);
+    }
+
+    // Evaluate both operands for other operators
     const left = await this.evaluate(node.left);
     const right = await this.evaluate(node.right);
 
@@ -234,6 +330,9 @@ class Interpreter {
       case '/':
         if (right === 0) throw new RuntimeError('Division by zero');
         return left / right;
+      case '%':
+        if (right === 0) throw new RuntimeError('Modulo by zero');
+        return left % right;
       case '<': return left < right;
       case '>': return left > right;
       case '<=': return left <= right;

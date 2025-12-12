@@ -94,30 +94,40 @@ class ParserRenderer {
   renderTokens(tokens, source) {
     let tokensText = '';
 
-    // Show character and line counts at top
+    // Count displayable tokens (exclude whitespace and comments)
+    const displayableTokens = tokens.filter(t =>
+      t.type !== 'WHITESPACE' && t.type !== 'COMMENT'
+    );
+    const tokenCount = displayableTokens.length;
+
+    // Show character, line, and token counts at top
     const charCount = source.length;
     const lineCount = source.split('\n').length;
     tokensText += `Characters: ${charCount}\n`;
-    tokensText += `Lines: ${lineCount}\n\n`;
+    tokensText += `Lines: ${lineCount}\n`;
+    tokensText += `Tokens: ${tokenCount}\n\n`;
 
-    // Column labels
-    tokensText += 'Line  Col   Type         Value\n';
-    tokensText += '────  ────  ───────────  ─────────────────\n';
+    // Column labels (Token is leftmost)
+    tokensText += 'Token Line  Col   Type         Value\n';
+    tokensText += '───── ────  ────  ───────────  ─────────────────\n';
 
+    let tokenNum = 0;
     for (const token of tokens) {
       if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
         continue;
       }
+      tokenNum++;
+      const num = String(tokenNum).padEnd(6);
       if (token.type === 'EOF') {
         const line = String(token.line).padEnd(6);
         const col = String(token.column).padEnd(6);
-        tokensText += `${line}${col}EOF\n`;
+        tokensText += `${num}${line}${col}EOF\n`;
       } else {
         const line = String(token.line).padEnd(6);
         const col = String(token.column).padEnd(6);
         const type = token.type.padEnd(13);
         const value = typeof token.value === 'string' ? token.value : String(token.value);
-        tokensText += `${line}${col}${type}${value}\n`;
+        tokensText += `${num}${line}${col}${type}${value}\n`;
       }
     }
     this.container.textContent = tokensText;

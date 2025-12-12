@@ -15,7 +15,8 @@ const TokenType = {
 
 const KEYWORDS = new Set([
   'let', 'if', 'else', 'while', 'function',
-  'return', 'true', 'false', 'print', 'stop'
+  'return', 'true', 'false', 'print', 'stop',
+  'and', 'or', 'not'
 ]);
 
 const OPERATORS = {
@@ -23,6 +24,7 @@ const OPERATORS = {
   '-': '-',
   '*': '*',
   '/': '/',
+  '%': '%',
   '=': '=',
   '==': '==',
   '!=': '!=',
@@ -32,7 +34,7 @@ const OPERATORS = {
   '>=': '>=',
 };
 
-const PUNCTUATION = new Set(['(', ')', '{', '}', ',']);
+const PUNCTUATION = new Set(['(', ')', '{', '}', ',', '[', ']']);
 
 class Lexer {
   constructor(source) {

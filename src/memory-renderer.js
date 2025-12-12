@@ -27,6 +27,10 @@ class MemoryRenderer {
           <div class="memory-legend-color legend-func"></div>
           <span class="memory-legend-label">Function</span>
         </div>
+        <div class="memory-legend-item">
+          <div class="memory-legend-color legend-arr"></div>
+          <span class="memory-legend-label">Array</span>
+        </div>
       </div>
     `;
   }
@@ -148,6 +152,7 @@ class MemoryRenderer {
     if (typeof value === 'number') return 'num';
     if (typeof value === 'string') return 'str';
     if (typeof value === 'boolean') return 'bool';
+    if (Array.isArray(value)) return 'arr';
     if (value && typeof value === 'object' && value.declaration) return 'func';
     return 'unknown';
   }
@@ -155,6 +160,10 @@ class MemoryRenderer {
   // Format value for display
   formatValue(value) {
     if (typeof value === 'string') return `"${value}"`;
+    if (Array.isArray(value)) {
+      const elements = value.map(v => this.formatValue(v)).join(', ');
+      return `[${elements}]`;
+    }
     if (value && typeof value === 'object' && value.declaration) return '[function]';
     return String(value);
   }

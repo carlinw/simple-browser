@@ -135,6 +135,34 @@ class Parser {
       return this.parseAssignStatement();
     }
 
+    // Check for index assignment (identifier followed by [)
+    if (this.check('IDENTIFIER') && this.peekNext() &&
+        this.peekNext().type === 'PUNCTUATION' && this.peekNext().value === '[') {
+      const expr = this.parseExpression();
+
+      // Check if this is an index assignment
+      if (expr.type === 'IndexExpression' && this.check('OPERATOR', '=')) {
+        this.advance(); // consume '='
+        const value = this.parseExpression();
+        return {
+          type: 'IndexAssignStatement',
+          object: expr.object,
+          index: expr.index,
+          value: value,
+          token: expr.token,
+          endToken: this.previous()
+        };
+      }
+
+      // Otherwise it's an expression statement
+      return {
+        type: 'ExpressionStatement',
+        expression: expr,
+        token: expr.token,
+        endToken: expr.endToken || expr.token
+      };
+    }
+
     // Expression statement (for future use)
     const expr = this.parseExpression();
     return {
@@ -300,23 +328,54 @@ class Parser {
 
   // Expression parsing (recursive descent with precedence)
   parseExpression() {
-    return this.parseEquality();
+    return this.parseOr();
+  }
+
+  // DRY helper for creating binary expressions
+  makeBinaryExpr(left, operatorToken, right) {
+    return {
+      type: 'BinaryExpression',
+      operator: operatorToken.value,
+      left: left,
+      right: right,
+      token: left.token,
+      endToken: right.endToken || right.token
+    };
+  }
+
+  // Lowest precedence: 'or'
+  parseOr() {
+    let left = this.parseAnd();
+
+    while (this.match('KEYWORD', 'or')) {
+      const operator = this.previous();
+      const right = this.parseAnd();
+      left = this.makeBinaryExpr(left, operator, right);
+    }
+
+    return left;
+  }
+
+  // Next: 'and'
+  parseAnd() {
+    let left = this.parseEquality();
+
+    while (this.match('KEYWORD', 'and')) {
+      const operator = this.previous();
+      const right = this.parseEquality();
+      left = this.makeBinaryExpr(left, operator, right);
+    }
+
+    return left;
   }
 
   parseEquality() {
     let left = this.parseComparison();
 
     while (this.check('OPERATOR', '==') || this.check('OPERATOR', '!=')) {
-      const operator = this.advance().value;
+      const operator = this.advance();
       const right = this.parseComparison();
-      left = {
-        type: 'BinaryExpression',
-        operator: operator,
-        left: left,
-        right: right,
-        token: left.token,
-        endToken: right.endToken || right.token
-      };
+      left = this.makeBinaryExpr(left, operator, right);
     }
 
     return left;
@@ -327,16 +386,9 @@ class Parser {
 
     while (this.check('OPERATOR', '<') || this.check('OPERATOR', '>') ||
            this.check('OPERATOR', '<=') || this.check('OPERATOR', '>=')) {
-      const operator = this.advance().value;
+      const operator = this.advance();
       const right = this.parseTerm();
-      left = {
-        type: 'BinaryExpression',
-        operator: operator,
-        left: left,
-        right: right,
-        token: left.token,
-        endToken: right.endToken || right.token
-      };
+      left = this.makeBinaryExpr(left, operator, right);
     }
 
     return left;
@@ -346,73 +398,100 @@ class Parser {
     let left = this.parseFactor();
 
     while (this.check('OPERATOR', '+') || this.check('OPERATOR', '-')) {
-      const operator = this.advance().value;
+      const operator = this.advance();
       const right = this.parseFactor();
-      left = {
-        type: 'BinaryExpression',
-        operator: operator,
-        left: left,
-        right: right,
-        token: left.token,
-        endToken: right.endToken || right.token
-      };
+      left = this.makeBinaryExpr(left, operator, right);
     }
 
     return left;
   }
 
   parseFactor() {
-    let left = this.parsePrimary();
+    let left = this.parseUnary();
 
-    while (this.check('OPERATOR', '*') || this.check('OPERATOR', '/')) {
-      const operator = this.advance().value;
-      const right = this.parsePrimary();
-      left = {
-        type: 'BinaryExpression',
-        operator: operator,
-        left: left,
-        right: right,
-        token: left.token,
-        endToken: right.endToken || right.token
-      };
+    while (this.check('OPERATOR', '*') || this.check('OPERATOR', '/') || this.check('OPERATOR', '%')) {
+      const operator = this.advance();
+      const right = this.parseUnary();
+      left = this.makeBinaryExpr(left, operator, right);
     }
 
     return left;
+  }
+
+  // Unary operators: 'not' and '-'
+  parseUnary() {
+    // Handle 'not' keyword
+    if (this.match('KEYWORD', 'not')) {
+      const operator = this.previous();
+      const operand = this.parseUnary(); // Right associative
+      return {
+        type: 'UnaryExpression',
+        operator: 'not',
+        operand: operand,
+        token: operator,
+        endToken: operand.endToken || operand.token
+      };
+    }
+
+    // Handle unary minus
+    if (this.check('OPERATOR', '-')) {
+      const operator = this.advance();
+      const operand = this.parseUnary(); // Right associative
+      return {
+        type: 'UnaryExpression',
+        operator: '-',
+        operand: operand,
+        token: operator,
+        endToken: operand.endToken || operand.token
+      };
+    }
+
+    return this.parsePrimary();
   }
 
   parsePrimary() {
     // Number
     if (this.check('NUMBER')) {
       const token = this.advance();
-      return { type: 'NumberLiteral', value: token.value, token: token };
+      return this.parsePostfix({ type: 'NumberLiteral', value: token.value, token: token });
     }
 
     // String
     if (this.check('STRING')) {
       const token = this.advance();
-      return { type: 'StringLiteral', value: token.value, token: token };
+      return this.parsePostfix({ type: 'StringLiteral', value: token.value, token: token });
     }
 
     // Boolean
     if (this.check('KEYWORD', 'true')) {
       const token = this.advance();
-      return { type: 'BooleanLiteral', value: true, token: token };
+      return this.parsePostfix({ type: 'BooleanLiteral', value: true, token: token });
     }
     if (this.check('KEYWORD', 'false')) {
       const token = this.advance();
-      return { type: 'BooleanLiteral', value: false, token: token };
+      return this.parsePostfix({ type: 'BooleanLiteral', value: false, token: token });
+    }
+
+    // Array literal
+    if (this.match('PUNCTUATION', '[')) {
+      return this.parsePostfix(this.parseArrayLiteral());
     }
 
     // Identifier or function call
     if (this.check('IDENTIFIER')) {
       const token = this.advance();
 
-      // Check if this is a function call
-      if (this.check('PUNCTUATION', '(')) {
-        return this.parseCallExpression(token);
+      // Check if this is a built-in function call (len)
+      if (token.value === 'len' && this.check('PUNCTUATION', '(')) {
+        return this.parsePostfix(this.parseBuiltinCall(token));
       }
 
-      return { type: 'Identifier', name: token.value, token: token };
+      // Check if this is a function call
+      if (this.check('PUNCTUATION', '(')) {
+        return this.parsePostfix(this.parseCallExpression(token));
+      }
+
+      return this.parsePostfix({ type: 'Identifier', name: token.value, token: token });
     }
 
     // Grouped expression
@@ -421,14 +500,65 @@ class Parser {
       const expr = this.parseExpression();
       const closeParen = this.consume('PUNCTUATION', ')', "Expected ')' after expression");
       // Return expression with parens as the span boundaries
-      return {
+      return this.parsePostfix({
         ...expr,
         token: openParen,
         endToken: closeParen
-      };
+      });
     }
 
     this.error(`Unexpected token: ${this.peek()?.type} '${this.peek()?.value}'`);
+  }
+
+  // Parse postfix operators like index access [expr]
+  parsePostfix(expr) {
+    while (this.check('PUNCTUATION', '[')) {
+      const openBracket = this.advance();
+      const index = this.parseExpression();
+      const closeBracket = this.consume('PUNCTUATION', ']', "Expected ']' after index");
+      expr = {
+        type: 'IndexExpression',
+        object: expr,
+        index: index,
+        token: expr.token,
+        endToken: closeBracket
+      };
+    }
+    return expr;
+  }
+
+  parseArrayLiteral() {
+    const openBracket = this.previous(); // '[' we just matched
+    const elements = [];
+
+    if (!this.check('PUNCTUATION', ']')) {
+      do {
+        elements.push(this.parseExpression());
+      } while (this.match('PUNCTUATION', ','));
+    }
+
+    const closeBracket = this.consume('PUNCTUATION', ']', "Expected ']' after array elements");
+
+    return {
+      type: 'ArrayLiteral',
+      elements: elements,
+      token: openBracket,
+      endToken: closeBracket
+    };
+  }
+
+  parseBuiltinCall(nameToken) {
+    this.consume('PUNCTUATION', '(', "Expected '(' after built-in function");
+    const arg = this.parseExpression();
+    const closeParen = this.consume('PUNCTUATION', ')', "Expected ')' after argument");
+
+    return {
+      type: 'BuiltinCall',
+      name: nameToken.value,
+      argument: arg,
+      token: nameToken,
+      endToken: closeParen
+    };
   }
 
   parseCallExpression(nameToken) {

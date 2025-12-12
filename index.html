@@ -6,13 +6,14 @@
   <title>Simple Interpreter</title>
   <link rel="stylesheet" href="styles/base.css">
   <link rel="stylesheet" href="styles/interpreter.css">
+  <link rel="stylesheet" href="styles/ast.css">
+  <link rel="stylesheet" href="styles/memory.css">
   <link rel="stylesheet" href="styles/modals.css">
 </head>
 <body>
   <header>
     <h1>Simple Interpreter</h1>
     <nav id="toolbar">
-      <button id="help-btn">Language Syntax</button>
       <button id="example-btn">Examples</button>
       <button id="parse-btn">Parse</button>
       <button id="run-btn">Run</button>
@@ -38,12 +39,14 @@
           <button class="tab-btn active" data-tab="tokens">Parser</button>
           <button class="tab-btn" data-tab="ast">AST</button>
           <button class="tab-btn" data-tab="memory">Memory</button>
+          <button class="tab-btn" data-tab="syntax">Syntax</button>
         </div>
       </div>
       <div class="tab-content">
         <div id="tab-tokens" class="tab-panel active"></div>
         <div id="tab-ast" class="tab-panel"></div>
         <div id="tab-memory" class="tab-panel"></div>
+        <div id="tab-syntax" class="tab-panel"></div>
       </div>
     </section>
 
@@ -72,6 +75,8 @@
   <script src="src/examples/arithmetic.js"></script>
   <script src="src/examples/comparisons.js"></script>
   <script src="src/examples/functions.js"></script>
+  <script src="src/examples/arrays.js"></script>
+  <script src="src/examples/operators.js"></script>
   <script src="src/examples.js"></script>
   <script src="src/main.js"></script>
 </body>

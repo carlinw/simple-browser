@@ -40,15 +40,16 @@ test('can type in code editor', async ({ page }) => {
   await expect(editor).toHaveValue('print hello');
 });
 
-// Interpreter Tabs Tests (new 3-section layout)
+// Interpreter Tabs Tests (4 tabs)
 
-test('interpreter pane has three tabs', async ({ page }) => {
+test('interpreter pane has four tabs', async ({ page }) => {
   await page.goto('/');
   const tabs = page.locator('.interpreter-tabs .tab-btn');
-  await expect(tabs).toHaveCount(3);
+  await expect(tabs).toHaveCount(4);
   await expect(tabs.nth(0)).toHaveText('Parser');
   await expect(tabs.nth(1)).toHaveText('AST');
   await expect(tabs.nth(2)).toHaveText('Memory');
+  await expect(tabs.nth(3)).toHaveText('Syntax');
 });
 
 test('parser tab shows character and line count', async ({ page }) => {
@@ -66,6 +67,19 @@ test('parser tab shows character and line count', async ({ page }) => {
   expect(text).toMatch(/Lines:\s*\d+/);
 });
 
+test('parser tab shows token count', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#parse-btn');
+
+  await page.click('.tab-btn:has-text("Parser")');
+  const parserContent = page.locator('#tab-tokens');
+  const text = await parserContent.textContent();
+
+  // Should show token count
+  expect(text).toMatch(/Tokens:\s*\d+/);
+});
+
 test('parser tab shows column labels', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
@@ -75,11 +89,26 @@ test('parser tab shows column labels', async ({ page }) => {
   const parserContent = page.locator('#tab-tokens');
   const text = await parserContent.textContent();
 
-  // Should show column headers
+  // Should show column headers (Token is the leftmost)
+  expect(text).toContain('Token');
   expect(text).toContain('Line');
   expect(text).toContain('Col');
   expect(text).toContain('Type');
   expect(text).toContain('Value');
+});
+
+test('parser tab shows token numbers starting from 1', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#parse-btn');
+
+  await page.click('.tab-btn:has-text("Parser")');
+  const parserContent = page.locator('#tab-tokens');
+  const text = await parserContent.textContent();
+
+  // Token numbers should appear (1, 2, 3, 4 for let, x, =, 42)
+  // Check that we see sequential token numbers
+  expect(text).toMatch(/1\s+1\s+1\s+KEYWORD/);  // Token 1 at line 1, col 1
 });
 
 test('AST tab is active after parse', async ({ page }) => {

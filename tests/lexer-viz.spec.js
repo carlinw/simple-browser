@@ -223,45 +223,44 @@ test('arrow indicates newly emitted token', async ({ page }) => {
   expect(output).toContain('KEYWORD');
 });
 
-// Help Panel Tests
+// Syntax Tab Tests
 
-test('language syntax button exists in toolbar', async ({ page }) => {
+test('syntax tab exists in interpreter pane', async ({ page }) => {
   await page.goto('/');
-  const helpBtn = page.locator('#help-btn');
-  await expect(helpBtn).toBeVisible();
-  await expect(helpBtn).toHaveText('Language Syntax');
+  const syntaxTab = page.locator('.tab-btn[data-tab="syntax"]');
+  await expect(syntaxTab).toBeVisible();
+  await expect(syntaxTab).toHaveText('Syntax');
 });
 
-test('clicking help opens reference panel', async ({ page }) => {
+test('clicking syntax tab shows reference content', async ({ page }) => {
   await page.goto('/');
-  await page.click('#help-btn');
+  await page.click('.tab-btn[data-tab="syntax"]');
 
-  const modal = page.locator('.modal-panel');
-  await expect(modal).toBeVisible();
+  const syntaxPanel = page.locator('#tab-syntax');
+  await expect(syntaxPanel).toHaveClass(/active/);
 
-  const heading = page.locator('.modal-header h2');
-  await expect(heading).toHaveText('Language Reference');
+  const content = page.locator('.reference-content');
+  await expect(content).toBeVisible();
 });
 
-test('reference panel shows keywords', async ({ page }) => {
+test('syntax tab shows keywords', async ({ page }) => {
   await page.goto('/');
-  await page.click('#help-btn');
+  await page.click('.tab-btn[data-tab="syntax"]');
 
-  const modal = page.locator('.modal-body');
-  const text = await modal.textContent();
+  const content = page.locator('#tab-syntax');
+  const text = await content.textContent();
   expect(text).toContain('let');
   expect(text).toContain('if');
   expect(text).toContain('while');
   expect(text).toContain('print');
-  expect(text).toContain('stop');
 });
 
-test('reference panel shows operators', async ({ page }) => {
+test('syntax tab shows operators', async ({ page }) => {
   await page.goto('/');
-  await page.click('#help-btn');
+  await page.click('.tab-btn[data-tab="syntax"]');
 
-  const modal = page.locator('.modal-body');
-  const text = await modal.textContent();
+  const content = page.locator('#tab-syntax');
+  const text = await content.textContent();
   expect(text).toContain('+');
   expect(text).toContain('-');
   expect(text).toContain('*');
@@ -269,19 +268,17 @@ test('reference panel shows operators', async ({ page }) => {
   expect(text).toContain('==');
 });
 
-test('close button closes reference panel', async ({ page }) => {
+test('syntax tab shows types', async ({ page }) => {
   await page.goto('/');
-  await page.click('#help-btn');
+  await page.click('.tab-btn[data-tab="syntax"]');
 
-  // Modal is visible
-  const modal = page.locator('.modal-panel');
-  await expect(modal).toBeVisible();
-
-  // Click close
-  await page.click('.modal-close');
-
-  // Modal should be gone
-  await expect(modal).not.toBeVisible();
+  const content = page.locator('#tab-syntax');
+  const text = await content.textContent();
+  expect(text).toContain('Number');
+  expect(text).toContain('String');
+  expect(text).toContain('Boolean');
+  expect(text).toContain('Array');
+  expect(text).toContain('Function');
 });
 
 // Example Program Tests
