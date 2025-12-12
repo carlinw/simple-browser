@@ -274,7 +274,8 @@ test('syntax tab shows types', async ({ page }) => {
 
   const content = page.locator('#tab-syntax');
   const text = await content.textContent();
-  expect(text).toContain('Number');
+  expect(text).toContain('Integer');
+  expect(text).toContain('Float');
   expect(text).toContain('String');
   expect(text).toContain('Boolean');
   expect(text).toContain('Array');

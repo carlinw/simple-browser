@@ -4,6 +4,10 @@
 class OutputRenderer {
   constructor(container) {
     this.container = container;
+    this.inputField = null;
+    this.inputResolve = null;
+    this.keyResolve = null;
+    this.keyHandler = null;
   }
 
   // Render error messages from lexer, parser, or runtime
@@ -54,6 +58,106 @@ class OutputRenderer {
   // Clear the container
   clear() {
     this.container.textContent = '';
+    this.cleanupInput();
+  }
+
+  // Show input field and wait for user to type a line
+  async showInputField() {
+    return new Promise((resolve) => {
+      this.inputResolve = resolve;
+
+      // Preserve current text content
+      const currentText = this.container.textContent;
+
+      // Clear and rebuild with proper structure
+      this.container.innerHTML = '';
+
+      // Add existing output as text node
+      if (currentText && currentText !== '(no output)') {
+        const textNode = document.createTextNode(currentText + '\n');
+        this.container.appendChild(textNode);
+      }
+
+      // Create input container
+      const inputContainer = document.createElement('div');
+      inputContainer.className = 'input-container';
+
+      // Create input field
+      this.inputField = document.createElement('input');
+      this.inputField.type = 'text';
+      this.inputField.className = 'input-field';
+      this.inputField.placeholder = 'Type here and press Enter...';
+
+      // Handle Enter key
+      this.inputField.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const value = this.inputField.value;
+          this.cleanupInput();
+          resolve(value);
+        }
+      });
+
+      inputContainer.appendChild(this.inputField);
+      this.container.appendChild(inputContainer);
+      this.inputField.focus();
+    });
+  }
+
+  // Wait for a single keypress
+  async waitForKeypress() {
+    return new Promise((resolve) => {
+      this.keyResolve = resolve;
+
+      // Preserve current text content
+      const currentText = this.container.textContent;
+
+      // Clear and rebuild with proper structure
+      this.container.innerHTML = '';
+
+      // Add existing output as text node
+      if (currentText && currentText !== '(no output)') {
+        const textNode = document.createTextNode(currentText + '\n');
+        this.container.appendChild(textNode);
+      }
+
+      // Show waiting message
+      const keyPrompt = document.createElement('span');
+      keyPrompt.className = 'key-prompt';
+      keyPrompt.textContent = '[Press any key...]';
+      this.container.appendChild(keyPrompt);
+
+      // Listen for keydown on document
+      this.keyHandler = (e) => {
+        // Get the key string
+        let key = e.key;
+        // Clean up
+        document.removeEventListener('keydown', this.keyHandler);
+        this.keyHandler = null;
+        this.keyResolve = null;
+        // Remove prompt
+        if (keyPrompt.parentNode) {
+          keyPrompt.remove();
+        }
+        resolve(key);
+      };
+
+      document.addEventListener('keydown', this.keyHandler);
+    });
+  }
+
+  // Clean up any pending input
+  cleanupInput() {
+    if (this.inputField && this.inputField.parentNode) {
+      this.inputField.parentNode.remove();
+    }
+    this.inputField = null;
+    this.inputResolve = null;
+
+    if (this.keyHandler) {
+      document.removeEventListener('keydown', this.keyHandler);
+      this.keyHandler = null;
+    }
+    this.keyResolve = null;
   }
 }
 

@@ -147,3 +147,36 @@
     max-width: calc(100% - 2rem);
   }
 }
+
+/* Input field for input() builtin */
+.input-container {
+  display: flex;
+  margin-top: 0.5rem;
+}
+
+.input-field {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 2px solid var(--color-primary);
+  border-radius: 4px;
+  background: #1a1a1a;
+  color: #fff;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #5a8aff;
+  box-shadow: 0 0 5px rgba(74, 122, 255, 0.3);
+}
+
+.input-field::placeholder {
+  color: #666;
+}
+
+/* Key press prompt */
+.key-prompt {
+  color: #888;
+  font-style: italic;
+}

@@ -196,19 +196,34 @@ class Lexer {
   readNumber() {
     let raw = '';
 
+    // Read integer part
     while (!this.isAtEnd() && CharUtils.isDigit(this.peek())) {
       raw += this.advance();
     }
 
+    // Check for decimal part
+    if (!this.isAtEnd() && this.peek() === '.' && CharUtils.isDigit(this.peekNext())) {
+      raw += this.advance(); // consume '.'
+      while (!this.isAtEnd() && CharUtils.isDigit(this.peek())) {
+        raw += this.advance();
+      }
+    }
+
     return {
       type: TokenType.NUMBER,
-      value: parseInt(raw, 10),
+      value: parseFloat(raw),
       line: this.tokenLine,
       column: this.tokenColumn,
       raw: raw,
       start: this.tokenStart,
       end: this.pos
     };
+  }
+
+  // Peek at the character after current (for lookahead)
+  peekNext() {
+    if (this.pos + 1 >= this.source.length) return '\0';
+    return this.source[this.pos + 1];
   }
 
   readString() {

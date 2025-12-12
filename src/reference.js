@@ -12,7 +12,8 @@ class ReferenceRenderer {
   getContent() {
     return {
       types: [
-        { name: 'Number', desc: '42, 0, 100' },
+        { name: 'Integer', desc: '42, 0, -5' },
+        { name: 'Float', desc: '3.14, 0.5, -2.7' },
         { name: 'String', desc: '"hello", "world"' },
         { name: 'Boolean', desc: 'true, false' },
         { name: 'Array', desc: '[1, 2, 3]' },
@@ -25,7 +26,6 @@ class ReferenceRenderer {
         { name: 'while', desc: 'loop while condition is true' },
         { name: 'function', desc: 'define a function' },
         { name: 'return', desc: 'return a value from function' },
-        { name: 'print', desc: 'output a value' },
         { name: 'and', desc: 'logical and' },
         { name: 'or', desc: 'logical or' },
         { name: 'not', desc: 'logical not' },
@@ -49,9 +49,15 @@ class ReferenceRenderer {
         { name: 'Access', desc: 'arr[0]' },
         { name: 'Assignment', desc: 'arr[0] = value' },
         { name: 'Nested', desc: 'arr[0][1]' },
+        { name: 'String index', desc: '"hello"[0] → "h"' },
       ],
       builtins: [
+        { name: 'print x', desc: 'output a value' },
         { name: 'len(x)', desc: 'length of array or string' },
+        { name: 'num(x)', desc: 'convert string to number' },
+        { name: 'input()', desc: 'read line of input' },
+        { name: 'key()', desc: 'read single keypress' },
+        { name: 'random(min, max)', desc: 'random integer in range' },
       ]
     };
   }

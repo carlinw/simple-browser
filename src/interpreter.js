@@ -10,6 +10,8 @@ class Interpreter {
     this.onPrint = options.onPrint || (() => {});
     this.onCallStart = options.onCallStart || (() => {});
     this.onCallEnd = options.onCallEnd || (() => {});
+    this.onInput = options.onInput || null;
+    this.onKey = options.onKey || null;
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
   }
@@ -169,6 +171,13 @@ class Interpreter {
         break;
 
       case 'CallExpression': {
+        // Check for builtin functions first
+        const builtinResult = await this.tryBuiltinCall(node);
+        if (builtinResult !== undefined) {
+          result = builtinResult;
+          break;
+        }
+
         const callee = this.environment.get(node.callee);
 
         if (!(callee instanceof SimpleFunction)) {
@@ -271,16 +280,16 @@ class Interpreter {
     return true;  // numbers (including 0) and strings are truthy
   }
 
-  // DRY helper for array access validation
+  // DRY helper for array/string access validation
   validateArrayAccess(object, index) {
-    if (!Array.isArray(object)) {
-      throw new RuntimeError('Cannot index non-array value');
+    if (!Array.isArray(object) && typeof object !== 'string') {
+      throw new RuntimeError('Cannot index non-array/string value');
     }
     if (typeof index !== 'number' || !Number.isInteger(index)) {
-      throw new RuntimeError('Array index must be an integer');
+      throw new RuntimeError('Index must be an integer');
     }
     if (index < 0 || index >= object.length) {
-      throw new RuntimeError(`Array index ${index} out of bounds (length: ${object.length})`);
+      throw new RuntimeError(`Index ${index} out of bounds (length: ${object.length})`);
     }
   }
 
@@ -340,6 +349,88 @@ class Interpreter {
       default:
         throw new RuntimeError(`Unknown operator: ${node.operator}`);
     }
+  }
+
+  // Try to execute a builtin function call
+  // Returns undefined if not a builtin, otherwise returns the result
+  async tryBuiltinCall(node) {
+    const funcName = node.callee;
+
+    // Evaluate arguments for all builtins
+    const args = [];
+    for (const arg of node.arguments) {
+      args.push(await this.evaluate(arg));
+    }
+
+    switch (funcName) {
+      case 'num': {
+        if (args.length !== 1) {
+          throw new RuntimeError('num() requires 1 argument');
+        }
+        const arg = args[0];
+        if (typeof arg === 'number') {
+          return arg;  // Already a number
+        }
+        if (typeof arg !== 'string') {
+          throw new RuntimeError('num() requires a string argument');
+        }
+        const parsed = Number(arg);
+        if (isNaN(parsed)) {
+          throw new RuntimeError(`Cannot convert "${arg}" to number`);
+        }
+        return parsed;
+      }
+
+      case 'random': {
+        if (args.length !== 2) {
+          throw new RuntimeError('random() requires 2 arguments (min, max)');
+        }
+        const [min, max] = args;
+        if (typeof min !== 'number' || typeof max !== 'number') {
+          throw new RuntimeError('random() requires number arguments');
+        }
+        if (!Number.isInteger(min) || !Number.isInteger(max)) {
+          throw new RuntimeError('random() requires integer arguments');
+        }
+        if (min > max) {
+          throw new RuntimeError('random() min must be <= max');
+        }
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      case 'input': {
+        if (args.length !== 0) {
+          throw new RuntimeError('input() takes no arguments');
+        }
+        return await this.requestInput();
+      }
+
+      case 'key': {
+        if (args.length !== 0) {
+          throw new RuntimeError('key() takes no arguments');
+        }
+        return await this.requestKey();
+      }
+
+      default:
+        return undefined;  // Not a builtin
+    }
+  }
+
+  // Request line input from user
+  async requestInput() {
+    if (this.onInput) {
+      return await this.onInput();
+    }
+    throw new RuntimeError('Input not supported in this environment');
+  }
+
+  // Request single keypress from user
+  async requestKey() {
+    if (this.onKey) {
+      return await this.onKey();
+    }
+    throw new RuntimeError('Key input not supported in this environment');
   }
 
   // Visualization hooks

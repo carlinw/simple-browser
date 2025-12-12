@@ -58,14 +58,14 @@ test('AST shows variable name as separate Identifier node', async ({ page }) => 
   await expect(identifierNode).toContainText('x');
 });
 
-test('AST shows NumberLiteral', async ({ page }) => {
+test('AST shows Integer', async ({ page }) => {
   await page.goto('/');
   await runCode(page, 'let x = 42');
 
   await page.click('.tab-btn:has-text("AST")');
-  const numberNode = page.locator('.ast-numberliteral');
-  await expect(numberNode).toBeVisible();
-  await expect(numberNode).toContainText('42');
+  const integerNode = page.locator('.ast-integer');
+  await expect(integerNode).toBeVisible();
+  await expect(integerNode).toContainText('42');
 });
 
 test('AST shows BinaryExpression', async ({ page }) => {
@@ -112,14 +112,14 @@ test('AST colors node types differently', async ({ page }) => {
   await page.click('.tab-btn:has-text("AST")');
   // Check that different node types have different CSS classes
   const letNode = page.locator('.ast-letstatement');
-  const numberNode = page.locator('.ast-numberliteral');
+  const integerNode = page.locator('.ast-integer');
 
   await expect(letNode).toBeVisible();
-  await expect(numberNode).toBeVisible();
+  await expect(integerNode).toBeVisible();
 
   // They should have different classes (visual verification via CSS)
   await expect(letNode).toHaveClass(/ast-letstatement/);
-  await expect(numberNode).toHaveClass(/ast-numberliteral/);
+  await expect(integerNode).toHaveClass(/ast-integer/);
 });
 
 test('AST nodes can be collapsed', async ({ page }) => {

@@ -27,7 +27,8 @@
   border-radius: 2px;
 }
 
-.memory-legend-color.legend-num { background: #64b5f6; }
+.memory-legend-color.legend-int { background: #64b5f6; }
+.memory-legend-color.legend-float { background: #4fc3f7; }
 .memory-legend-color.legend-str { background: #81c784; }
 .memory-legend-color.legend-bool { background: #ba68c8; }
 .memory-legend-color.legend-func { background: #ffb74d; }
@@ -66,9 +67,14 @@
   font-weight: 500;
 }
 
-.var-type-num {
+.var-type-int {
   background: #1e3a5f;
   color: #64b5f6;
+}
+
+.var-type-float {
+  background: #1e4a5f;
+  color: #4fc3f7;
 }
 
 .var-type-str {
@@ -96,8 +102,12 @@
   text-align: right;
 }
 
-.var-value-num {
+.var-value-int {
   color: #64b5f6;
+}
+
+.var-value-float {
+  color: #4fc3f7;
 }
 
 .var-value-str {

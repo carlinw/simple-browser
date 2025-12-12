@@ -88,14 +88,24 @@ test('variable values update on assignment', async ({ page }) => {
 
 // Type Display Tests
 
-test('number type displayed', async ({ page }) => {
+test('integer type displayed', async ({ page }) => {
   await page.goto('/');
   await runFast(page, 'let n = 42');
 
   await page.click('.tab-btn:has-text("Memory")');
 
   const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('num');
+  await expect(memoryContent).toContainText('int');
+});
+
+test('float type displayed', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, 'let f = 3.14');
+
+  await page.click('.tab-btn:has-text("Memory")');
+
+  const memoryContent = page.locator('#tab-memory');
+  await expect(memoryContent).toContainText('float');
 });
 
 test('string type displayed', async ({ page }) => {
@@ -154,9 +164,10 @@ test('memory legend shows type colors', async ({ page }) => {
 
   await page.click('.tab-btn:has-text("Memory")');
 
-  // Legend should have Number, String, Boolean
+  // Legend should have Integer, Float, String, Boolean
   const legend = page.locator('.memory-legend');
-  await expect(legend).toContainText('Number');
+  await expect(legend).toContainText('Integer');
+  await expect(legend).toContainText('Float');
   await expect(legend).toContainText('String');
   await expect(legend).toContainText('Boolean');
 });

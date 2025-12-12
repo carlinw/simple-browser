@@ -12,8 +12,12 @@ class MemoryRenderer {
     return `
       <div class="memory-legend">
         <div class="memory-legend-item">
-          <div class="memory-legend-color legend-num"></div>
-          <span class="memory-legend-label">Number</span>
+          <div class="memory-legend-color legend-int"></div>
+          <span class="memory-legend-label">Integer</span>
+        </div>
+        <div class="memory-legend-item">
+          <div class="memory-legend-color legend-float"></div>
+          <span class="memory-legend-label">Float</span>
         </div>
         <div class="memory-legend-item">
           <div class="memory-legend-color legend-str"></div>
@@ -149,7 +153,9 @@ class MemoryRenderer {
 
   // Get type abbreviation
   getType(value) {
-    if (typeof value === 'number') return 'num';
+    if (typeof value === 'number') {
+      return Number.isInteger(value) ? 'int' : 'float';
+    }
     if (typeof value === 'string') return 'str';
     if (typeof value === 'boolean') return 'bool';
     if (Array.isArray(value)) return 'arr';

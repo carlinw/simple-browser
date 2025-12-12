@@ -51,8 +51,12 @@ class ASTRenderer {
         <span class="ast-legend-label">Identifier</span>
       </div>
       <div class="ast-legend-item">
-        <div class="ast-legend-color legend-number"></div>
-        <span class="ast-legend-label">Number</span>
+        <div class="ast-legend-color legend-integer"></div>
+        <span class="ast-legend-label">Integer</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-float"></div>
+        <span class="ast-legend-label">Float</span>
       </div>
       <div class="ast-legend-item">
         <div class="ast-legend-color legend-string"></div>
@@ -85,7 +89,12 @@ class ASTRenderer {
 
     // Create the node box
     const nodeBox = document.createElement('div');
-    nodeBox.className = `ast-node ast-${node.type.toLowerCase()}`;
+    // Distinguish between integer and float for NumberLiteral nodes
+    let typeClass = node.type.toLowerCase();
+    if (node.type === 'NumberLiteral') {
+      typeClass = Number.isInteger(node.value) ? 'integer' : 'float';
+    }
+    nodeBox.className = `ast-node ast-${typeClass}`;
 
     // Node content
     const label = this.getNodeLabel(node);

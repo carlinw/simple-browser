@@ -71,7 +71,7 @@ class Scanner {
   emitToken(type) {
     const token = {
       type: type,
-      value: type === 'NUMBER' ? parseInt(this.buffer, 10) : this.buffer,
+      value: type === 'NUMBER' ? parseFloat(this.buffer) : this.buffer,
       line: this.tokenStartLine,
       column: this.tokenStartColumn,
       raw: this.buffer
@@ -247,6 +247,16 @@ class Scanner {
       this.buffer += char;
       this.advanceChar(char);
       return `'${char}' is a digit. Add to buffer: "${this.buffer}"`;
+    }
+
+    // Check for decimal point followed by digit
+    if (char === '.' && !this.buffer.includes('.')) {
+      const nextChar = this.pos + 1 < this.source.length ? this.source[this.pos + 1] : '\0';
+      if (CharUtils.isDigit(nextChar)) {
+        this.buffer += char;
+        this.advanceChar(char);
+        return `'${char}' is decimal point. Add to buffer: "${this.buffer}"`;
+      }
     }
 
     // Token boundary - emit the number
