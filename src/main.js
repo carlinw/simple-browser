@@ -161,22 +161,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tokenize the source code
     const lex = new Lexer(source);
-    const result = lex.tokenize();
+    const lexResult = lex.tokenize();
 
     // Format output
     let outputText = '';
 
-    // Show errors first
-    if (result.errors.length > 0) {
-      for (const error of result.errors) {
-        outputText += `Error at line ${error.line}, column ${error.column}: ${error.message}\n`;
+    // Show lexer errors first
+    if (lexResult.errors.length > 0) {
+      outputText += 'Lexer Errors:\n';
+      for (const error of lexResult.errors) {
+        outputText += `  Line ${error.line}, Column ${error.column}: ${error.message}\n`;
+      }
+      outputText += '\n';
+    }
+
+    // Parse the tokens
+    const parser = new Parser(lexResult.tokens);
+    const parseResult = parser.parse();
+
+    // Show parser errors
+    if (parseResult.errors.length > 0) {
+      outputText += 'Parser Errors:\n';
+      for (const error of parseResult.errors) {
+        outputText += `  Line ${error.line}, Column ${error.column}: ${error.message}\n`;
       }
       outputText += '\n';
     }
 
     // Show tokens (filter out whitespace and comments for clean output)
     outputText += 'Tokens:\n';
-    for (const token of result.tokens) {
+    for (const token of lexResult.tokens) {
       // Skip whitespace and comments in run mode
       if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
         continue;
@@ -191,7 +205,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    output.textContent = outputText;
+    // Show tokens as text
+    const tokensDiv = document.createElement('pre');
+    tokensDiv.textContent = outputText;
+
+    // Show AST as visual tree
+    const astLabel = document.createElement('div');
+    astLabel.className = 'ast-label';
+    astLabel.textContent = 'AST:';
+
+    const astContainer = document.createElement('div');
+    const astRenderer = new ASTRenderer(astContainer);
+    astRenderer.render(parseResult.ast);
+
+    // Combine in output
+    output.innerHTML = '';
+    output.appendChild(tokensDiv);
+    output.appendChild(astContainer);
   }
 
   // Step - scan one character at a time

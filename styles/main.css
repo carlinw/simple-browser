@@ -407,6 +407,88 @@ main {
   margin: 0;
 }
 
+/* AST Tree */
+.ast-tree {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #444;
+}
+
+.ast-node {
+  position: relative;
+}
+
+.ast-header {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.ast-header:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ast-type {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.ast-value {
+  color: #888;
+}
+
+/* Node type colors */
+.ast-program > .ast-header .ast-type { color: #888; }
+.ast-letstatement > .ast-header .ast-type { color: #64b5f6; }
+.ast-assignstatement > .ast-header .ast-type { color: #64b5f6; }
+.ast-printstatement > .ast-header .ast-type { color: #81c784; }
+.ast-expressionstatement > .ast-header .ast-type { color: #888; }
+.ast-ifstatement > .ast-header .ast-type { color: #ba68c8; }
+.ast-whilestatement > .ast-header .ast-type { color: #ba68c8; }
+.ast-block > .ast-header .ast-type { color: #888; }
+.ast-binaryexpression > .ast-header .ast-type { color: #ffb74d; }
+.ast-identifier > .ast-header .ast-type { color: #4dd0e1; }
+.ast-numberliteral > .ast-header .ast-type { color: #fff176; }
+.ast-stringliteral > .ast-header .ast-type { color: #fff176; }
+.ast-booleanliteral > .ast-header .ast-type { color: #fff176; }
+
+/* Tree lines */
+.ast-children {
+  border-left: 1px solid #444;
+  margin-left: 8px;
+  padding-left: 12px;
+}
+
+.ast-child-wrapper {
+  position: relative;
+}
+
+.ast-child-label {
+  color: #666;
+  font-size: 11px;
+}
+
+/* Collapse/expand */
+.ast-toggle {
+  width: 16px;
+  text-align: center;
+  color: #666;
+  margin-right: 4px;
+  font-size: 10px;
+}
+
+.ast-collapsed .ast-children {
+  display: none;
+}
+
+.ast-collapsed > .ast-header .ast-toggle {
+  transform: rotate(-90deg);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   main {
