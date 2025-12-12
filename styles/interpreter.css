@@ -233,10 +233,7 @@
   font-size: 12px;
   padding: 1rem;
   overflow: visible;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: max-content;
+  display: inline-block;
 }
 
 /* Scrollable wrapper for AST */
