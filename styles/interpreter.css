@@ -69,6 +69,18 @@
   color: #666;
 }
 
+/* Code execution highlighting (animated run) */
+.code-display .code-executing {
+  animation: code-pulse 0.8s ease-in-out infinite;
+  background: rgba(74, 122, 255, 0.3);
+  border-radius: 2px;
+}
+
+@keyframes code-pulse {
+  0%, 100% { background: rgba(74, 122, 255, 0.3); }
+  50% { background: rgba(74, 122, 255, 0.5); }
+}
+
 /* Output Header */
 .output-header {
   display: flex;

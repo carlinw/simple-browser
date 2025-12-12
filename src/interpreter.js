@@ -47,6 +47,7 @@ class Interpreter {
     this.onNodeEnter = options.onNodeEnter || (() => {});
     this.onNodeExit = options.onNodeExit || (() => {});
     this.onVariableChange = options.onVariableChange || (() => {});
+    this.onPrint = options.onPrint || (() => {});
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
   }
@@ -78,6 +79,7 @@ class Interpreter {
 
       case 'PrintStatement':
         result = await this.evaluate(node.value);
+        this.onPrint(result);
         break;
 
       case 'LetStatement': {
@@ -96,11 +98,18 @@ class Interpreter {
         break;
       }
 
-      case 'IfStatement':
-        throw new RuntimeError(`If statements not yet supported (coming in Release 9)`);
+      case 'IfStatement': {
+        const condition = await this.evaluate(node.condition);
+        if (this.isTruthy(condition)) {
+          result = await this.execute(node.thenBranch);
+        } else if (node.elseBranch) {
+          result = await this.execute(node.elseBranch);
+        }
+        break;
+      }
 
       case 'WhileStatement':
-        throw new RuntimeError(`While loops not yet supported (coming in Release 11)`);
+        throw new RuntimeError(`While loops not yet supported (coming in Release 10)`);
 
       case 'Block':
         // Execute all statements in block
@@ -149,6 +158,13 @@ class Interpreter {
 
     await this.exitNode(node, result);
     return result;
+  }
+
+  // Check if a value is truthy
+  isTruthy(value) {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'boolean') return value;
+    return true;  // numbers (including 0) and strings are truthy
   }
 
   // Evaluate binary expression

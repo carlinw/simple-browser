@@ -162,8 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
+  // Helper to get source span from an AST node's token references
+  function getNodeSpan(node) {
+    if (!node || !node.token) return null;
+    const start = node.token.start;
+    const end = node.endToken ? node.endToken.end : node.token.end;
+    return { start, end };
+  }
+
   // Run animated - parse + execute with 5 second delay per node
   async function runAnimated() {
+    const source = codeEditor.value;
     const success = parseOnly();
     if (!success || !currentParseResult) return;
 
@@ -171,26 +180,49 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     switchTab('ast');
 
+    // Show source in code display for highlighting during execution
+    visualizer.setSource(source);
+    visualizer.showInitial();
+    codeEditor.classList.add('hidden');
+    codeDisplay.classList.remove('hidden');
+
+    // Track output during execution
+    const printedOutput = [];
+    outputRenderer.clear();
+
     const interpreter = new Interpreter({
       stepDelay: 5000,  // 5 seconds per node
-      onNodeEnter: (node) => astRenderer.highlightNode(node),
+      onNodeEnter: (node) => {
+        astRenderer.highlightNode(node);
+        // Highlight corresponding source code
+        const span = getNodeSpan(node);
+        if (span) {
+          visualizer.highlightExecuting(span);
+        }
+      },
       onNodeExit: (node, result) => { /* Could show result on node */ },
       onVariableChange: (name, value, action) => {
         memoryRenderer.render(interpreter.environment);
         memoryRenderer.highlightVariable(name);
+      },
+      onPrint: (value) => {
+        printedOutput.push(value);
+        outputRenderer.renderOutput(printedOutput);
       }
     });
 
     try {
-      const result = await interpreter.interpret(currentParseResult.ast);
+      await interpreter.interpret(currentParseResult.ast);
       astRenderer.clearHighlights();
-      outputRenderer.renderOutput(result.output);
+      visualizer.clearExecutingHighlight();
+      // Output already rendered via onPrint
     } catch (error) {
       astRenderer.clearHighlights();
+      visualizer.clearExecutingHighlight();
       outputRenderer.renderErrors([], [], [{ message: error.message }]);
     }
 
-    state = 'edit';
+    state = 'done';
     updateUI();
   }
 

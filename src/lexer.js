@@ -122,7 +122,9 @@ class Lexer {
           value: twoChar,
           line: this.tokenLine,
           column: this.tokenColumn,
-          raw: twoChar
+          raw: twoChar,
+          start: this.tokenStart,
+          end: this.pos
         };
       } else if (OPERATORS[char]) {
         this.advance();
@@ -131,7 +133,9 @@ class Lexer {
           value: char,
           line: this.tokenLine,
           column: this.tokenColumn,
-          raw: char
+          raw: char,
+          start: this.tokenStart,
+          end: this.pos
         };
       }
     }
@@ -143,7 +147,9 @@ class Lexer {
         value: char,
         line: this.tokenLine,
         column: this.tokenColumn,
-        raw: char
+        raw: char,
+        start: this.tokenStart,
+        end: this.pos
       };
     }
     // Punctuation
@@ -154,7 +160,9 @@ class Lexer {
         value: char,
         line: this.tokenLine,
         column: this.tokenColumn,
-        raw: char
+        raw: char,
+        start: this.tokenStart,
+        end: this.pos
       };
     }
     // Invalid character
@@ -195,7 +203,9 @@ class Lexer {
       value: parseInt(raw, 10),
       line: this.tokenLine,
       column: this.tokenColumn,
-      raw: raw
+      raw: raw,
+      start: this.tokenStart,
+      end: this.pos
     };
   }
 
@@ -237,7 +247,9 @@ class Lexer {
       value: value,
       line: this.tokenLine,
       column: this.tokenColumn,
-      raw: raw
+      raw: raw,
+      start: this.tokenStart,
+      end: this.pos
     };
   }
 
@@ -255,7 +267,9 @@ class Lexer {
       value: raw,
       line: this.tokenLine,
       column: this.tokenColumn,
-      raw: raw
+      raw: raw,
+      start: this.tokenStart,
+      end: this.pos
     };
   }
 
@@ -280,7 +294,9 @@ class Lexer {
       value: '(whitespace)',
       line: this.tokenLine,
       column: this.tokenColumn,
-      raw: raw
+      raw: raw,
+      start: this.tokenStart,
+      end: this.pos
     };
     this.lastToken = token;
     return token;
@@ -299,7 +315,9 @@ class Lexer {
       value: raw,
       line: this.tokenLine,
       column: this.tokenColumn,
-      raw: raw
+      raw: raw,
+      start: this.tokenStart,
+      end: this.pos
     };
     this.lastToken = token;
     return token;
@@ -359,7 +377,9 @@ class Lexer {
       value: value,
       line: this.line,
       column: this.column,
-      raw: raw
+      raw: raw,
+      start: this.tokenStart,
+      end: this.pos
     };
   }
 }

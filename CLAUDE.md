@@ -118,22 +118,33 @@ This allows Connor to watch the interpreter execute line by line and observe mem
 
 ## Roadmap
 
+Based on original plan in releases/1.md, adjusted for actual progress.
+
 ### Completed Releases
-- **Release 1-2**: Basic lexer and UI
-- **Release 3-4**: Parser, AST visualization
-- **Release 5**: Interpreter (variables, expressions, control flow)
-- **Release 6**: Character-by-character scanner visualization
-- **Release 7**: Animated execution with AST node highlighting
-- **Release 8**: Memory tab, 3-section layout, DRY modal refactor
+| Release | Planned | Actual |
+|---------|---------|--------|
+| 1 | Project setup, UI shell | ✓ Same |
+| 2 | Lexer (tokenization) | ✓ Same |
+| 3 | Lexer visualization | Parser + basic lexer viz |
+| 4 | Parser (AST construction) | AST visualization |
+| 5 | AST visualization | Interpreter (expressions, variables, control flow) |
+| 6 | Interpreter: arithmetic | Scanner character-by-character visualization |
+| 7 | Interpreter: variables | Animated execution with AST node highlighting |
+| 8 | Stack visualization | Memory tab, 3-section layout |
+
+**Note:** We have variables and arithmetic. Control flow (if/else, while) is parsed but not yet interpreted.
 
 ### Upcoming Releases
-- **Release 9**: Code highlighting during execution (sync with AST)
-- **Release 10**: Functions (definition, calls, return)
-- **Release 11**: Stack frames visualization (call stack)
-- **Release 12**: Arrays and objects
-- **Release 13**: Heap visualization
-- **Release 14**: Closures and scope visualization
-- **Release 15**: Error handling (try/catch)
+| Release | Feature |
+|---------|---------|
+| **9** | If/else conditionals + code highlighting during execution |
+| **10** | While loops |
+| **11** | Functions (definition, calls, return) |
+| **12** | Call stack visualization (stack frames) |
+| **13** | Arrays |
+| **14** | Objects/structs |
+| **15** | Heap visualization |
+| **16+** | I/O, graphics, sample programs (see releases/1.md)
 
 ## Tech Stack
 

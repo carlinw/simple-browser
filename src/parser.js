@@ -50,6 +50,11 @@ class Parser {
     return this.tokens[this.pos - 1];
   }
 
+  // Get the previously consumed token
+  previous() {
+    return this.tokens[this.pos - 1];
+  }
+
   isAtEnd() {
     return this.pos >= this.tokens.length || this.peek().type === 'EOF';
   }
@@ -126,18 +131,27 @@ class Parser {
 
     // Expression statement (for future use)
     const expr = this.parseExpression();
-    return { type: 'ExpressionStatement', expression: expr };
+    return {
+      type: 'ExpressionStatement',
+      expression: expr,
+      token: expr.token,
+      endToken: expr.endToken || expr.token
+    };
   }
 
   parseLetStatement() {
+    const letToken = this.previous(); // 'let' keyword we just matched
     const nameToken = this.consume('IDENTIFIER', null, "Expected variable name after 'let'");
     this.consume('OPERATOR', '=', "Expected '=' after variable name");
     const value = this.parseExpression();
+    const endToken = this.previous(); // Last token of expression
 
     return {
       type: 'LetStatement',
       name: nameToken.value,
-      value: value
+      value: value,
+      token: letToken,
+      endToken: endToken
     };
   }
 
@@ -145,23 +159,32 @@ class Parser {
     const nameToken = this.advance(); // consume identifier
     this.advance(); // consume '='
     const value = this.parseExpression();
+    const endToken = this.previous(); // Last token of expression
 
     return {
       type: 'AssignStatement',
       name: nameToken.value,
-      value: value
+      value: value,
+      token: nameToken,
+      endToken: endToken
     };
   }
 
   parsePrintStatement() {
+    const printToken = this.previous(); // 'print' keyword we just matched
     const value = this.parseExpression();
+    const endToken = this.previous(); // Last token of expression
+
     return {
       type: 'PrintStatement',
-      value: value
+      value: value,
+      token: printToken,
+      endToken: endToken
     };
   }
 
   parseIfStatement() {
+    const ifToken = this.previous(); // 'if' keyword we just matched
     this.consume('PUNCTUATION', '(', "Expected '(' after 'if'");
     const condition = this.parseExpression();
     this.consume('PUNCTUATION', ')', "Expected ')' after condition");
@@ -173,30 +196,38 @@ class Parser {
       elseBranch = this.parseBlock();
     }
 
+    const endToken = this.previous(); // closing '}'
+
     return {
       type: 'IfStatement',
       condition: condition,
       thenBranch: thenBranch,
-      elseBranch: elseBranch
+      elseBranch: elseBranch,
+      token: ifToken,
+      endToken: endToken
     };
   }
 
   parseWhileStatement() {
+    const whileToken = this.previous(); // 'while' keyword we just matched
     this.consume('PUNCTUATION', '(', "Expected '(' after 'while'");
     const condition = this.parseExpression();
     this.consume('PUNCTUATION', ')', "Expected ')' after condition");
 
     const body = this.parseBlock();
+    const endToken = this.previous(); // closing '}'
 
     return {
       type: 'WhileStatement',
       condition: condition,
-      body: body
+      body: body,
+      token: whileToken,
+      endToken: endToken
     };
   }
 
   parseBlock() {
-    this.consume('PUNCTUATION', '{', "Expected '{'");
+    const openBrace = this.consume('PUNCTUATION', '{', "Expected '{'");
 
     const statements = [];
     while (!this.check('PUNCTUATION', '}') && !this.isAtEnd()) {
@@ -206,11 +237,13 @@ class Parser {
       }
     }
 
-    this.consume('PUNCTUATION', '}', "Expected '}'");
+    const closeBrace = this.consume('PUNCTUATION', '}', "Expected '}'");
 
     return {
       type: 'Block',
-      statements: statements
+      statements: statements,
+      token: openBrace,
+      endToken: closeBrace
     };
   }
 
@@ -229,7 +262,9 @@ class Parser {
         type: 'BinaryExpression',
         operator: operator,
         left: left,
-        right: right
+        right: right,
+        token: left.token,
+        endToken: right.endToken || right.token
       };
     }
 
@@ -247,7 +282,9 @@ class Parser {
         type: 'BinaryExpression',
         operator: operator,
         left: left,
-        right: right
+        right: right,
+        token: left.token,
+        endToken: right.endToken || right.token
       };
     }
 
@@ -264,7 +301,9 @@ class Parser {
         type: 'BinaryExpression',
         operator: operator,
         left: left,
-        right: right
+        right: right,
+        token: left.token,
+        endToken: right.endToken || right.token
       };
     }
 
@@ -281,7 +320,9 @@ class Parser {
         type: 'BinaryExpression',
         operator: operator,
         left: left,
-        right: right
+        right: right,
+        token: left.token,
+        endToken: right.endToken || right.token
       };
     }
 
@@ -292,36 +333,42 @@ class Parser {
     // Number
     if (this.check('NUMBER')) {
       const token = this.advance();
-      return { type: 'NumberLiteral', value: token.value };
+      return { type: 'NumberLiteral', value: token.value, token: token };
     }
 
     // String
     if (this.check('STRING')) {
       const token = this.advance();
-      return { type: 'StringLiteral', value: token.value };
+      return { type: 'StringLiteral', value: token.value, token: token };
     }
 
     // Boolean
     if (this.check('KEYWORD', 'true')) {
-      this.advance();
-      return { type: 'BooleanLiteral', value: true };
+      const token = this.advance();
+      return { type: 'BooleanLiteral', value: true, token: token };
     }
     if (this.check('KEYWORD', 'false')) {
-      this.advance();
-      return { type: 'BooleanLiteral', value: false };
+      const token = this.advance();
+      return { type: 'BooleanLiteral', value: false, token: token };
     }
 
     // Identifier
     if (this.check('IDENTIFIER')) {
       const token = this.advance();
-      return { type: 'Identifier', name: token.value };
+      return { type: 'Identifier', name: token.value, token: token };
     }
 
     // Grouped expression
     if (this.match('PUNCTUATION', '(')) {
+      const openParen = this.previous();
       const expr = this.parseExpression();
-      this.consume('PUNCTUATION', ')', "Expected ')' after expression");
-      return expr;
+      const closeParen = this.consume('PUNCTUATION', ')', "Expected ')' after expression");
+      // Return expression with parens as the span boundaries
+      return {
+        ...expr,
+        token: openParen,
+        endToken: closeParen
+      };
     }
 
     this.error(`Unexpected token: ${this.peek()?.type} '${this.peek()?.value}'`);

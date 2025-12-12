@@ -37,6 +37,27 @@ class CodeVisualizer {
     this.show();
   }
 
+  // Highlight code span during execution (with pulse animation)
+  highlightExecuting(span) {
+    if (!this.source || !span) return;
+
+    const before = this.escapeHtml(this.source.substring(0, span.start));
+    const current = this.escapeHtml(this.source.substring(span.start, span.end));
+    const after = this.escapeHtml(this.source.substring(span.end));
+
+    this.container.innerHTML =
+      `<span class="code-done">${before}</span>` +
+      `<span class="code-executing">${current}</span>` +
+      `<span class="code-pending">${after}</span>`;
+
+    this.show();
+  }
+
+  // Clear the execution highlight - show source without highlighting
+  clearExecutingHighlight() {
+    this.showInitial();
+  }
+
   // Show source with character-level highlighting for scanning
   // currentChar: position of char just processed
   // bufferStart: where the current token buffer started
