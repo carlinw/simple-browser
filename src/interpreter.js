@@ -18,6 +18,10 @@ class Interpreter {
     this.onRect = options.onRect || (() => {});
     this.onCircle = options.onCircle || (() => {});
     this.onLine = options.onLine || (() => {});
+    this.onText = options.onText || (() => {});
+    this.onTriangle = options.onTriangle || (() => {});
+    this.onFill = options.onFill || (() => {});
+    this.onStroke = options.onStroke || (() => {});
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
   }
@@ -498,6 +502,48 @@ class Interpreter {
           throw new RuntimeError('line() requires number arguments');
         }
         this.onLine(x1, y1, x2, y2);
+        return null;
+      }
+
+      case 'text': {
+        if (args.length !== 3) {
+          throw new RuntimeError('text() requires 3 arguments (x, y, string)');
+        }
+        const [tx, ty, str] = args;
+        if (typeof tx !== 'number' || typeof ty !== 'number') {
+          throw new RuntimeError('text() x and y must be numbers');
+        }
+        this.onText(tx, ty, String(str));
+        return null;
+      }
+
+      case 'triangle': {
+        if (args.length !== 6) {
+          throw new RuntimeError('triangle() requires 6 arguments (x1, y1, x2, y2, x3, y3)');
+        }
+        const [tx1, ty1, tx2, ty2, tx3, ty3] = args;
+        if (typeof tx1 !== 'number' || typeof ty1 !== 'number' ||
+            typeof tx2 !== 'number' || typeof ty2 !== 'number' ||
+            typeof tx3 !== 'number' || typeof ty3 !== 'number') {
+          throw new RuntimeError('triangle() requires number arguments');
+        }
+        this.onTriangle(tx1, ty1, tx2, ty2, tx3, ty3);
+        return null;
+      }
+
+      case 'fill': {
+        if (args.length !== 0) {
+          throw new RuntimeError('fill() takes no arguments');
+        }
+        this.onFill();
+        return null;
+      }
+
+      case 'stroke': {
+        if (args.length !== 0) {
+          throw new RuntimeError('stroke() takes no arguments');
+        }
+        this.onStroke();
         return null;
       }
 

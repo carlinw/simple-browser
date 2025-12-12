@@ -272,7 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
       onColor: (hex) => outputRenderer.setColor(hex),
       onRect: (x, y, w, h) => outputRenderer.drawRect(x, y, w, h),
       onCircle: (x, y, r) => outputRenderer.drawCircle(x, y, r),
-      onLine: (x1, y1, x2, y2) => outputRenderer.drawLine(x1, y1, x2, y2)
+      onLine: (x1, y1, x2, y2) => outputRenderer.drawLine(x1, y1, x2, y2),
+      onText: (x, y, str) => outputRenderer.drawText(x, y, str),
+      onTriangle: (x1, y1, x2, y2, x3, y3) => outputRenderer.drawTriangle(x1, y1, x2, y2, x3, y3),
+      onFill: () => outputRenderer.setFillMode(),
+      onStroke: () => outputRenderer.setStrokeMode()
     });
 
     try {

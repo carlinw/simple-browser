@@ -65,6 +65,10 @@ class ReferenceRenderer {
         { name: 'rect(x,y,w,h)', desc: 'draw rectangle' },
         { name: 'circle(x,y,r)', desc: 'draw circle' },
         { name: 'line(x1,y1,x2,y2)', desc: 'draw line' },
+        { name: 'triangle(x1,y1,x2,y2,x3,y3)', desc: 'draw triangle' },
+        { name: 'text(x,y,str)', desc: 'draw text at position' },
+        { name: 'fill()', desc: 'set fill mode (default)' },
+        { name: 'stroke()', desc: 'set stroke/outline mode' },
       ],
       colors: Object.entries(COLORS).map(([name, hex]) => ({ name, desc: hex }))
     };

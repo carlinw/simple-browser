@@ -11,6 +11,7 @@ class OutputRenderer {
     this.canvas = null;
     this.ctx = null;
     this.currentColor = '#ffffff';
+    this.fillMode = true; // true = fill, false = stroke
   }
 
   // Render error messages from lexer, parser, or runtime
@@ -193,20 +194,32 @@ class OutputRenderer {
     this.currentColor = hex;
   }
 
-  // Draw a filled rectangle
+  // Draw a rectangle (fill or stroke based on mode)
   drawRect(x, y, w, h) {
     this.showCanvas();
-    this.ctx.fillStyle = this.currentColor;
-    this.ctx.fillRect(x, y, w, h);
+    if (this.fillMode) {
+      this.ctx.fillStyle = this.currentColor;
+      this.ctx.fillRect(x, y, w, h);
+    } else {
+      this.ctx.strokeStyle = this.currentColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(x, y, w, h);
+    }
   }
 
-  // Draw a filled circle
+  // Draw a circle (fill or stroke based on mode)
   drawCircle(x, y, r) {
     this.showCanvas();
-    this.ctx.fillStyle = this.currentColor;
     this.ctx.beginPath();
     this.ctx.arc(x, y, r, 0, Math.PI * 2);
-    this.ctx.fill();
+    if (this.fillMode) {
+      this.ctx.fillStyle = this.currentColor;
+      this.ctx.fill();
+    } else {
+      this.ctx.strokeStyle = this.currentColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
+    }
   }
 
   // Draw a line
@@ -220,11 +233,48 @@ class OutputRenderer {
     this.ctx.stroke();
   }
 
+  // Draw text on canvas
+  drawText(x, y, str) {
+    this.showCanvas();
+    this.ctx.fillStyle = this.currentColor;
+    this.ctx.font = '16px monospace';
+    this.ctx.fillText(str, x, y);
+  }
+
+  // Draw a triangle
+  drawTriangle(x1, y1, x2, y2, x3, y3) {
+    this.showCanvas();
+    this.ctx.beginPath();
+    this.ctx.moveTo(x1, y1);
+    this.ctx.lineTo(x2, y2);
+    this.ctx.lineTo(x3, y3);
+    this.ctx.closePath();
+    if (this.fillMode) {
+      this.ctx.fillStyle = this.currentColor;
+      this.ctx.fill();
+    } else {
+      this.ctx.strokeStyle = this.currentColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
+    }
+  }
+
+  // Set fill mode
+  setFillMode() {
+    this.fillMode = true;
+  }
+
+  // Set stroke mode
+  setStrokeMode() {
+    this.fillMode = false;
+  }
+
   // Hide canvas and return to text mode
   hideCanvas() {
     this.canvas = null;
     this.ctx = null;
     this.currentColor = '#ffffff';
+    this.fillMode = true;
   }
 }
 
