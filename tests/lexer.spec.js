@@ -9,13 +9,17 @@ async function runLexer(page, input) {
   return tokens;
 }
 
-// Helper to get errors from the output tab
+// Helper to get errors from the output pane
 async function getErrors(page, input) {
   await page.goto('/');
   await page.fill('#code-editor', input);
   await page.click('#run-btn');
-  await page.click('.tab-btn:has-text("Output")');
-  const output = await page.locator('#tab-output').textContent();
+  // Wait for output to have content
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.trim().length > 0;
+  });
+  const output = await page.locator('#output').textContent();
   return output;
 }
 

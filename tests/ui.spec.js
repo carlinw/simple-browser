@@ -29,8 +29,8 @@ test('page has run button', async ({ page }) => {
 test('clicking run shows greeting', async ({ page }) => {
   await page.goto('/');
   await page.click('#run-btn');
-  const outputTab = page.locator('#tab-output');
-  await expect(outputTab).toContainText('Hello, Connor!');
+  const output = page.locator('#output');
+  await expect(output).toContainText('Hello, Connor!');
 });
 
 test('can type in code editor', async ({ page }) => {
@@ -40,15 +40,15 @@ test('can type in code editor', async ({ page }) => {
   await expect(editor).toHaveValue('print hello');
 });
 
-// Output Tabs Tests
+// Interpreter Tabs Tests (new 3-section layout)
 
-test('output pane has three tabs', async ({ page }) => {
+test('interpreter pane has three tabs', async ({ page }) => {
   await page.goto('/');
-  const tabs = page.locator('.output-tabs .tab-btn');
+  const tabs = page.locator('.interpreter-tabs .tab-btn');
   await expect(tabs).toHaveCount(3);
   await expect(tabs.nth(0)).toHaveText('Parser');
   await expect(tabs.nth(1)).toHaveText('AST');
-  await expect(tabs.nth(2)).toHaveText('Output');
+  await expect(tabs.nth(2)).toHaveText('Memory');
 });
 
 test('parser tab shows character and line count', async ({ page }) => {
@@ -105,18 +105,18 @@ test('clicking AST tab shows AST content', async ({ page }) => {
   await expect(astContent.locator('.ast-tree')).toBeVisible();
 });
 
-test('clicking Output tab shows output content', async ({ page }) => {
+test('clicking Memory tab shows memory content', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
   await page.click('#parse-btn');
 
-  await page.click('.tab-btn:has-text("Output")');
+  await page.click('.tab-btn:has-text("Memory")');
 
-  const outputTab = page.locator('.tab-btn:has-text("Output")');
-  await expect(outputTab).toHaveClass(/active/);
+  const memoryTab = page.locator('.tab-btn:has-text("Memory")');
+  await expect(memoryTab).toHaveClass(/active/);
 
-  const outputContent = page.locator('#tab-output');
-  await expect(outputContent).toBeVisible();
+  const memoryContent = page.locator('#tab-memory');
+  await expect(memoryContent).toBeVisible();
 });
 
 test('tokens tab shows token list', async ({ page }) => {
@@ -142,19 +142,19 @@ test('tabs switch content visibility', async ({ page }) => {
   // AST visible by default after parse
   await expect(page.locator('#tab-tokens')).not.toBeVisible();
   await expect(page.locator('#tab-ast')).toBeVisible();
-  await expect(page.locator('#tab-output')).not.toBeVisible();
+  await expect(page.locator('#tab-memory')).not.toBeVisible();
 
   // Click Parser tab
   await page.click('.tab-btn:has-text("Parser")');
   await expect(page.locator('#tab-tokens')).toBeVisible();
   await expect(page.locator('#tab-ast')).not.toBeVisible();
-  await expect(page.locator('#tab-output')).not.toBeVisible();
+  await expect(page.locator('#tab-memory')).not.toBeVisible();
 
-  // Click Output tab
-  await page.click('.tab-btn:has-text("Output")');
+  // Click Memory tab
+  await page.click('.tab-btn:has-text("Memory")');
   await expect(page.locator('#tab-tokens')).not.toBeVisible();
   await expect(page.locator('#tab-ast')).not.toBeVisible();
-  await expect(page.locator('#tab-output')).toBeVisible();
+  await expect(page.locator('#tab-memory')).toBeVisible();
 });
 
 // Negative Tests

@@ -4,12 +4,12 @@ const { test, expect } = require('@playwright/test');
 async function runCode(page, code) {
   await page.fill('#code-editor', code);
   await page.click('#run-fast-btn');
-  // Wait for output tab to have content
+  // Wait for output to have content
   await page.waitForFunction(() => {
-    const tab = document.getElementById('tab-output');
-    return tab && tab.textContent.trim().length > 0;
+    const output = document.getElementById('output');
+    return output && output.textContent.trim().length > 0;
   });
-  return await page.locator('#tab-output').textContent();
+  return await page.locator('#output').textContent();
 }
 
 // Variable Declaration Tests

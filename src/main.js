@@ -11,12 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetBtn = document.getElementById('reset-btn');
   const helpBtn = document.getElementById('help-btn');
   const exampleBtn = document.getElementById('example-btn');
+  const output = document.getElementById('output');
 
-  // Tab Elements
+  // Tab Elements - now in interpreter-pane
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabTokens = document.getElementById('tab-tokens');
   const tabAst = document.getElementById('tab-ast');
-  const tabOutput = document.getElementById('tab-output');
+  const tabMemory = document.getElementById('tab-memory');
 
   // Tab switching
   function switchTab(tabName) {
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update panels
     tabTokens.classList.toggle('active', tabName === 'tokens');
     tabAst.classList.toggle('active', tabName === 'ast');
-    tabOutput.classList.toggle('active', tabName === 'output');
+    tabMemory.classList.toggle('active', tabName === 'memory');
   }
 
   // Add click handlers to tabs
@@ -37,8 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Renderers
   const parserRenderer = new ParserRenderer(tabTokens);
-  const outputRenderer = new OutputRenderer(tabOutput);
+  const outputRenderer = new OutputRenderer(output);
   const astRenderer = new ASTRenderer(tabAst);
+  const memoryRenderer = new MemoryRenderer(tabMemory);
 
   // Other Managers
   const visualizer = new CodeVisualizer(codeDisplay);
@@ -127,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!source.trim()) {
       parserRenderer.clear();
       astRenderer.clear();
+      memoryRenderer.clear();
       outputRenderer.renderMessage('Hello, Connor!');
-      switchTab('output');
       currentParseResult = null;
       currentLexResult = null;
       return false;
@@ -144,10 +146,13 @@ document.addEventListener('DOMContentLoaded', () => {
     currentParseResult = parser.parse();
     astRenderer.render(currentParseResult.ast);
 
+    // Clear memory for new parse
+    memoryRenderer.showEmpty();
+
     // Show errors if any
     if (currentLexResult.errors.length > 0 || currentParseResult.errors.length > 0) {
       outputRenderer.renderErrors(currentLexResult.errors, currentParseResult.errors, []);
-      switchTab('output');
+      switchTab('tokens');
       return false;
     }
 
@@ -169,18 +174,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const interpreter = new Interpreter({
       stepDelay: 5000,  // 5 seconds per node
       onNodeEnter: (node) => astRenderer.highlightNode(node),
-      onNodeExit: (node, result) => { /* Could show result on node */ }
+      onNodeExit: (node, result) => { /* Could show result on node */ },
+      onVariableChange: (name, value, action) => {
+        memoryRenderer.render(interpreter.environment);
+        memoryRenderer.highlightVariable(name);
+      }
     });
 
     try {
       const result = await interpreter.interpret(currentParseResult.ast);
       astRenderer.clearHighlights();
       outputRenderer.renderOutput(result.output);
-      switchTab('output');
     } catch (error) {
       astRenderer.clearHighlights();
       outputRenderer.renderErrors([], [], [{ message: error.message }]);
-      switchTab('output');
     }
 
     state = 'edit';
@@ -189,19 +196,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Run fast - parse + execute immediately
   async function runFast() {
+    const source = codeEditor.value;
     const success = parseOnly();
     if (!success || !currentParseResult) return;
 
-    const interpreter = new Interpreter({ stepDelay: 0 });
+    const interpreter = new Interpreter({
+      stepDelay: 0,
+      onVariableChange: (name, value, action) => {
+        memoryRenderer.render(interpreter.environment);
+      }
+    });
 
     try {
       const result = await interpreter.interpret(currentParseResult.ast);
       outputRenderer.renderOutput(result.output);
-      switchTab('output');
     } catch (error) {
       outputRenderer.renderErrors([], [], [{ message: error.message }]);
-      switchTab('output');
     }
+
+    // Show source in code display before switching to done state
+    visualizer.setSource(source);
+    visualizer.showInitial();
+    state = 'done';
+    updateUI();
   }
 
   // Step - scan one character at a time
@@ -212,8 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!source.trim()) {
         parserRenderer.clear();
         astRenderer.clear();
+        memoryRenderer.clear();
         outputRenderer.renderMessage('Hello, Connor!');
-        switchTab('output');
         return;
       }
 
@@ -256,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentLexResult = null;
     parserRenderer.clear();
     astRenderer.clear();
+    memoryRenderer.clear();
     outputRenderer.clear();
     visualizer.clear();
     visualizer.hide();

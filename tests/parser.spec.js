@@ -50,6 +50,9 @@ test('parser parses boolean literals', async ({ page }) => {
   expect(ast.statements[0].expression.type).toBe('BooleanLiteral');
   expect(ast.statements[0].expression.value).toBe(true);
 
+  // Reset before second getAST call
+  await page.click('#reset-btn');
+
   ast = await getAST(page, 'false');
   expect(ast.statements[0].expression.type).toBe('BooleanLiteral');
   expect(ast.statements[0].expression.value).toBe(false);
@@ -192,8 +195,12 @@ test('parser reports missing equals in let', async ({ page }) => {
   await page.fill('#code-editor', 'let x 42');
   await page.click('#run-btn');
 
-  await page.click('.tab-btn:has-text("Output")');
-  const output = await page.locator('#tab-output').textContent();
+  // Wait for output to have content
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Parser Errors');
+  });
+  const output = await page.locator('#output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain("Expected '='");
 });
@@ -203,8 +210,11 @@ test('parser reports missing expression after operator', async ({ page }) => {
   await page.fill('#code-editor', 'x +');
   await page.click('#run-btn');
 
-  await page.click('.tab-btn:has-text("Output")');
-  const output = await page.locator('#tab-output').textContent();
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Parser Errors');
+  });
+  const output = await page.locator('#output').textContent();
   expect(output).toContain('Parser Errors:');
 });
 
@@ -213,8 +223,11 @@ test('parser reports missing closing paren', async ({ page }) => {
   await page.fill('#code-editor', '(1 + 2');
   await page.click('#run-btn');
 
-  await page.click('.tab-btn:has-text("Output")');
-  const output = await page.locator('#tab-output').textContent();
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Parser Errors');
+  });
+  const output = await page.locator('#output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain("Expected ')'");
 });
@@ -224,8 +237,11 @@ test('parser reports missing block braces', async ({ page }) => {
   await page.fill('#code-editor', 'if (x > 0) print x');
   await page.click('#run-btn');
 
-  await page.click('.tab-btn:has-text("Output")');
-  const output = await page.locator('#tab-output').textContent();
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Parser Errors');
+  });
+  const output = await page.locator('#output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain("Expected '{'");
 });
@@ -235,8 +251,11 @@ test('parser reports unexpected token', async ({ page }) => {
   await page.fill('#code-editor', 'let = 42');
   await page.click('#run-btn');
 
-  await page.click('.tab-btn:has-text("Output")');
-  const output = await page.locator('#tab-output').textContent();
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Parser Errors');
+  });
+  const output = await page.locator('#output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain('Expected variable name');
 });

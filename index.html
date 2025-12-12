@@ -4,15 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simple Interpreter</title>
-  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/interpreter.css">
+  <link rel="stylesheet" href="styles/modals.css">
 </head>
 <body>
   <header>
     <h1>Simple Interpreter</h1>
-  </header>
-
-  <nav id="toolbar">
-    <div class="toolbar-left">
+    <nav id="toolbar">
       <button id="help-btn">Language Syntax</button>
       <button id="example-btn">Examples</button>
       <button id="parse-btn">Parse</button>
@@ -20,31 +19,38 @@
       <button id="run-fast-btn">Run Fast</button>
       <button id="step-btn">Step</button>
       <button id="reset-btn" disabled>Reset</button>
-    </div>
-  </nav>
+    </nav>
+  </header>
 
   <main>
-    <section id="editor-pane">
+    <!-- Section 1: Code -->
+    <section id="code-pane">
       <h2>Code</h2>
       <textarea id="code-editor" placeholder="Write your code here..."></textarea>
       <pre id="code-display" class="code-display hidden"></pre>
     </section>
 
-    <section id="output-pane">
-      <div class="output-header">
-        <h2>Output</h2>
-        <div class="output-tabs">
+    <!-- Section 2: Interpreter (middle) -->
+    <section id="interpreter-pane">
+      <div class="pane-header">
+        <h2>Interpreter</h2>
+        <div class="interpreter-tabs">
           <button class="tab-btn active" data-tab="tokens">Parser</button>
           <button class="tab-btn" data-tab="ast">AST</button>
-          <button class="tab-btn" data-tab="output">Output</button>
+          <button class="tab-btn" data-tab="memory">Memory</button>
         </div>
       </div>
       <div class="tab-content">
         <div id="tab-tokens" class="tab-panel active"></div>
         <div id="tab-ast" class="tab-panel"></div>
-        <div id="tab-output" class="tab-panel"></div>
+        <div id="tab-memory" class="tab-panel"></div>
       </div>
-      <pre id="output" class="hidden"></pre>
+    </section>
+
+    <!-- Section 3: Output -->
+    <section id="output-pane">
+      <h2>Output</h2>
+      <pre id="output"></pre>
     </section>
   </main>
 
@@ -56,7 +62,9 @@
   <script src="src/ast-renderer.js"></script>
   <script src="src/parser-renderer.js"></script>
   <script src="src/output-renderer.js"></script>
+  <script src="src/memory-renderer.js"></script>
   <script src="src/visualizer.js"></script>
+  <script src="src/modal.js"></script>
   <script src="src/reference.js"></script>
   <script src="src/examples.js"></script>
   <script src="src/main.js"></script>

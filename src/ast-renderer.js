@@ -12,12 +12,58 @@ class ASTRenderer {
     this.nodeElements.clear();
     // Store AST as data attribute for testing
     this.container.dataset.ast = JSON.stringify(ast);
+
     // Create wrapper with ast-tree class
     const wrapper = document.createElement('div');
     wrapper.className = 'ast-tree';
     const tree = this.renderNode(ast);
     wrapper.appendChild(tree);
     this.container.appendChild(wrapper);
+
+    // Add legend at bottom
+    const legend = this.renderLegend();
+    this.container.appendChild(legend);
+  }
+
+  // Render the color legend
+  renderLegend() {
+    const legend = document.createElement('div');
+    legend.className = 'ast-legend';
+    legend.innerHTML = `
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-statement"></div>
+        <span class="ast-legend-label">Statement</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-control"></div>
+        <span class="ast-legend-label">Control</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-print"></div>
+        <span class="ast-legend-label">Print</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-expression"></div>
+        <span class="ast-legend-label">Expression</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-identifier"></div>
+        <span class="ast-legend-label">Identifier</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-number"></div>
+        <span class="ast-legend-label">Number</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-string"></div>
+        <span class="ast-legend-label">String</span>
+      </div>
+      <div class="ast-legend-item">
+        <div class="ast-legend-color legend-boolean"></div>
+        <span class="ast-legend-label">Boolean</span>
+      </div>
+    `;
+    return legend;
   }
 
   // Render a single node and its children

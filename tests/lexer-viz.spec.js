@@ -269,15 +269,6 @@ test('reference panel shows operators', async ({ page }) => {
   expect(text).toContain('==');
 });
 
-test('reference panel shows examples', async ({ page }) => {
-  await page.goto('/');
-  await page.click('#help-btn');
-
-  const examples = page.locator('.ref-examples');
-  const text = await examples.textContent();
-  expect(text).toContain('let x = 42');
-});
-
 test('close button closes reference panel', async ({ page }) => {
   await page.goto('/');
   await page.click('#help-btn');

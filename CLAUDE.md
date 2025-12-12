@@ -64,6 +64,31 @@ npx playwright test -g "my new test"
 - **Separation of concerns** - Keep lexer, parser, interpreter, and UI separate
 - **Clear naming** - Code should be readable (it's educational!)
 
+### Code Quality Review Process
+
+Run this analysis at the start of each release planning. Only document issues that need to be addressed.
+
+**1. Line Count Analysis**
+```bash
+wc -l src/*.js styles/*.css tests/*.js index.html | sort -n
+```
+
+**2. Check for Issues**
+
+| Category | Threshold | Action |
+|----------|-----------|--------|
+| File > 400 lines | Monitor | Consider splitting if grows |
+| Duplicated code | Fix | Extract shared logic |
+| Missing tests | Fix | Add coverage |
+| Complex functions | Monitor | Consider refactoring |
+
+**3. Document in Release**
+
+Only add a "Code Quality Issues" section if there are items to address. Include:
+- Issue description
+- Priority (MUST FIX / SHOULD FIX / MONITOR)
+- Proposed solution
+
 ### Language Syntax Documentation
 
 **IMPORTANT:** Each release that adds language features MUST include a "Language Syntax" section in the release document. This builds the language reference incrementally. By the final release, we'll have complete documentation of the language.
@@ -90,6 +115,25 @@ The interpreter will support step-by-step execution for educational purposes:
 - **`stop`** keyword - a language keyword that pauses execution (like a breakpoint in code)
 
 This allows Connor to watch the interpreter execute line by line and observe memory changes.
+
+## Roadmap
+
+### Completed Releases
+- **Release 1-2**: Basic lexer and UI
+- **Release 3-4**: Parser, AST visualization
+- **Release 5**: Interpreter (variables, expressions, control flow)
+- **Release 6**: Character-by-character scanner visualization
+- **Release 7**: Animated execution with AST node highlighting
+- **Release 8**: Memory tab, 3-section layout, DRY modal refactor
+
+### Upcoming Releases
+- **Release 9**: Code highlighting during execution (sync with AST)
+- **Release 10**: Functions (definition, calls, return)
+- **Release 11**: Stack frames visualization (call stack)
+- **Release 12**: Arrays and objects
+- **Release 13**: Heap visualization
+- **Release 14**: Closures and scope visualization
+- **Release 15**: Error handling (try/catch)
 
 ## Tech Stack
 

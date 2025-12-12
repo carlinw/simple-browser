@@ -183,12 +183,13 @@ test('AST shows error for invalid syntax', async ({ page }) => {
   await page.fill('#code-editor', 'let x');
   await page.click('#run-btn');
 
-  // Switch to Output tab to see errors
-  await page.click('.tab-btn:has-text("Output")');
-  const outputTab = page.locator('#tab-output');
-  const text = await outputTab.textContent();
-
-  // Should show parser error
+  // Errors show in the output pane (not a tab anymore)
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Parser Errors');
+  });
+  const output = page.locator('#output');
+  const text = await output.textContent();
   expect(text).toContain('Parser Errors:');
 });
 
@@ -197,7 +198,7 @@ test('empty input shows greeting', async ({ page }) => {
   await page.fill('#code-editor', '');
   await page.click('#run-btn');
 
-  // Empty input shows greeting in output tab
-  const outputTab = page.locator('#tab-output');
-  await expect(outputTab).toHaveText('Hello, Connor!');
+  // Empty input shows greeting in output pane
+  const output = page.locator('#output');
+  await expect(output).toHaveText('Hello, Connor!');
 });

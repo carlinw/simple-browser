@@ -46,6 +46,7 @@ class Interpreter {
   constructor(options = {}) {
     this.onNodeEnter = options.onNodeEnter || (() => {});
     this.onNodeExit = options.onNodeExit || (() => {});
+    this.onVariableChange = options.onVariableChange || (() => {});
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
   }
@@ -82,6 +83,7 @@ class Interpreter {
       case 'LetStatement': {
         const value = await this.evaluate(node.value);
         this.environment.define(node.name, value);
+        this.onVariableChange(node.name, value, 'define');
         result = value;
         break;
       }
@@ -89,6 +91,7 @@ class Interpreter {
       case 'AssignStatement': {
         const value = await this.evaluate(node.value);
         this.environment.assign(node.name, value);
+        this.onVariableChange(node.name, value, 'assign');
         result = value;
         break;
       }

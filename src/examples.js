@@ -88,11 +88,10 @@ print x < y`
   }
 };
 
-class ExamplesManager {
+class ExamplesManager extends Modal {
   constructor() {
+    super();
     this.examples = EXAMPLES;
-    this.modal = null;
-    this.overlay = null;
     this.onSelect = null;
   }
 
@@ -120,64 +119,42 @@ class ExamplesManager {
   // Show example selector modal
   showSelector(onSelect) {
     this.onSelect = onSelect;
-    this.renderModal();
+    this.open();
   }
 
-  // Hide the modal
+  // Alias for backwards compatibility
   hideSelector() {
-    if (this.overlay) {
-      document.body.removeChild(this.overlay);
-      this.overlay = null;
-      this.modal = null;
-    }
+    this.close();
   }
 
-  // Render the modal
-  renderModal() {
+  getTitle() {
+    return 'Example Programs';
+  }
+
+  getBodyContent() {
     const examples = this.getList();
-
-    // Create overlay
-    this.overlay = document.createElement('div');
-    this.overlay.className = 'modal-overlay';
-    this.overlay.onclick = (e) => {
-      if (e.target === this.overlay) this.hideSelector();
-    };
-
-    // Create modal
-    this.modal = document.createElement('div');
-    this.modal.className = 'modal-panel';
-    this.modal.innerHTML = `
-      <div class="modal-header">
-        <h2>Example Programs</h2>
-        <button class="modal-close" id="examples-close-btn">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="examples-grid">
-          ${examples.map(ex => `
-            <button class="example-card" data-id="${ex.id}">
-              <div class="example-name">${ex.name}</div>
-              <div class="example-desc">${ex.description}</div>
-            </button>
-          `).join('')}
-        </div>
+    return `
+      <div class="examples-grid">
+        ${examples.map(ex => `
+          <button class="example-card" data-id="${ex.id}">
+            <div class="example-name">${ex.name}</div>
+            <div class="example-desc">${ex.description}</div>
+          </button>
+        `).join('')}
       </div>
     `;
+  }
 
-    this.overlay.appendChild(this.modal);
-    document.body.appendChild(this.overlay);
-
-    // Add event handlers
-    document.getElementById('examples-close-btn').onclick = () => this.hideSelector();
-
+  onAfterRender() {
     // Add click handlers to example cards
-    this.modal.querySelectorAll('.example-card').forEach(card => {
+    this.panel.querySelectorAll('.example-card').forEach(card => {
       card.onclick = () => {
         const id = card.dataset.id;
         const code = this.getCode(id);
         if (code && this.onSelect) {
           this.onSelect(code);
         }
-        this.hideSelector();
+        this.close();
       };
     });
   }
