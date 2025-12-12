@@ -17,7 +17,7 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
+  max-width: 900px;
   max-height: 80vh;
   overflow: hidden;
   display: flex;
@@ -104,7 +104,7 @@
 /* Examples Grid */
 .examples-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 }
 
@@ -179,4 +179,11 @@
 .key-prompt {
   color: #888;
   font-style: italic;
+}
+
+/* Canvas for graphics output */
+.output-canvas {
+  display: block;
+  background: #000;
+  border-radius: 4px;
 }

@@ -12,6 +12,12 @@ class Interpreter {
     this.onCallEnd = options.onCallEnd || (() => {});
     this.onInput = options.onInput || null;
     this.onKey = options.onKey || null;
+    this.isKeyPressed = options.isKeyPressed || (() => false);
+    this.onClear = options.onClear || (() => {});
+    this.onColor = options.onColor || (() => {});
+    this.onRect = options.onRect || (() => {});
+    this.onCircle = options.onCircle || (() => {});
+    this.onLine = options.onLine || (() => {});
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
   }
@@ -73,12 +79,11 @@ class Interpreter {
       }
 
       case 'WhileStatement': {
-        const MAX_ITERATIONS = 10000;
         let iterations = 0;
 
         while (this.isTruthy(await this.evaluate(node.condition))) {
-          if (++iterations > MAX_ITERATIONS) {
-            throw new RuntimeError(`Infinite loop detected (exceeded ${MAX_ITERATIONS} iterations)`);
+          if (++iterations > MAX_LOOP_ITERATIONS) {
+            throw new RuntimeError(`Infinite loop detected (exceeded ${MAX_LOOP_ITERATIONS} iterations)`);
           }
           result = await this.execute(node.body);
         }
@@ -410,6 +415,90 @@ class Interpreter {
           throw new RuntimeError('key() takes no arguments');
         }
         return await this.requestKey();
+      }
+
+      case 'sleep': {
+        if (args.length !== 1) {
+          throw new RuntimeError('sleep() requires 1 argument');
+        }
+        const ms = args[0];
+        if (typeof ms !== 'number' || ms < 0) {
+          throw new RuntimeError('sleep() requires a positive number');
+        }
+        await this.delay(ms);
+        return null;
+      }
+
+      case 'pressed': {
+        if (args.length !== 1) {
+          throw new RuntimeError('pressed() requires 1 argument');
+        }
+        const key = args[0];
+        if (typeof key !== 'string') {
+          throw new RuntimeError('pressed() requires a string argument');
+        }
+        return this.isKeyPressed(key);
+      }
+
+      case 'clear': {
+        if (args.length !== 0) {
+          throw new RuntimeError('clear() takes no arguments');
+        }
+        this.onClear();
+        return null;
+      }
+
+      case 'color': {
+        if (args.length !== 1) {
+          throw new RuntimeError('color() requires 1 argument');
+        }
+        const name = args[0];
+        if (typeof name !== 'string') {
+          throw new RuntimeError('color() requires a string argument');
+        }
+        if (!COLORS[name]) {
+          throw new RuntimeError(`Unknown color: ${name}`);
+        }
+        this.onColor(COLORS[name]);
+        return null;
+      }
+
+      case 'rect': {
+        if (args.length !== 4) {
+          throw new RuntimeError('rect() requires 4 arguments (x, y, width, height)');
+        }
+        const [x, y, w, h] = args;
+        if (typeof x !== 'number' || typeof y !== 'number' ||
+            typeof w !== 'number' || typeof h !== 'number') {
+          throw new RuntimeError('rect() requires number arguments');
+        }
+        this.onRect(x, y, w, h);
+        return null;
+      }
+
+      case 'circle': {
+        if (args.length !== 3) {
+          throw new RuntimeError('circle() requires 3 arguments (x, y, radius)');
+        }
+        const [cx, cy, r] = args;
+        if (typeof cx !== 'number' || typeof cy !== 'number' || typeof r !== 'number') {
+          throw new RuntimeError('circle() requires number arguments');
+        }
+        this.onCircle(cx, cy, r);
+        return null;
+      }
+
+      case 'line': {
+        if (args.length !== 4) {
+          throw new RuntimeError('line() requires 4 arguments (x1, y1, x2, y2)');
+        }
+        const [x1, y1, x2, y2] = args;
+        if (typeof x1 !== 'number' || typeof y1 !== 'number' ||
+            typeof x2 !== 'number' || typeof y2 !== 'number') {
+          throw new RuntimeError('line() requires number arguments');
+        }
+        this.onLine(x1, y1, x2, y2);
+        return null;
       }
 
       default:

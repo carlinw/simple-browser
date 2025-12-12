@@ -1,5 +1,28 @@
 // Simple Interpreter - Main Entry Point
 
+// Keyboard state tracking for pressed() builtin
+const keysPressed = new Set();
+
+function normalizeKey(key) {
+  // Map arrow keys and special keys to simple names
+  const keyMap = {
+    'ArrowLeft': 'left',
+    'ArrowRight': 'right',
+    'ArrowUp': 'up',
+    'ArrowDown': 'down',
+    ' ': 'space'
+  };
+  return keyMap[key] || key.toLowerCase();
+}
+
+document.addEventListener('keydown', (e) => {
+  keysPressed.add(normalizeKey(e.key));
+});
+
+document.addEventListener('keyup', (e) => {
+  keysPressed.delete(normalizeKey(e.key));
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
   const codeEditor = document.getElementById('code-editor');
@@ -202,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     memoryRenderer.setGlobalFrame();
 
     const interpreter = new Interpreter({
-      stepDelay: animated ? 5000 : 0,
+      stepDelay: animated ? STEP_DELAY_MS : 0,
       onNodeEnter: animated ? (node) => {
         astRenderer.highlightNode(node);
         const span = getNodeSpan(node);
@@ -243,7 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add the key to printed output so it shows in final render
         printedOutput.push(value);
         return value;
-      }
+      },
+      isKeyPressed: (key) => keysPressed.has(key),
+      onClear: () => outputRenderer.clearCanvas(),
+      onColor: (hex) => outputRenderer.setColor(hex),
+      onRect: (x, y, w, h) => outputRenderer.drawRect(x, y, w, h),
+      onCircle: (x, y, r) => outputRenderer.drawCircle(x, y, r),
+      onLine: (x1, y1, x2, y2) => outputRenderer.drawLine(x1, y1, x2, y2)
     });
 
     try {
@@ -252,7 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
         astRenderer.clearHighlights();
         visualizer.clearExecutingHighlight();
       } else {
-        outputRenderer.renderOutput(printedOutput);
+        // Don't overwrite canvas with text output if graphics were used
+        if (!outputRenderer.canvas) {
+          outputRenderer.renderOutput(printedOutput);
+        }
         visualizer.setSource(source);
         visualizer.showInitial();
       }
@@ -332,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     astRenderer.clear();
     memoryRenderer.clear();
     outputRenderer.clear();
+    outputRenderer.hideCanvas();
     visualizer.clear();
     visualizer.hide();
     astRenderer.clearHighlights();

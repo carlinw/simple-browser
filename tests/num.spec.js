@@ -1,15 +1,5 @@
 const { test, expect } = require('@playwright/test');
-
-// Helper to run code with Run Fast and get output
-async function runFast(page, code) {
-  await page.fill('#code-editor', code);
-  await page.click('#run-fast-btn');
-  // Wait for output to have content
-  await page.waitForFunction(() => {
-    const output = document.getElementById('output');
-    return output && output.textContent.trim().length > 0;
-  });
-}
+const { runFast, getOutput } = require('./helpers');
 
 // num() Tests
 

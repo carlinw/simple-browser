@@ -8,6 +8,9 @@ class OutputRenderer {
     this.inputResolve = null;
     this.keyResolve = null;
     this.keyHandler = null;
+    this.canvas = null;
+    this.ctx = null;
+    this.currentColor = '#ffffff';
   }
 
   // Render error messages from lexer, parser, or runtime
@@ -158,6 +161,70 @@ class OutputRenderer {
       this.keyHandler = null;
     }
     this.keyResolve = null;
+  }
+
+  // Show canvas for graphics output
+  showCanvas() {
+    if (this.canvas) return; // Already showing canvas
+
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = CANVAS_WIDTH;
+    this.canvas.height = CANVAS_HEIGHT;
+    this.canvas.className = 'output-canvas';
+    this.container.innerHTML = '';
+    this.container.appendChild(this.canvas);
+    this.ctx = this.canvas.getContext('2d');
+    // Default to black background
+    this.ctx.fillStyle = COLORS.black;
+    this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.currentColor = COLORS.white;
+  }
+
+  // Clear the canvas to black
+  clearCanvas() {
+    this.showCanvas();
+    this.ctx.fillStyle = COLORS.black;
+    this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  }
+
+  // Set the current drawing color
+  setColor(hex) {
+    this.showCanvas();
+    this.currentColor = hex;
+  }
+
+  // Draw a filled rectangle
+  drawRect(x, y, w, h) {
+    this.showCanvas();
+    this.ctx.fillStyle = this.currentColor;
+    this.ctx.fillRect(x, y, w, h);
+  }
+
+  // Draw a filled circle
+  drawCircle(x, y, r) {
+    this.showCanvas();
+    this.ctx.fillStyle = this.currentColor;
+    this.ctx.beginPath();
+    this.ctx.arc(x, y, r, 0, Math.PI * 2);
+    this.ctx.fill();
+  }
+
+  // Draw a line
+  drawLine(x1, y1, x2, y2) {
+    this.showCanvas();
+    this.ctx.strokeStyle = this.currentColor;
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x1, y1);
+    this.ctx.lineTo(x2, y2);
+    this.ctx.stroke();
+  }
+
+  // Hide canvas and return to text mode
+  hideCanvas() {
+    this.canvas = null;
+    this.ctx = null;
+    this.currentColor = '#ffffff';
   }
 }
 

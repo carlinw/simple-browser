@@ -58,7 +58,15 @@ class ReferenceRenderer {
         { name: 'input()', desc: 'read line of input' },
         { name: 'key()', desc: 'read single keypress' },
         { name: 'random(min, max)', desc: 'random integer in range' },
-      ]
+        { name: 'sleep(ms)', desc: 'pause for milliseconds' },
+        { name: 'pressed(key)', desc: 'true if key is held down' },
+        { name: 'clear()', desc: 'clear the canvas' },
+        { name: 'color(name)', desc: 'set drawing color' },
+        { name: 'rect(x,y,w,h)', desc: 'draw rectangle' },
+        { name: 'circle(x,y,r)', desc: 'draw circle' },
+        { name: 'line(x1,y1,x2,y2)', desc: 'draw line' },
+      ],
+      colors: Object.entries(COLORS).map(([name, hex]) => ({ name, desc: hex }))
     };
   }
 
@@ -100,6 +108,12 @@ class ReferenceRenderer {
           <h3>Built-in Functions</h3>
           <dl class="ref-list">
             ${content.builtins.map(b => `<dt>${b.name}</dt><dd>${b.desc}</dd>`).join('')}
+          </dl>
+        </section>
+        <section>
+          <h3>Colors</h3>
+          <dl class="ref-list">
+            ${content.colors.map(c => `<dt>${c.name}</dt><dd>${c.desc}</dd>`).join('')}
           </dl>
         </section>
       </div>
