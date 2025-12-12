@@ -174,6 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
   async function executeCode(options = {}) {
     const { animated = false } = options;
     const source = codeEditor.value;
+
+    // Check for empty program before parsing
+    if (!source.trim()) {
+      outputRenderer.renderErrors([], [], [{ message: 'No program to run. Write some code first!' }]);
+      return;
+    }
+
     const success = parseOnly();
     if (!success || !currentParseResult) return;
 

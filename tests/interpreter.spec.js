@@ -216,3 +216,19 @@ test('arithmetic on non-numbers shows error', async ({ page }) => {
   const output = await page.locator('#output').textContent();
   expect(output).toContain('non-numeric');
 });
+
+test('running empty program shows error', async ({ page }) => {
+  await page.goto('/');
+  // Clear any default content and run with empty editor
+  await page.fill('#code-editor', '');
+  await page.click('#run-fast-btn');
+
+  // Wait for output
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.trim().length > 0;
+  }, { timeout: 2000 });
+
+  const output = await page.locator('#output').textContent();
+  expect(output).toContain('No program');
+});

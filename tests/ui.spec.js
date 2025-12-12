@@ -26,11 +26,11 @@ test('page has run button', async ({ page }) => {
   await expect(runBtn).toHaveText('Run');
 });
 
-test('clicking run shows greeting', async ({ page }) => {
+test('clicking run with empty program shows error', async ({ page }) => {
   await page.goto('/');
   await page.click('#run-btn');
   const output = page.locator('#output');
-  await expect(output).toContainText('Hello, Connor!');
+  await expect(output).toContainText('No program');
 });
 
 test('can type in code editor', async ({ page }) => {

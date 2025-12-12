@@ -193,12 +193,12 @@ test('AST shows error for invalid syntax', async ({ page }) => {
   expect(text).toContain('Parser Errors:');
 });
 
-test('empty input shows greeting', async ({ page }) => {
+test('empty input shows greeting on parse', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', '');
-  await page.click('#run-btn');
+  await page.click('#parse-btn');
 
-  // Empty input shows greeting in output pane
+  // Empty input shows greeting in output pane (parse, not run)
   const output = page.locator('#output');
   await expect(output).toHaveText('Hello, Connor!');
 });
