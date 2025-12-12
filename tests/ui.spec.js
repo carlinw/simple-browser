@@ -46,9 +46,39 @@ test('output pane has three tabs', async ({ page }) => {
   await page.goto('/');
   const tabs = page.locator('.output-tabs .tab-btn');
   await expect(tabs).toHaveCount(3);
-  await expect(tabs.nth(0)).toHaveText('Tokens');
+  await expect(tabs.nth(0)).toHaveText('Parser');
   await expect(tabs.nth(1)).toHaveText('AST');
   await expect(tabs.nth(2)).toHaveText('Output');
+});
+
+test('parser tab shows character and line count', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#parse-btn');
+
+  await page.click('.tab-btn:has-text("Parser")');
+  const parserContent = page.locator('#tab-tokens');
+  const text = await parserContent.textContent();
+
+  // Should show character count
+  expect(text).toMatch(/Characters:\s*\d+/);
+  // Should show line count
+  expect(text).toMatch(/Lines:\s*\d+/);
+});
+
+test('parser tab shows column labels', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#parse-btn');
+
+  await page.click('.tab-btn:has-text("Parser")');
+  const parserContent = page.locator('#tab-tokens');
+  const text = await parserContent.textContent();
+
+  // Should show column headers
+  expect(text).toContain('Line:Col');
+  expect(text).toContain('Type');
+  expect(text).toContain('Value');
 });
 
 test('AST tab is active after parse', async ({ page }) => {
@@ -94,7 +124,7 @@ test('tokens tab shows token list', async ({ page }) => {
   await page.click('#parse-btn');
 
   // Click tokens tab to see tokens
-  await page.click('.tab-btn:has-text("Tokens")');
+  await page.click('.tab-btn:has-text("Parser")');
 
   const tokensContent = page.locator('#tab-tokens');
   await expect(tokensContent).toBeVisible();
@@ -113,8 +143,8 @@ test('tabs switch content visibility', async ({ page }) => {
   await expect(page.locator('#tab-ast')).toBeVisible();
   await expect(page.locator('#tab-output')).not.toBeVisible();
 
-  // Click Tokens tab
-  await page.click('.tab-btn:has-text("Tokens")');
+  // Click Parser tab
+  await page.click('.tab-btn:has-text("Parser")');
   await expect(page.locator('#tab-tokens')).toBeVisible();
   await expect(page.locator('#tab-ast')).not.toBeVisible();
   await expect(page.locator('#tab-output')).not.toBeVisible();

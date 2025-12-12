@@ -164,7 +164,7 @@ test('tokens displayed in tokens tab', async ({ page }) => {
   await page.goto('/');
   await runCode(page, 'let x = 42');
 
-  // Tokens tab should have token content
+  // Parser tab should have token content
   const tokensTab = page.locator('#tab-tokens');
   const text = await tokensTab.textContent();
   expect(text).toContain('KEYWORD');

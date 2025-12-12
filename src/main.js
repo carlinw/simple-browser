@@ -186,20 +186,31 @@ document.addEventListener('DOMContentLoaded', () => {
     return codeEditor.value;
   }
 
-  // Helper to render tokens
-  function renderTokens(tokens) {
+  // Helper to render tokens with stats and column labels
+  function renderTokens(tokens, source) {
     let tokensText = '';
+
+    // Show character and line counts at top
+    const charCount = source.length;
+    const lineCount = source.split('\n').length;
+    tokensText += `Characters: ${charCount}\n`;
+    tokensText += `Lines: ${lineCount}\n\n`;
+
+    // Column labels
+    tokensText += 'Line:Col  Type         Value\n';
+    tokensText += '────────  ───────────  ─────────────────\n';
+
     for (const token of tokens) {
       if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
         continue;
       }
       if (token.type === 'EOF') {
-        tokensText += `${token.line}:${token.column}   EOF\n`;
+        tokensText += `${token.line}:${token.column}`.padEnd(10) + 'EOF\n';
       } else {
-        const pos = `${token.line}:${token.column}`.padEnd(6);
-        const type = token.type.padEnd(12);
+        const pos = `${token.line}:${token.column}`.padEnd(10);
+        const type = token.type.padEnd(13);
         const value = typeof token.value === 'string' ? token.value : String(token.value);
-        tokensText += `${pos} ${type} ${value}\n`;
+        tokensText += `${pos}${type}${value}\n`;
       }
     }
     tabTokens.textContent = tokensText;
@@ -271,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tokenize the source code
     const lex = new Lexer(source);
     currentLexResult = lex.tokenize();
-    renderTokens(currentLexResult.tokens);
+    renderTokens(currentLexResult.tokens, source);
 
     // Parse the tokens
     const parser = new Parser(currentLexResult.tokens);
