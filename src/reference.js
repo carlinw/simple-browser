@@ -69,6 +69,9 @@ class ReferenceRenderer {
         { name: 'text(x,y,str)', desc: 'draw text at position' },
         { name: 'fill()', desc: 'set fill mode (default)' },
         { name: 'stroke()', desc: 'set stroke/outline mode' },
+        { name: 'fullscreen()', desc: 'enter fullscreen mode' },
+        { name: 'width()', desc: 'get canvas width' },
+        { name: 'height()', desc: 'get canvas height' },
       ],
       colors: Object.entries(COLORS).map(([name, hex]) => ({ name, desc: hex }))
     };

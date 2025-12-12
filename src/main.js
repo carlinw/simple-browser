@@ -276,7 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
       onText: (x, y, str) => outputRenderer.drawText(x, y, str),
       onTriangle: (x1, y1, x2, y2, x3, y3) => outputRenderer.drawTriangle(x1, y1, x2, y2, x3, y3),
       onFill: () => outputRenderer.setFillMode(),
-      onStroke: () => outputRenderer.setStrokeMode()
+      onStroke: () => outputRenderer.setStrokeMode(),
+      onFullscreen: () => outputRenderer.enterFullscreen(),
+      getCanvasWidth: () => outputRenderer.getWidth(),
+      getCanvasHeight: () => outputRenderer.getHeight()
     });
 
     try {

@@ -12,6 +12,10 @@ class OutputRenderer {
     this.ctx = null;
     this.currentColor = '#ffffff';
     this.fillMode = true; // true = fill, false = stroke
+    this.isFullscreen = false;
+    this.fullscreenOverlay = null;
+    this.canvasWidth = CANVAS_WIDTH;
+    this.canvasHeight = CANVAS_HEIGHT;
   }
 
   // Render error messages from lexer, parser, or runtime
@@ -169,15 +173,15 @@ class OutputRenderer {
     if (this.canvas) return; // Already showing canvas
 
     this.canvas = document.createElement('canvas');
-    this.canvas.width = CANVAS_WIDTH;
-    this.canvas.height = CANVAS_HEIGHT;
+    this.canvas.width = this.canvasWidth;
+    this.canvas.height = this.canvasHeight;
     this.canvas.className = 'output-canvas';
     this.container.innerHTML = '';
     this.container.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
     // Default to black background
     this.ctx.fillStyle = COLORS.black;
-    this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.currentColor = COLORS.white;
   }
 
@@ -185,7 +189,7 @@ class OutputRenderer {
   clearCanvas() {
     this.showCanvas();
     this.ctx.fillStyle = COLORS.black;
-    this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
   }
 
   // Set the current drawing color
@@ -269,12 +273,150 @@ class OutputRenderer {
     this.fillMode = false;
   }
 
+  // Enter fullscreen mode
+  enterFullscreen() {
+    if (this.isFullscreen) return;
+
+    this.showCanvas();
+    this.isFullscreen = true;
+
+    // Create fullscreen overlay
+    this.fullscreenOverlay = document.createElement('div');
+    this.fullscreenOverlay.className = 'fullscreen-overlay';
+
+    // Move canvas to overlay
+    this.fullscreenOverlay.appendChild(this.canvas);
+    document.body.appendChild(this.fullscreenOverlay);
+
+    // Calculate new canvas size to fit screen with some padding
+    const padding = 40;
+    const maxWidth = window.innerWidth - padding * 2;
+    const maxHeight = window.innerHeight - padding * 2;
+
+    // Maintain aspect ratio
+    const aspectRatio = this.canvasWidth / this.canvasHeight;
+    let newWidth = maxWidth;
+    let newHeight = maxWidth / aspectRatio;
+
+    if (newHeight > maxHeight) {
+      newHeight = maxHeight;
+      newWidth = maxHeight * aspectRatio;
+    }
+
+    // Update canvas dimensions
+    const oldWidth = this.canvasWidth;
+    const oldHeight = this.canvasHeight;
+    this.canvasWidth = Math.floor(newWidth);
+    this.canvasHeight = Math.floor(newHeight);
+
+    // Save current canvas content
+    const imageData = this.ctx.getImageData(0, 0, oldWidth, oldHeight);
+
+    // Resize canvas
+    this.canvas.width = this.canvasWidth;
+    this.canvas.height = this.canvasHeight;
+    this.canvas.classList.add('fullscreen-canvas');
+
+    // Clear and restore scaled content
+    this.ctx.fillStyle = COLORS.black;
+    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+    // Create temp canvas for scaling
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = oldWidth;
+    tempCanvas.height = oldHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.putImageData(imageData, 0, 0);
+
+    // Scale to new size
+    this.ctx.drawImage(tempCanvas, 0, 0, this.canvasWidth, this.canvasHeight);
+
+    // Add ESC hint
+    const hint = document.createElement('div');
+    hint.className = 'fullscreen-hint';
+    hint.textContent = 'Press ESC to exit fullscreen';
+    this.fullscreenOverlay.appendChild(hint);
+
+    // Fade out hint after 2 seconds
+    setTimeout(() => hint.classList.add('fade-out'), 2000);
+
+    // Listen for ESC key
+    this.escHandler = (e) => {
+      if (e.key === 'Escape') {
+        this.exitFullscreen();
+      }
+    };
+    document.addEventListener('keydown', this.escHandler);
+  }
+
+  // Exit fullscreen mode
+  exitFullscreen() {
+    if (!this.isFullscreen) return;
+
+    this.isFullscreen = false;
+
+    // Remove ESC listener
+    if (this.escHandler) {
+      document.removeEventListener('keydown', this.escHandler);
+      this.escHandler = null;
+    }
+
+    // Save current canvas content
+    const imageData = this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight);
+
+    // Restore original dimensions
+    this.canvasWidth = CANVAS_WIDTH;
+    this.canvasHeight = CANVAS_HEIGHT;
+
+    // Move canvas back to container
+    this.canvas.classList.remove('fullscreen-canvas');
+    this.container.innerHTML = '';
+    this.container.appendChild(this.canvas);
+
+    // Resize canvas
+    this.canvas.width = this.canvasWidth;
+    this.canvas.height = this.canvasHeight;
+
+    // Clear and restore scaled content
+    this.ctx.fillStyle = COLORS.black;
+    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+    // Create temp canvas for scaling back
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = imageData.width;
+    tempCanvas.height = imageData.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.putImageData(imageData, 0, 0);
+
+    // Scale back to original size
+    this.ctx.drawImage(tempCanvas, 0, 0, this.canvasWidth, this.canvasHeight);
+
+    // Remove overlay
+    if (this.fullscreenOverlay) {
+      this.fullscreenOverlay.remove();
+      this.fullscreenOverlay = null;
+    }
+  }
+
+  // Get canvas width
+  getWidth() {
+    return this.canvasWidth;
+  }
+
+  // Get canvas height
+  getHeight() {
+    return this.canvasHeight;
+  }
+
   // Hide canvas and return to text mode
   hideCanvas() {
+    this.exitFullscreen();
     this.canvas = null;
     this.ctx = null;
     this.currentColor = '#ffffff';
     this.fillMode = true;
+    this.canvasWidth = CANVAS_WIDTH;
+    this.canvasHeight = CANVAS_HEIGHT;
   }
 }
 

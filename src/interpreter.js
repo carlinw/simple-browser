@@ -22,6 +22,9 @@ class Interpreter {
     this.onTriangle = options.onTriangle || (() => {});
     this.onFill = options.onFill || (() => {});
     this.onStroke = options.onStroke || (() => {});
+    this.onFullscreen = options.onFullscreen || (() => {});
+    this.getCanvasWidth = options.getCanvasWidth || (() => CANVAS_WIDTH);
+    this.getCanvasHeight = options.getCanvasHeight || (() => CANVAS_HEIGHT);
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
   }
@@ -545,6 +548,28 @@ class Interpreter {
         }
         this.onStroke();
         return null;
+      }
+
+      case 'fullscreen': {
+        if (args.length !== 0) {
+          throw new RuntimeError('fullscreen() takes no arguments');
+        }
+        this.onFullscreen();
+        return null;
+      }
+
+      case 'width': {
+        if (args.length !== 0) {
+          throw new RuntimeError('width() takes no arguments');
+        }
+        return this.getCanvasWidth();
+      }
+
+      case 'height': {
+        if (args.length !== 0) {
+          throw new RuntimeError('height() takes no arguments');
+        }
+        return this.getCanvasHeight();
       }
 
       default:
