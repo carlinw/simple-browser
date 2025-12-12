@@ -170,55 +170,73 @@ document.addEventListener('DOMContentLoaded', () => {
     return { start, end };
   }
 
-  // Run animated - parse + execute with 5 second delay per node
-  async function runAnimated() {
+  // Shared execution logic - DRY refactor of runAnimated/runFast
+  async function executeCode(options = {}) {
+    const { animated = false } = options;
     const source = codeEditor.value;
     const success = parseOnly();
     if (!success || !currentParseResult) return;
 
-    state = 'running';
-    updateUI();
-    switchTab('ast');
-
-    // Show source in code display for highlighting during execution
-    visualizer.setSource(source);
-    visualizer.showInitial();
-    codeEditor.classList.add('hidden');
-    codeDisplay.classList.remove('hidden');
-
-    // Track output during execution
     const printedOutput = [];
-    outputRenderer.clear();
+
+    if (animated) {
+      state = 'running';
+      updateUI();
+      switchTab('ast');
+      visualizer.setSource(source);
+      visualizer.showInitial();
+      codeEditor.classList.add('hidden');
+      codeDisplay.classList.remove('hidden');
+      outputRenderer.clear();
+    }
+
+    // Set global frame before execution
+    memoryRenderer.setGlobalFrame();
 
     const interpreter = new Interpreter({
-      stepDelay: 5000,  // 5 seconds per node
-      onNodeEnter: (node) => {
+      stepDelay: animated ? 5000 : 0,
+      onNodeEnter: animated ? (node) => {
         astRenderer.highlightNode(node);
-        // Highlight corresponding source code
         const span = getNodeSpan(node);
         if (span) {
           visualizer.highlightExecuting(span);
         }
-      },
-      onNodeExit: (node, result) => { /* Could show result on node */ },
+      } : undefined,
       onVariableChange: (name, value, action) => {
-        memoryRenderer.render(interpreter.environment);
-        memoryRenderer.highlightVariable(name);
+        memoryRenderer.updateFrame(interpreter.environment);
+        if (animated) {
+          memoryRenderer.highlightVariable(name);
+        }
       },
       onPrint: (value) => {
         printedOutput.push(value);
-        outputRenderer.renderOutput(printedOutput);
+        if (animated) {
+          outputRenderer.renderOutput(printedOutput);
+        }
+      },
+      onCallStart: (funcName, args, env) => {
+        memoryRenderer.pushFrame(funcName, args, env);
+      },
+      onCallEnd: (funcName, result) => {
+        memoryRenderer.popFrame();
       }
     });
 
     try {
       await interpreter.interpret(currentParseResult.ast);
-      astRenderer.clearHighlights();
-      visualizer.clearExecutingHighlight();
-      // Output already rendered via onPrint
+      if (animated) {
+        astRenderer.clearHighlights();
+        visualizer.clearExecutingHighlight();
+      } else {
+        outputRenderer.renderOutput(printedOutput);
+        visualizer.setSource(source);
+        visualizer.showInitial();
+      }
     } catch (error) {
-      astRenderer.clearHighlights();
-      visualizer.clearExecutingHighlight();
+      if (animated) {
+        astRenderer.clearHighlights();
+        visualizer.clearExecutingHighlight();
+      }
       outputRenderer.renderErrors([], [], [{ message: error.message }]);
     }
 
@@ -226,37 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
   }
 
+  // Run animated - parse + execute with 5 second delay per node
+  async function runAnimated() {
+    await executeCode({ animated: true });
+  }
+
   // Run fast - parse + execute immediately
   async function runFast() {
-    const source = codeEditor.value;
-    const success = parseOnly();
-    if (!success || !currentParseResult) return;
-
-    // Track output during execution
-    const printedOutput = [];
-
-    const interpreter = new Interpreter({
-      stepDelay: 0,
-      onVariableChange: (name, value, action) => {
-        memoryRenderer.render(interpreter.environment);
-      },
-      onPrint: (value) => {
-        printedOutput.push(value);
-      }
-    });
-
-    try {
-      await interpreter.interpret(currentParseResult.ast);
-      outputRenderer.renderOutput(printedOutput);
-    } catch (error) {
-      outputRenderer.renderErrors([], [], [{ message: error.message }]);
-    }
-
-    // Show source in code display before switching to done state
-    visualizer.setSource(source);
-    visualizer.showInitial();
-    state = 'done';
-    updateUI();
+    await executeCode({ animated: false });
   }
 
   // Step - scan one character at a time
@@ -335,6 +330,32 @@ document.addEventListener('DOMContentLoaded', () => {
   resetBtn.addEventListener('click', reset);
   helpBtn.addEventListener('click', () => referencePanel.toggle());
   exampleBtn.addEventListener('click', showExamples);
+
+  // Keyboard navigation for AST/Memory panels
+  const SCROLL_AMOUNT = 50;
+  [tabAst, tabMemory].forEach(panel => {
+    panel.setAttribute('tabindex', '0');
+    panel.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowUp':
+          panel.scrollTop -= SCROLL_AMOUNT;
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          panel.scrollTop += SCROLL_AMOUNT;
+          e.preventDefault();
+          break;
+        case 'ArrowLeft':
+          panel.scrollLeft -= SCROLL_AMOUNT;
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+          panel.scrollLeft += SCROLL_AMOUNT;
+          e.preventDefault();
+          break;
+      }
+    });
+  });
 
   // Initialize UI
   updateUI();

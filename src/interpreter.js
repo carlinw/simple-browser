@@ -1,69 +1,6 @@
 // Simple Interpreter - Expression Evaluator
 // Walks the AST and computes values
-
-// Environment class - stores variable bindings with scope chain
-// Variables are dynamically typed (can change type after declaration)
-class Environment {
-  constructor(parent = null) {
-    this.values = new Map();
-    this.parent = parent;
-  }
-
-  // Define a new variable in current scope
-  define(name, value) {
-    this.values.set(name, value);
-  }
-
-  // Get a variable's value (searches up scope chain)
-  get(name) {
-    if (this.values.has(name)) {
-      return this.values.get(name);
-    }
-    if (this.parent) {
-      return this.parent.get(name);
-    }
-    throw new RuntimeError(`Undefined variable: ${name}`);
-  }
-
-  // Assign a new value to an existing variable (searches up scope chain)
-  // Dynamic typing: any type can be assigned to any variable
-  assign(name, value) {
-    if (this.values.has(name)) {
-      this.values.set(name, value);
-      return;
-    }
-    if (this.parent) {
-      this.parent.assign(name, value);
-      return;
-    }
-    throw new RuntimeError(`Undefined variable: ${name}`);
-  }
-
-  // Check if a variable exists (in current scope only)
-  has(name) {
-    return this.values.has(name);
-  }
-
-  // Get all variable names (for visualization - current scope only)
-  getAll() {
-    return Array.from(this.values.entries());
-  }
-}
-
-// Function value - stores declaration and closure environment
-class SimpleFunction {
-  constructor(declaration, closure) {
-    this.declaration = declaration;
-    this.closure = closure;
-  }
-}
-
-// Return value - used as exception to unwind call stack
-class ReturnValue {
-  constructor(value) {
-    this.value = value;
-  }
-}
+// Uses Environment, SimpleFunction, ReturnValue, RuntimeError from runtime.js
 
 class Interpreter {
   constructor(options = {}) {
@@ -71,6 +8,8 @@ class Interpreter {
     this.onNodeExit = options.onNodeExit || (() => {});
     this.onVariableChange = options.onVariableChange || (() => {});
     this.onPrint = options.onPrint || (() => {});
+    this.onCallStart = options.onCallStart || (() => {});
+    this.onCallEnd = options.onCallEnd || (() => {});
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
   }
@@ -232,6 +171,9 @@ class Interpreter {
         const previousEnv = this.environment;
         this.environment = funcEnv;
 
+        // Notify call start
+        this.onCallStart(node.callee, args, funcEnv);
+
         try {
           await this.execute(callee.declaration.body);
           result = null; // No explicit return
@@ -243,6 +185,8 @@ class Interpreter {
           }
         } finally {
           this.environment = previousEnv;
+          // Notify call end
+          this.onCallEnd(node.callee, result);
         }
         break;
       }
@@ -316,15 +260,7 @@ class Interpreter {
   }
 }
 
-// Runtime error class
-class RuntimeError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'RuntimeError';
-  }
-}
-
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Interpreter, RuntimeError, Environment };
+  module.exports = { Interpreter };
 }
