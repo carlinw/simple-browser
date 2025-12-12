@@ -1,0 +1,12 @@
+{
+  "name": "simple-interpreter",
+  "version": "1.0.0",
+  "description": "A browser-based interpreter with visual debugging",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "http-server": "^14.1.1"
+  }
+}

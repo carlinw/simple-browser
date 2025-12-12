@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Interpreter</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <header>
+    <h1>Simple Interpreter</h1>
+  </header>
+
+  <nav id="toolbar">
+    <div class="toolbar-left">
+      <button id="help-btn">Language Syntax</button>
+      <button id="example-btn">Example</button>
+      <button id="run-btn">Run</button>
+      <button id="step-btn">Step</button>
+      <button id="reset-btn" disabled>Reset</button>
+    </div>
+  </nav>
+
+  <main>
+    <section id="editor-pane">
+      <h2>Code</h2>
+      <textarea id="code-editor" placeholder="Write your code here..."></textarea>
+      <pre id="code-display" class="code-display hidden"></pre>
+    </section>
+
+    <section id="output-pane">
+      <h2>Output</h2>
+      <pre id="output"></pre>
+    </section>
+  </main>
+
+  <script src="src/lexer.js"></script>
+  <script src="src/scanner.js"></script>
+  <script src="src/visualizer.js"></script>
+  <script src="src/reference.js"></script>
+  <script src="src/examples.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
