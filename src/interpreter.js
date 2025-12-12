@@ -108,8 +108,18 @@ class Interpreter {
         break;
       }
 
-      case 'WhileStatement':
-        throw new RuntimeError(`While loops not yet supported (coming in Release 10)`);
+      case 'WhileStatement': {
+        const MAX_ITERATIONS = 10000;
+        let iterations = 0;
+
+        while (this.isTruthy(await this.evaluate(node.condition))) {
+          if (++iterations > MAX_ITERATIONS) {
+            throw new RuntimeError(`Infinite loop detected (exceeded ${MAX_ITERATIONS} iterations)`);
+          }
+          result = await this.execute(node.body);
+        }
+        break;
+      }
 
       case 'Block':
         // Execute all statements in block

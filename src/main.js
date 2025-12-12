@@ -232,16 +232,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const success = parseOnly();
     if (!success || !currentParseResult) return;
 
+    // Track output during execution
+    const printedOutput = [];
+
     const interpreter = new Interpreter({
       stepDelay: 0,
       onVariableChange: (name, value, action) => {
         memoryRenderer.render(interpreter.environment);
+      },
+      onPrint: (value) => {
+        printedOutput.push(value);
       }
     });
 
     try {
-      const result = await interpreter.interpret(currentParseResult.ast);
-      outputRenderer.renderOutput(result.output);
+      await interpreter.interpret(currentParseResult.ast);
+      outputRenderer.renderOutput(printedOutput);
     } catch (error) {
       outputRenderer.renderErrors([], [], [{ message: error.message }]);
     }

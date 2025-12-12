@@ -12,12 +12,12 @@ class ReferencePanel extends Modal {
     return {
       keywords: [
         { name: 'let', desc: 'declare a variable' },
-        { name: 'if', desc: 'conditional (coming soon)' },
-        { name: 'else', desc: 'conditional branch (coming soon)' },
-        { name: 'while', desc: 'loop (coming soon)' },
+        { name: 'if', desc: 'conditional branch' },
+        { name: 'else', desc: 'alternative branch' },
+        { name: 'while', desc: 'loop while condition is true' },
         { name: 'function', desc: 'define a function (coming soon)' },
         { name: 'return', desc: 'return from function (coming soon)' },
-        { name: 'print', desc: 'output to console' },
+        { name: 'print', desc: 'output a value' },
         { name: 'stop', desc: 'pause execution (coming soon)' },
         { name: 'true', desc: 'boolean true' },
         { name: 'false', desc: 'boolean false' },
