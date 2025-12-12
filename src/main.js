@@ -197,20 +197,23 @@ document.addEventListener('DOMContentLoaded', () => {
     tokensText += `Lines: ${lineCount}\n\n`;
 
     // Column labels
-    tokensText += 'Line:Col  Type         Value\n';
-    tokensText += '────────  ───────────  ─────────────────\n';
+    tokensText += 'Line  Col   Type         Value\n';
+    tokensText += '────  ────  ───────────  ─────────────────\n';
 
     for (const token of tokens) {
       if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
         continue;
       }
       if (token.type === 'EOF') {
-        tokensText += `${token.line}:${token.column}`.padEnd(10) + 'EOF\n';
+        const line = String(token.line).padEnd(6);
+        const col = String(token.column).padEnd(6);
+        tokensText += `${line}${col}EOF\n`;
       } else {
-        const pos = `${token.line}:${token.column}`.padEnd(10);
+        const line = String(token.line).padEnd(6);
+        const col = String(token.column).padEnd(6);
         const type = token.type.padEnd(13);
         const value = typeof token.value === 'string' ? token.value : String(token.value);
-        tokensText += `${pos}${type}${value}\n`;
+        tokensText += `${line}${col}${type}${value}\n`;
       }
     }
     tabTokens.textContent = tokensText;

@@ -85,9 +85,9 @@ test('lexer tokenizes punctuation', async ({ page }) => {
 test('lexer tracks line and column', async ({ page }) => {
   const output = await runLexer(page, 'let x\nprint x');
   // First line tokens should have line 1
-  expect(output).toMatch(/1:\d+\s+KEYWORD\s+let/);
+  expect(output).toMatch(/1\s+\d+\s+KEYWORD\s+let/);
   // Second line tokens should have line 2
-  expect(output).toMatch(/2:\d+\s+KEYWORD\s+print/);
+  expect(output).toMatch(/2\s+\d+\s+KEYWORD\s+print/);
 });
 
 test('lexer skips comments', async ({ page }) => {

@@ -76,7 +76,8 @@ test('parser tab shows column labels', async ({ page }) => {
   const text = await parserContent.textContent();
 
   // Should show column headers
-  expect(text).toContain('Line:Col');
+  expect(text).toContain('Line');
+  expect(text).toContain('Col');
   expect(text).toContain('Type');
   expect(text).toContain('Value');
 });
