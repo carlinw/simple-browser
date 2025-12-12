@@ -100,7 +100,7 @@ class Lexer {
     let token = null;
 
     // Numbers
-    if (this.isDigit(char)) {
+    if (CharUtils.isDigit(char)) {
       token = this.readNumber();
     }
     // Strings
@@ -108,7 +108,7 @@ class Lexer {
       token = this.readString();
     }
     // Identifiers and keywords
-    else if (this.isAlpha(char)) {
+    else if (CharUtils.isAlpha(char)) {
       token = this.readIdentifierOrKeyword();
     }
     // Operators (check two-character operators first)
@@ -186,7 +186,7 @@ class Lexer {
   readNumber() {
     let raw = '';
 
-    while (!this.isAtEnd() && this.isDigit(this.peek())) {
+    while (!this.isAtEnd() && CharUtils.isDigit(this.peek())) {
       raw += this.advance();
     }
 
@@ -244,7 +244,7 @@ class Lexer {
   readIdentifierOrKeyword() {
     let raw = '';
 
-    while (!this.isAtEnd() && this.isAlphaNumeric(this.peek())) {
+    while (!this.isAtEnd() && CharUtils.isAlphaNumeric(this.peek())) {
       raw += this.advance();
     }
 
@@ -347,20 +347,6 @@ class Lexer {
 
   isAtEnd() {
     return this.pos >= this.source.length;
-  }
-
-  isDigit(char) {
-    return char >= '0' && char <= '9';
-  }
-
-  isAlpha(char) {
-    return (char >= 'a' && char <= 'z') ||
-           (char >= 'A' && char <= 'Z') ||
-           char === '_';
-  }
-
-  isAlphaNumeric(char) {
-    return this.isAlpha(char) || this.isDigit(char);
   }
 
   isTwoCharOperatorStart(char) {

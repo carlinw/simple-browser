@@ -3,11 +3,13 @@
 class ASTRenderer {
   constructor(container) {
     this.container = container;
+    this.nodeElements = new Map();  // Map AST node -> DOM element
   }
 
   // Render the full AST
   render(ast) {
     this.container.innerHTML = '';
+    this.nodeElements.clear();
     // Store AST as data attribute for testing
     this.container.dataset.ast = JSON.stringify(ast);
     // Create wrapper with ast-tree class
@@ -30,6 +32,9 @@ class ASTRenderer {
     // Node content
     const label = this.getNodeLabel(node);
     nodeBox.innerHTML = label;
+
+    // Store mapping for highlighting during execution
+    this.nodeElements.set(node, nodeBox);
 
     // Click to collapse/expand
     const children = this.getChildren(node);
@@ -194,5 +199,27 @@ class ASTRenderer {
     }
 
     return children;
+  }
+
+  // Highlight a node during execution
+  highlightNode(node) {
+    // Remove previous highlight
+    this.container.querySelectorAll('.ast-executing').forEach(el => {
+      el.classList.remove('ast-executing');
+    });
+
+    // Add highlight to current node
+    const element = this.nodeElements.get(node);
+    if (element) {
+      element.classList.add('ast-executing');
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  // Clear all highlights
+  clearHighlights() {
+    this.container.querySelectorAll('.ast-executing').forEach(el => {
+      el.classList.remove('ast-executing');
+    });
   }
 }

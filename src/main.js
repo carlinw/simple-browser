@@ -5,7 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const codeEditor = document.getElementById('code-editor');
   const codeDisplay = document.getElementById('code-display');
   const output = document.getElementById('output');
+  const parseBtn = document.getElementById('parse-btn');
   const runBtn = document.getElementById('run-btn');
+  const runFastBtn = document.getElementById('run-fast-btn');
   const stepBtn = document.getElementById('step-btn');
   const resetBtn = document.getElementById('reset-btn');
   const helpBtn = document.getElementById('help-btn');
@@ -38,17 +40,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const visualizer = new CodeVisualizer(codeDisplay);
   const referencePanel = new ReferencePanel();
   const examplesManager = new ExamplesManager();
+  const astRenderer = new ASTRenderer(tabAst);
 
   // State
-  let state = 'edit';  // 'edit' | 'stepping' | 'done'
+  let state = 'edit';  // 'edit' | 'stepping' | 'done' | 'running'
   let scanner = null;
   let lastScanResult = null;
+  let currentParseResult = null;  // Store parse result for execution
+  let currentLexResult = null;    // Store lex result for error display
 
   // Update UI based on state
   function updateUI() {
     switch (state) {
       case 'edit':
+        parseBtn.disabled = false;
         runBtn.disabled = false;
+        runFastBtn.disabled = false;
         stepBtn.disabled = false;
         resetBtn.disabled = true;
         codeEditor.disabled = false;
@@ -57,7 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 'stepping':
-        runBtn.disabled = false;  // Keep Run enabled to allow full tokenization
+        parseBtn.disabled = false;
+        runBtn.disabled = false;
+        runFastBtn.disabled = false;
         stepBtn.disabled = false;
         resetBtn.disabled = false;
         codeEditor.disabled = true;
@@ -65,8 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
         codeDisplay.classList.remove('hidden');
         break;
 
+      case 'running':
+        parseBtn.disabled = true;
+        runBtn.disabled = true;
+        runFastBtn.disabled = true;
+        stepBtn.disabled = true;
+        resetBtn.disabled = false;
+        codeEditor.disabled = true;
+        break;
+
       case 'done':
-        runBtn.disabled = false;  // Keep Run enabled to allow re-running
+        parseBtn.disabled = false;
+        runBtn.disabled = false;
+        runFastBtn.disabled = false;
         stepBtn.disabled = true;
         resetBtn.disabled = false;
         codeEditor.disabled = true;
@@ -158,45 +178,18 @@ document.addEventListener('DOMContentLoaded', () => {
     switchTab('tokens');
   }
 
-  // Run all - tokenize everything at once
-  function runAll() {
-    // If we're in stepping mode, get source from scanner, reset to edit, then run
-    let source;
+  // Helper to get source code (handles stepping mode)
+  function getSource() {
     if (state === 'stepping' || state === 'done') {
-      source = scanner ? scanner.source : codeEditor.value;
-      // Reset UI back to edit mode
-      state = 'edit';
-      scanner = null;
-      lastScanResult = null;
-      visualizer.clear();
-      visualizer.hide();
-      codeEditor.classList.remove('hidden');
-      codeDisplay.classList.add('hidden');
-      codeEditor.disabled = false;
-    } else {
-      source = codeEditor.value;
+      return scanner ? scanner.source : codeEditor.value;
     }
+    return codeEditor.value;
+  }
 
-    // Handle empty input
-    if (!source.trim()) {
-      tabTokens.textContent = '';
-      tabAst.innerHTML = '';
-      tabOutput.textContent = 'Hello, Connor!';
-      switchTab('output');
-      return;
-    }
-
-    // Tokenize the source code
-    const lex = new Lexer(source);
-    const lexResult = lex.tokenize();
-
-    // Parse the tokens
-    const parser = new Parser(lexResult.tokens);
-    const parseResult = parser.parse();
-
-    // Build tokens text
+  // Helper to render tokens
+  function renderTokens(tokens) {
     let tokensText = '';
-    for (const token of lexResult.tokens) {
+    for (const token of tokens) {
       if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
         continue;
       }
@@ -210,35 +203,139 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     tabTokens.textContent = tokensText;
+  }
 
-    // Render AST as visual tree
-    tabAst.innerHTML = '';
-    const astRenderer = new ASTRenderer(tabAst);
-    astRenderer.render(parseResult.ast);
-
-    // Build output text (errors for now, execution output in future)
+  // Helper to render errors
+  function renderErrors(lexErrors, parseErrors, runtimeErrors) {
     let outputText = '';
-    if (lexResult.errors.length > 0) {
+    if (lexErrors.length > 0) {
       outputText += 'Lexer Errors:\n';
-      for (const error of lexResult.errors) {
+      for (const error of lexErrors) {
         outputText += `  Line ${error.line}, Column ${error.column}: ${error.message}\n`;
       }
       outputText += '\n';
     }
-    if (parseResult.errors.length > 0) {
+    if (parseErrors.length > 0) {
       outputText += 'Parser Errors:\n';
-      for (const error of parseResult.errors) {
+      for (const error of parseErrors) {
         outputText += `  Line ${error.line}, Column ${error.column}: ${error.message}\n`;
       }
       outputText += '\n';
     }
-    if (!outputText) {
-      outputText = '(no output yet - execution coming in future release)';
+    if (runtimeErrors.length > 0) {
+      outputText += 'Runtime Errors:\n';
+      for (const error of runtimeErrors) {
+        outputText += `  ${error.message}\n`;
+      }
+      outputText += '\n';
     }
     tabOutput.textContent = outputText;
+  }
 
-    // Switch to tokens tab by default
-    switchTab('tokens');
+  // Helper to render output values
+  function renderOutput(values) {
+    if (values.length === 0) {
+      tabOutput.textContent = '(no output)';
+    } else {
+      tabOutput.textContent = values.map(v => String(v)).join('\n');
+    }
+  }
+
+  // Parse only - tokenize and parse, no execution
+  function parseOnly() {
+    // Reset state if needed
+    if (state === 'stepping' || state === 'done') {
+      state = 'edit';
+      scanner = null;
+      lastScanResult = null;
+      visualizer.clear();
+      visualizer.hide();
+      codeEditor.classList.remove('hidden');
+      codeDisplay.classList.add('hidden');
+      codeEditor.disabled = false;
+    }
+
+    const source = getSource();
+
+    // Handle empty input
+    if (!source.trim()) {
+      tabTokens.textContent = '';
+      tabAst.innerHTML = '';
+      tabOutput.textContent = 'Hello, Connor!';
+      switchTab('output');
+      currentParseResult = null;
+      currentLexResult = null;
+      return false;
+    }
+
+    // Tokenize the source code
+    const lex = new Lexer(source);
+    currentLexResult = lex.tokenize();
+    renderTokens(currentLexResult.tokens);
+
+    // Parse the tokens
+    const parser = new Parser(currentLexResult.tokens);
+    currentParseResult = parser.parse();
+    astRenderer.render(currentParseResult.ast);
+
+    // Show errors if any
+    if (currentLexResult.errors.length > 0 || currentParseResult.errors.length > 0) {
+      renderErrors(currentLexResult.errors, currentParseResult.errors, []);
+      switchTab('output');
+      return false;
+    }
+
+    // No errors - switch to AST tab
+    tabOutput.textContent = '';
+    switchTab('ast');
+    return true;
+  }
+
+  // Run animated - parse + execute with 5 second delay per node
+  async function runAnimated() {
+    const success = parseOnly();
+    if (!success || !currentParseResult) return;
+
+    state = 'running';
+    updateUI();
+    switchTab('ast');
+
+    const interpreter = new Interpreter({
+      stepDelay: 5000,  // 5 seconds per node
+      onNodeEnter: (node) => astRenderer.highlightNode(node),
+      onNodeExit: (node, result) => { /* Could show result on node */ }
+    });
+
+    try {
+      const result = await interpreter.interpret(currentParseResult.ast);
+      astRenderer.clearHighlights();
+      renderOutput(result.output);
+      switchTab('output');
+    } catch (error) {
+      astRenderer.clearHighlights();
+      renderErrors([], [], [{ message: error.message }]);
+      switchTab('output');
+    }
+
+    state = 'edit';
+    updateUI();
+  }
+
+  // Run fast - parse + execute immediately
+  async function runFast() {
+    const success = parseOnly();
+    if (!success || !currentParseResult) return;
+
+    const interpreter = new Interpreter({ stepDelay: 0 });
+
+    try {
+      const result = await interpreter.interpret(currentParseResult.ast);
+      renderOutput(result.output);
+      switchTab('output');
+    } catch (error) {
+      renderErrors([], [], [{ message: error.message }]);
+      switchTab('output');
+    }
   }
 
   // Step - scan one character at a time
@@ -289,11 +386,14 @@ document.addEventListener('DOMContentLoaded', () => {
     state = 'edit';
     scanner = null;
     lastScanResult = null;
+    currentParseResult = null;
+    currentLexResult = null;
     tabTokens.textContent = '';
     tabAst.innerHTML = '';
     tabOutput.textContent = '';
     visualizer.clear();
     visualizer.hide();
+    astRenderer.clearHighlights();
     updateUI();
   }
 
@@ -305,7 +405,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Event listeners
-  runBtn.addEventListener('click', runAll);
+  parseBtn.addEventListener('click', parseOnly);
+  runBtn.addEventListener('click', runAnimated);
+  runFastBtn.addEventListener('click', runFast);
   stepBtn.addEventListener('click', stepOne);
   resetBtn.addEventListener('click', reset);
   helpBtn.addEventListener('click', () => referencePanel.toggle());

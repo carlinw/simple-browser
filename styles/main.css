@@ -608,6 +608,41 @@ main {
   color: #666;
 }
 
+/* Execution visualization */
+.ast-executing {
+  animation: ast-pulse 0.8s ease-in-out infinite;
+  box-shadow: 0 0 12px 4px rgba(74, 122, 255, 0.6);
+  border-color: #4a7aff !important;
+}
+
+@keyframes ast-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px 4px rgba(74, 122, 255, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 20px 8px rgba(74, 122, 255, 0.8);
+  }
+}
+
+/* New button styles */
+#parse-btn {
+  background: #17a2b8;
+  color: white;
+}
+
+#parse-btn:hover:not(:disabled) {
+  background: #138496;
+}
+
+#run-fast-btn {
+  background: #fd7e14;
+  color: white;
+}
+
+#run-fast-btn:hover:not(:disabled) {
+  background: #e96b02;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   main {

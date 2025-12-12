@@ -51,22 +51,21 @@ test('output pane has three tabs', async ({ page }) => {
   await expect(tabs.nth(2)).toHaveText('Output');
 });
 
-test('tokens tab is active by default after run', async ({ page }) => {
+test('AST tab is active after parse', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.click('#parse-btn');
 
-  const tokensTab = page.locator('.tab-btn:has-text("Tokens")');
-  await expect(tokensTab).toHaveClass(/active/);
+  const astTab = page.locator('.tab-btn:has-text("AST")');
+  await expect(astTab).toHaveClass(/active/);
 });
 
 test('clicking AST tab shows AST content', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.click('#parse-btn');
 
-  await page.click('.tab-btn:has-text("AST")');
-
+  // Parse already shows AST tab, verify it's there
   const astTab = page.locator('.tab-btn:has-text("AST")');
   await expect(astTab).toHaveClass(/active/);
 
@@ -78,7 +77,7 @@ test('clicking AST tab shows AST content', async ({ page }) => {
 test('clicking Output tab shows output content', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.click('#parse-btn');
 
   await page.click('.tab-btn:has-text("Output")');
 
@@ -92,7 +91,10 @@ test('clicking Output tab shows output content', async ({ page }) => {
 test('tokens tab shows token list', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.click('#parse-btn');
+
+  // Click tokens tab to see tokens
+  await page.click('.tab-btn:has-text("Tokens")');
 
   const tokensContent = page.locator('#tab-tokens');
   await expect(tokensContent).toBeVisible();
@@ -104,17 +106,17 @@ test('tokens tab shows token list', async ({ page }) => {
 test('tabs switch content visibility', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.click('#parse-btn');
 
-  // Tokens visible by default
-  await expect(page.locator('#tab-tokens')).toBeVisible();
-  await expect(page.locator('#tab-ast')).not.toBeVisible();
-  await expect(page.locator('#tab-output')).not.toBeVisible();
-
-  // Click AST tab
-  await page.click('.tab-btn:has-text("AST")');
+  // AST visible by default after parse
   await expect(page.locator('#tab-tokens')).not.toBeVisible();
   await expect(page.locator('#tab-ast')).toBeVisible();
+  await expect(page.locator('#tab-output')).not.toBeVisible();
+
+  // Click Tokens tab
+  await page.click('.tab-btn:has-text("Tokens")');
+  await expect(page.locator('#tab-tokens')).toBeVisible();
+  await expect(page.locator('#tab-ast')).not.toBeVisible();
   await expect(page.locator('#tab-output')).not.toBeVisible();
 
   // Click Output tab

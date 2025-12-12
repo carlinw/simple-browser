@@ -15,7 +15,9 @@
     <div class="toolbar-left">
       <button id="help-btn">Language Syntax</button>
       <button id="example-btn">Example</button>
+      <button id="parse-btn">Parse</button>
       <button id="run-btn">Run</button>
+      <button id="run-fast-btn">Run Fast</button>
       <button id="step-btn">Step</button>
       <button id="reset-btn" disabled>Reset</button>
     </div>
@@ -46,9 +48,11 @@
     </section>
   </main>
 
+  <script src="src/utils.js"></script>
   <script src="src/lexer.js"></script>
   <script src="src/scanner.js"></script>
   <script src="src/parser.js"></script>
+  <script src="src/interpreter.js"></script>
   <script src="src/ast-renderer.js"></script>
   <script src="src/visualizer.js"></script>
   <script src="src/reference.js"></script>

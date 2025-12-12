@@ -54,20 +54,6 @@ class Scanner {
     return char === ' ' || char === '\t' || char === '\r' || char === '\n';
   }
 
-  isDigit(char) {
-    return char >= '0' && char <= '9';
-  }
-
-  isAlpha(char) {
-    return (char >= 'a' && char <= 'z') ||
-           (char >= 'A' && char <= 'Z') ||
-           char === '_';
-  }
-
-  isAlphaNumeric(char) {
-    return this.isAlpha(char) || this.isDigit(char);
-  }
-
   isOperatorChar(char) {
     return '+-*/=!<>'.includes(char);
   }
@@ -201,7 +187,7 @@ class Scanner {
       return `'/' followed by '/' starts a comment. Start building COMMENT token.`;
     }
 
-    if (this.isDigit(char)) {
+    if (CharUtils.isDigit(char)) {
       this.state = ScanState.NUMBER;
       this.buffer = char;
       this.advanceChar(char);
@@ -215,7 +201,7 @@ class Scanner {
       return `'"' opens a string. Start building STRING token.`;
     }
 
-    if (this.isAlpha(char)) {
+    if (CharUtils.isAlpha(char)) {
       this.state = ScanState.IDENTIFIER;
       this.buffer = char;
       this.advanceChar(char);
@@ -243,7 +229,7 @@ class Scanner {
 
   // Handle IDENTIFIER state
   handleIdentifier(char, result) {
-    if (this.isAlphaNumeric(char)) {
+    if (CharUtils.isAlphaNumeric(char)) {
       this.buffer += char;
       this.advanceChar(char);
       return `'${char}' is alphanumeric. Add to buffer: "${this.buffer}"`;
@@ -257,7 +243,7 @@ class Scanner {
 
   // Handle NUMBER state
   handleNumber(char, result) {
-    if (this.isDigit(char)) {
+    if (CharUtils.isDigit(char)) {
       this.buffer += char;
       this.advanceChar(char);
       return `'${char}' is a digit. Add to buffer: "${this.buffer}"`;
