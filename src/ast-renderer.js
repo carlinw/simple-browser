@@ -144,6 +144,14 @@ class ASTRenderer {
         return 'if';
       case 'WhileStatement':
         return 'while';
+      case 'FunctionDeclaration':
+        return `fn <em>${this.escapeHtml(node.name)}</em>`;
+      case 'ReturnStatement':
+        return 'return';
+      case 'CallExpression':
+        return `call <em>${this.escapeHtml(node.callee)}</em>`;
+      case 'ParamList':
+        return 'params';
       case 'Block':
         return '{ }';
       case 'BinaryExpression':
@@ -231,6 +239,35 @@ class ASTRenderer {
       case 'Block':
         for (const stmt of node.statements) {
           children.push({ node: stmt });
+        }
+        break;
+
+      case 'FunctionDeclaration':
+        // Show params as a list
+        if (node.params && node.params.length > 0) {
+          children.push({ label: 'params', node: { type: 'ParamList', params: node.params } });
+        }
+        if (node.body) {
+          children.push({ label: 'body', node: node.body });
+        }
+        break;
+
+      case 'ParamList':
+        // Helper node type for displaying parameters
+        for (const param of node.params) {
+          children.push({ node: { type: 'Identifier', name: param } });
+        }
+        break;
+
+      case 'ReturnStatement':
+        if (node.value) {
+          children.push({ node: node.value });
+        }
+        break;
+
+      case 'CallExpression':
+        for (const arg of node.arguments) {
+          children.push({ label: 'arg', node: arg });
         }
         break;
 

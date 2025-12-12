@@ -1,44 +1,67 @@
 // Simple Interpreter - Expression Evaluator
 // Walks the AST and computes values
 
-// Environment class - stores variable bindings
+// Environment class - stores variable bindings with scope chain
 // Variables are dynamically typed (can change type after declaration)
 class Environment {
-  constructor() {
+  constructor(parent = null) {
     this.values = new Map();
+    this.parent = parent;
   }
 
-  // Define a new variable
+  // Define a new variable in current scope
   define(name, value) {
     this.values.set(name, value);
   }
 
-  // Get a variable's value
+  // Get a variable's value (searches up scope chain)
   get(name) {
     if (this.values.has(name)) {
       return this.values.get(name);
     }
+    if (this.parent) {
+      return this.parent.get(name);
+    }
     throw new RuntimeError(`Undefined variable: ${name}`);
   }
 
-  // Assign a new value to an existing variable
+  // Assign a new value to an existing variable (searches up scope chain)
   // Dynamic typing: any type can be assigned to any variable
   assign(name, value) {
     if (this.values.has(name)) {
       this.values.set(name, value);
       return;
     }
+    if (this.parent) {
+      this.parent.assign(name, value);
+      return;
+    }
     throw new RuntimeError(`Undefined variable: ${name}`);
   }
 
-  // Check if a variable exists
+  // Check if a variable exists (in current scope only)
   has(name) {
     return this.values.has(name);
   }
 
-  // Get all variable names (for future visualization)
+  // Get all variable names (for visualization - current scope only)
   getAll() {
     return Array.from(this.values.entries());
+  }
+}
+
+// Function value - stores declaration and closure environment
+class SimpleFunction {
+  constructor(declaration, closure) {
+    this.declaration = declaration;
+    this.closure = closure;
+  }
+}
+
+// Return value - used as exception to unwind call stack
+class ReturnValue {
+  constructor(value) {
+    this.value = value;
   }
 }
 
@@ -128,6 +151,21 @@ class Interpreter {
         }
         break;
 
+      case 'FunctionDeclaration': {
+        const func = new SimpleFunction(node, this.environment);
+        this.environment.define(node.name, func);
+        this.onVariableChange(node.name, '[function]', 'define');
+        break;
+      }
+
+      case 'ReturnStatement': {
+        let value = null;
+        if (node.value) {
+          value = await this.evaluate(node.value);
+        }
+        throw new ReturnValue(value);
+      }
+
       default:
         result = null;
     }
@@ -161,6 +199,53 @@ class Interpreter {
       case 'Identifier':
         result = this.environment.get(node.name);
         break;
+
+      case 'CallExpression': {
+        const callee = this.environment.get(node.callee);
+
+        if (!(callee instanceof SimpleFunction)) {
+          throw new RuntimeError(`'${node.callee}' is not a function`);
+        }
+
+        // Evaluate arguments
+        const args = [];
+        for (const arg of node.arguments) {
+          args.push(await this.evaluate(arg));
+        }
+
+        // Check argument count
+        if (args.length !== callee.declaration.params.length) {
+          throw new RuntimeError(
+            `Expected ${callee.declaration.params.length} arguments but got ${args.length}`
+          );
+        }
+
+        // Create new environment for function execution
+        const funcEnv = new Environment(callee.closure);
+
+        // Bind parameters to arguments
+        for (let i = 0; i < callee.declaration.params.length; i++) {
+          funcEnv.define(callee.declaration.params[i], args[i]);
+        }
+
+        // Execute function body in new environment
+        const previousEnv = this.environment;
+        this.environment = funcEnv;
+
+        try {
+          await this.execute(callee.declaration.body);
+          result = null; // No explicit return
+        } catch (e) {
+          if (e instanceof ReturnValue) {
+            result = e.value;
+          } else {
+            throw e;
+          }
+        } finally {
+          this.environment = previousEnv;
+        }
+        break;
+      }
 
       default:
         throw new RuntimeError(`Unknown expression type: ${node.type}`);

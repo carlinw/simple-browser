@@ -119,6 +119,12 @@ class Parser {
     if (this.match('KEYWORD', 'while')) {
       return this.parseWhileStatement();
     }
+    if (this.match('KEYWORD', 'function')) {
+      return this.parseFunctionDeclaration();
+    }
+    if (this.match('KEYWORD', 'return')) {
+      return this.parseReturnStatement();
+    }
     if (this.check('PUNCTUATION', '{')) {
       return this.parseBlock();
     }
@@ -223,6 +229,51 @@ class Parser {
       body: body,
       token: whileToken,
       endToken: endToken
+    };
+  }
+
+  parseFunctionDeclaration() {
+    const funcToken = this.previous(); // 'function' keyword we just matched
+    const nameToken = this.consume('IDENTIFIER', null, "Expected function name");
+
+    this.consume('PUNCTUATION', '(', "Expected '(' after function name");
+
+    const params = [];
+    if (!this.check('PUNCTUATION', ')')) {
+      do {
+        const param = this.consume('IDENTIFIER', null, "Expected parameter name");
+        params.push(param.value);
+      } while (this.match('PUNCTUATION', ','));
+    }
+
+    this.consume('PUNCTUATION', ')', "Expected ')' after parameters");
+
+    const body = this.parseBlock();
+
+    return {
+      type: 'FunctionDeclaration',
+      name: nameToken.value,
+      params: params,
+      body: body,
+      token: funcToken,
+      endToken: this.previous()
+    };
+  }
+
+  parseReturnStatement() {
+    const returnToken = this.previous(); // 'return' keyword we just matched
+    let value = null;
+
+    // Check if there's an expression to return (not at end of block or file)
+    if (!this.check('PUNCTUATION', '}') && !this.isAtEnd()) {
+      value = this.parseExpression();
+    }
+
+    return {
+      type: 'ReturnStatement',
+      value: value,
+      token: returnToken,
+      endToken: value ? this.previous() : returnToken
     };
   }
 
@@ -352,9 +403,15 @@ class Parser {
       return { type: 'BooleanLiteral', value: false, token: token };
     }
 
-    // Identifier
+    // Identifier or function call
     if (this.check('IDENTIFIER')) {
       const token = this.advance();
+
+      // Check if this is a function call
+      if (this.check('PUNCTUATION', '(')) {
+        return this.parseCallExpression(token);
+      }
+
       return { type: 'Identifier', name: token.value, token: token };
     }
 
@@ -372,6 +429,27 @@ class Parser {
     }
 
     this.error(`Unexpected token: ${this.peek()?.type} '${this.peek()?.value}'`);
+  }
+
+  parseCallExpression(nameToken) {
+    this.consume('PUNCTUATION', '(', "Expected '('");
+
+    const args = [];
+    if (!this.check('PUNCTUATION', ')')) {
+      do {
+        args.push(this.parseExpression());
+      } while (this.match('PUNCTUATION', ','));
+    }
+
+    const closeParen = this.consume('PUNCTUATION', ')', "Expected ')' after arguments");
+
+    return {
+      type: 'CallExpression',
+      callee: nameToken.value,
+      arguments: args,
+      token: nameToken,
+      endToken: closeParen
+    };
   }
 }
 
