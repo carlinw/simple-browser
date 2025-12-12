@@ -82,9 +82,9 @@ class ASTRenderer {
       case 'Program':
         return 'Program';
       case 'LetStatement':
-        return `let<br><strong>${node.name}</strong>`;
+        return 'let';
       case 'AssignStatement':
-        return `assign<br><strong>${node.name}</strong>`;
+        return '=';
       case 'PrintStatement':
         return 'print';
       case 'ExpressionStatement':
@@ -129,14 +129,18 @@ class ASTRenderer {
         break;
 
       case 'LetStatement':
+        // Show variable name as identifier child
+        children.push({ label: 'name', node: { type: 'Identifier', name: node.name } });
         if (node.value) {
-          children.push({ node: node.value });
+          children.push({ label: 'value', node: node.value });
         }
         break;
 
       case 'AssignStatement':
+        // Show variable name as identifier child
+        children.push({ label: 'name', node: { type: 'Identifier', name: node.name } });
         if (node.value) {
-          children.push({ node: node.value });
+          children.push({ label: 'value', node: node.value });
         }
         break;
 

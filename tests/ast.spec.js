@@ -43,13 +43,19 @@ test('AST shows LetStatement node', async ({ page }) => {
   await expect(letNode).toContainText('let');
 });
 
-test('AST shows variable name', async ({ page }) => {
+test('AST shows variable name as separate Identifier node', async ({ page }) => {
   await page.goto('/');
   await runCode(page, 'let x = 42');
 
   await page.click('.tab-btn:has-text("AST")');
+  // LetStatement shows "let", variable name is a separate child
   const letNode = page.locator('.ast-letstatement');
-  await expect(letNode).toContainText('x');
+  await expect(letNode).toContainText('let');
+
+  // Variable name should be in a child Identifier node
+  const identifierNode = page.locator('.ast-identifier').first();
+  await expect(identifierNode).toBeVisible();
+  await expect(identifierNode).toContainText('x');
 });
 
 test('AST shows NumberLiteral', async ({ page }) => {
