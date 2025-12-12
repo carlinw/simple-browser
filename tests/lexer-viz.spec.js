@@ -295,16 +295,37 @@ test('close button closes reference panel', async ({ page }) => {
 
 // Example Program Tests
 
-test('example button exists', async ({ page }) => {
+test('examples button exists', async ({ page }) => {
   await page.goto('/');
   const exampleBtn = page.locator('#example-btn');
   await expect(exampleBtn).toBeVisible();
-  await expect(exampleBtn).toHaveText('Example');
+  await expect(exampleBtn).toHaveText('Examples');
 });
 
-test('clicking example loads tokenizer demo', async ({ page }) => {
+test('clicking examples shows modal with options', async ({ page }) => {
   await page.goto('/');
   await page.click('#example-btn');
+
+  // Modal should appear with example cards
+  const modal = page.locator('.modal-panel');
+  await expect(modal).toBeVisible();
+
+  // Should have multiple example cards
+  const cards = page.locator('.example-card');
+  const count = await cards.count();
+  expect(count).toBeGreaterThanOrEqual(2);
+
+  // Should have Tokenizer Demo and Variables
+  await expect(page.locator('.example-name:has-text("Tokenizer Demo")')).toBeVisible();
+  await expect(page.locator('.example-name:has-text("Variables")')).toBeVisible();
+});
+
+test('selecting example loads code', async ({ page }) => {
+  await page.goto('/');
+  await page.click('#example-btn');
+
+  // Click the Tokenizer Demo card
+  await page.click('.example-card[data-id="tokenizer-demo"]');
 
   const editor = page.locator('#code-editor');
   const value = await editor.inputValue();
@@ -316,6 +337,7 @@ test('clicking example loads tokenizer demo', async ({ page }) => {
 test('can step through example program', async ({ page }) => {
   await page.goto('/');
   await page.click('#example-btn');
+  await page.click('.example-card[data-id="tokenizer-demo"]');
 
   // Step through character by character
   // Example starts with "// Tokenizer Demo" (comment)

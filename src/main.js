@@ -263,11 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
   }
 
-  // Load example program
-  function loadExample() {
-    const code = examplesManager.getDefault();
-    codeEditor.value = code;
-    reset();
+  // Show example selector
+  function showExamples() {
+    examplesManager.showSelector((code) => {
+      codeEditor.value = code;
+      reset();
+    });
   }
 
   // Event listeners
@@ -277,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
   stepBtn.addEventListener('click', stepOne);
   resetBtn.addEventListener('click', reset);
   helpBtn.addEventListener('click', () => referencePanel.toggle());
-  exampleBtn.addEventListener('click', loadExample);
+  exampleBtn.addEventListener('click', showExamples);
 
   // Initialize UI
   updateUI();
