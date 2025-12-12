@@ -5,7 +5,17 @@ async function runLexer(page, input) {
   await page.goto('/');
   await page.fill('#code-editor', input);
   await page.click('#run-btn');
-  const output = await page.locator('#output').textContent();
+  const tokens = await page.locator('#tab-tokens').textContent();
+  return tokens;
+}
+
+// Helper to get errors from the output tab
+async function getErrors(page, input) {
+  await page.goto('/');
+  await page.fill('#code-editor', input);
+  await page.click('#run-btn');
+  await page.click('.tab-btn:has-text("Output")');
+  const output = await page.locator('#tab-output').textContent();
   return output;
 }
 
@@ -119,19 +129,19 @@ test('lexer tokenizes expression', async ({ page }) => {
 // Negative Tests
 
 test('lexer reports invalid character', async ({ page }) => {
-  const output = await runLexer(page, 'x @ y');
+  const output = await getErrors(page, 'x @ y');
   expect(output).toContain('Error');
   expect(output).toContain("Invalid character '@'");
 });
 
 test('lexer reports unterminated string', async ({ page }) => {
-  const output = await runLexer(page, '"hello');
+  const output = await getErrors(page, '"hello');
   expect(output).toContain('Error');
   expect(output).toContain('Unterminated string');
 });
 
 test('lexer reports multiple errors', async ({ page }) => {
-  const output = await runLexer(page, 'x @ y $ z');
+  const output = await getErrors(page, 'x @ y $ z');
   // Should have errors for both @ and $
   const atError = output.includes("Invalid character '@'");
   const dollarError = output.includes("Invalid character '$'");

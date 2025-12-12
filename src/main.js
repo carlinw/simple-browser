@@ -11,6 +11,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const helpBtn = document.getElementById('help-btn');
   const exampleBtn = document.getElementById('example-btn');
 
+  // Tab Elements
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabTokens = document.getElementById('tab-tokens');
+  const tabAst = document.getElementById('tab-ast');
+  const tabOutput = document.getElementById('tab-output');
+
+  // Tab switching
+  function switchTab(tabName) {
+    // Update buttons
+    tabBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    // Update panels
+    tabTokens.classList.toggle('active', tabName === 'tokens');
+    tabAst.classList.toggle('active', tabName === 'ast');
+    tabOutput.classList.toggle('active', tabName === 'output');
+  }
+
+  // Add click handlers to tabs
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
   // Managers
   const visualizer = new CodeVisualizer(codeDisplay);
   const referencePanel = new ReferencePanel();
@@ -131,7 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     html += '</div>\n';
 
-    output.innerHTML = html;
+    tabTokens.innerHTML = html;
+    switchTab('tokens');
   }
 
   // Run all - tokenize everything at once
@@ -155,7 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle empty input
     if (!source.trim()) {
-      output.textContent = 'Hello, Connor!';
+      tabTokens.textContent = '';
+      tabAst.innerHTML = '';
+      tabOutput.textContent = 'Hello, Connor!';
+      switchTab('output');
       return;
     }
 
@@ -163,10 +190,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const lex = new Lexer(source);
     const lexResult = lex.tokenize();
 
-    // Format output
-    let outputText = '';
+    // Parse the tokens
+    const parser = new Parser(lexResult.tokens);
+    const parseResult = parser.parse();
 
-    // Show lexer errors first
+    // Build tokens text
+    let tokensText = '';
+    for (const token of lexResult.tokens) {
+      if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
+        continue;
+      }
+      if (token.type === 'EOF') {
+        tokensText += `${token.line}:${token.column}   EOF\n`;
+      } else {
+        const pos = `${token.line}:${token.column}`.padEnd(6);
+        const type = token.type.padEnd(12);
+        const value = typeof token.value === 'string' ? token.value : String(token.value);
+        tokensText += `${pos} ${type} ${value}\n`;
+      }
+    }
+    tabTokens.textContent = tokensText;
+
+    // Render AST as visual tree
+    tabAst.innerHTML = '';
+    const astRenderer = new ASTRenderer(tabAst);
+    astRenderer.render(parseResult.ast);
+
+    // Build output text (errors for now, execution output in future)
+    let outputText = '';
     if (lexResult.errors.length > 0) {
       outputText += 'Lexer Errors:\n';
       for (const error of lexResult.errors) {
@@ -174,12 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       outputText += '\n';
     }
-
-    // Parse the tokens
-    const parser = new Parser(lexResult.tokens);
-    const parseResult = parser.parse();
-
-    // Show parser errors
     if (parseResult.errors.length > 0) {
       outputText += 'Parser Errors:\n';
       for (const error of parseResult.errors) {
@@ -187,41 +232,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       outputText += '\n';
     }
-
-    // Show tokens (filter out whitespace and comments for clean output)
-    outputText += 'Tokens:\n';
-    for (const token of lexResult.tokens) {
-      // Skip whitespace and comments in run mode
-      if (token.type === 'WHITESPACE' || token.type === 'COMMENT') {
-        continue;
-      }
-      if (token.type === 'EOF') {
-        outputText += `  ${token.line}:${token.column}   EOF\n`;
-      } else {
-        const pos = `${token.line}:${token.column}`.padEnd(6);
-        const type = token.type.padEnd(12);
-        const value = typeof token.value === 'string' ? token.value : String(token.value);
-        outputText += `  ${pos} ${type} ${value}\n`;
-      }
+    if (!outputText) {
+      outputText = '(no output yet - execution coming in future release)';
     }
+    tabOutput.textContent = outputText;
 
-    // Show tokens as text
-    const tokensDiv = document.createElement('pre');
-    tokensDiv.textContent = outputText;
-
-    // Show AST as visual tree
-    const astLabel = document.createElement('div');
-    astLabel.className = 'ast-label';
-    astLabel.textContent = 'AST:';
-
-    const astContainer = document.createElement('div');
-    const astRenderer = new ASTRenderer(astContainer);
-    astRenderer.render(parseResult.ast);
-
-    // Combine in output
-    output.innerHTML = '';
-    output.appendChild(tokensDiv);
-    output.appendChild(astContainer);
+    // Switch to tokens tab by default
+    switchTab('tokens');
   }
 
   // Step - scan one character at a time
@@ -230,7 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Initialize stepping
       const source = codeEditor.value;
       if (!source.trim()) {
-        output.textContent = 'Hello, Connor!';
+        tabTokens.textContent = '';
+        tabAst.innerHTML = '';
+        tabOutput.textContent = 'Hello, Connor!';
+        switchTab('output');
         return;
       }
 
@@ -269,7 +289,9 @@ document.addEventListener('DOMContentLoaded', () => {
     state = 'edit';
     scanner = null;
     lastScanResult = null;
-    output.textContent = '';
+    tabTokens.textContent = '';
+    tabAst.innerHTML = '';
+    tabOutput.textContent = '';
     visualizer.clear();
     visualizer.hide();
     updateUI();

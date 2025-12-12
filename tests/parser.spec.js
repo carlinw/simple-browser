@@ -5,9 +5,9 @@ async function getAST(page, code) {
   await page.fill('#code-editor', code);
   await page.click('#run-btn');
 
-  // Get AST from data attribute on the visual tree
-  const astTree = page.locator('.ast-tree');
-  const astJson = await astTree.getAttribute('data-ast');
+  // Get AST from data attribute on the AST tab
+  const astTab = page.locator('#tab-ast');
+  const astJson = await astTab.getAttribute('data-ast');
   if (!astJson) {
     throw new Error('No AST found in output');
   }
@@ -192,7 +192,8 @@ test('parser reports missing equals in let', async ({ page }) => {
   await page.fill('#code-editor', 'let x 42');
   await page.click('#run-btn');
 
-  const output = await page.locator('#output').textContent();
+  await page.click('.tab-btn:has-text("Output")');
+  const output = await page.locator('#tab-output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain("Expected '='");
 });
@@ -202,7 +203,8 @@ test('parser reports missing expression after operator', async ({ page }) => {
   await page.fill('#code-editor', 'x +');
   await page.click('#run-btn');
 
-  const output = await page.locator('#output').textContent();
+  await page.click('.tab-btn:has-text("Output")');
+  const output = await page.locator('#tab-output').textContent();
   expect(output).toContain('Parser Errors:');
 });
 
@@ -211,7 +213,8 @@ test('parser reports missing closing paren', async ({ page }) => {
   await page.fill('#code-editor', '(1 + 2');
   await page.click('#run-btn');
 
-  const output = await page.locator('#output').textContent();
+  await page.click('.tab-btn:has-text("Output")');
+  const output = await page.locator('#tab-output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain("Expected ')'");
 });
@@ -221,7 +224,8 @@ test('parser reports missing block braces', async ({ page }) => {
   await page.fill('#code-editor', 'if (x > 0) print x');
   await page.click('#run-btn');
 
-  const output = await page.locator('#output').textContent();
+  await page.click('.tab-btn:has-text("Output")');
+  const output = await page.locator('#tab-output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain("Expected '{'");
 });
@@ -231,7 +235,8 @@ test('parser reports unexpected token', async ({ page }) => {
   await page.fill('#code-editor', 'let = 42');
   await page.click('#run-btn');
 
-  const output = await page.locator('#output').textContent();
+  await page.click('.tab-btn:has-text("Output")');
+  const output = await page.locator('#tab-output').textContent();
   expect(output).toContain('Parser Errors:');
   expect(output).toContain('Expected variable name');
 });

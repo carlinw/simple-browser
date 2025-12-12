@@ -29,8 +29,17 @@
     </section>
 
     <section id="output-pane">
-      <h2>Output</h2>
-      <pre id="output"></pre>
+      <div class="output-tabs">
+        <button class="tab-btn active" data-tab="tokens">Tokens</button>
+        <button class="tab-btn" data-tab="ast">AST</button>
+        <button class="tab-btn" data-tab="output">Output</button>
+      </div>
+      <div class="tab-content">
+        <div id="tab-tokens" class="tab-panel active"></div>
+        <div id="tab-ast" class="tab-panel"></div>
+        <div id="tab-output" class="tab-panel"></div>
+      </div>
+      <pre id="output" class="hidden"></pre>
     </section>
   </main>
 

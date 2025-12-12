@@ -15,8 +15,8 @@ test('page has code editor', async ({ page }) => {
 
 test('page has output pane', async ({ page }) => {
   await page.goto('/');
-  const output = page.locator('#output');
-  await expect(output).toBeVisible();
+  const outputPane = page.locator('#output-pane');
+  await expect(outputPane).toBeVisible();
 });
 
 test('page has run button', async ({ page }) => {
@@ -29,8 +29,8 @@ test('page has run button', async ({ page }) => {
 test('clicking run shows greeting', async ({ page }) => {
   await page.goto('/');
   await page.click('#run-btn');
-  const output = page.locator('#output');
-  await expect(output).toContainText('Hello, Connor!');
+  const outputTab = page.locator('#tab-output');
+  await expect(outputTab).toContainText('Hello, Connor!');
 });
 
 test('can type in code editor', async ({ page }) => {
@@ -40,10 +40,94 @@ test('can type in code editor', async ({ page }) => {
   await expect(editor).toHaveValue('print hello');
 });
 
+// Output Tabs Tests
+
+test('output pane has three tabs', async ({ page }) => {
+  await page.goto('/');
+  const tabs = page.locator('.output-tabs .tab-btn');
+  await expect(tabs).toHaveCount(3);
+  await expect(tabs.nth(0)).toHaveText('Tokens');
+  await expect(tabs.nth(1)).toHaveText('AST');
+  await expect(tabs.nth(2)).toHaveText('Output');
+});
+
+test('tokens tab is active by default after run', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#run-btn');
+
+  const tokensTab = page.locator('.tab-btn:has-text("Tokens")');
+  await expect(tokensTab).toHaveClass(/active/);
+});
+
+test('clicking AST tab shows AST content', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#run-btn');
+
+  await page.click('.tab-btn:has-text("AST")');
+
+  const astTab = page.locator('.tab-btn:has-text("AST")');
+  await expect(astTab).toHaveClass(/active/);
+
+  const astContent = page.locator('#tab-ast');
+  await expect(astContent).toBeVisible();
+  await expect(astContent.locator('.ast-tree')).toBeVisible();
+});
+
+test('clicking Output tab shows output content', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#run-btn');
+
+  await page.click('.tab-btn:has-text("Output")');
+
+  const outputTab = page.locator('.tab-btn:has-text("Output")');
+  await expect(outputTab).toHaveClass(/active/);
+
+  const outputContent = page.locator('#tab-output');
+  await expect(outputContent).toBeVisible();
+});
+
+test('tokens tab shows token list', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#run-btn');
+
+  const tokensContent = page.locator('#tab-tokens');
+  await expect(tokensContent).toBeVisible();
+  const text = await tokensContent.textContent();
+  expect(text).toContain('KEYWORD');
+  expect(text).toContain('let');
+});
+
+test('tabs switch content visibility', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 42');
+  await page.click('#run-btn');
+
+  // Tokens visible by default
+  await expect(page.locator('#tab-tokens')).toBeVisible();
+  await expect(page.locator('#tab-ast')).not.toBeVisible();
+  await expect(page.locator('#tab-output')).not.toBeVisible();
+
+  // Click AST tab
+  await page.click('.tab-btn:has-text("AST")');
+  await expect(page.locator('#tab-tokens')).not.toBeVisible();
+  await expect(page.locator('#tab-ast')).toBeVisible();
+  await expect(page.locator('#tab-output')).not.toBeVisible();
+
+  // Click Output tab
+  await page.click('.tab-btn:has-text("Output")');
+  await expect(page.locator('#tab-tokens')).not.toBeVisible();
+  await expect(page.locator('#tab-ast')).not.toBeVisible();
+  await expect(page.locator('#tab-output')).toBeVisible();
+});
+
 // Negative Tests
 
 test('output is empty before run', async ({ page }) => {
   await page.goto('/');
-  const output = page.locator('#output');
-  await expect(output).toBeEmpty();
+  const tokensTab = page.locator('#tab-tokens');
+  await expect(tokensTab).toBeEmpty();
 });

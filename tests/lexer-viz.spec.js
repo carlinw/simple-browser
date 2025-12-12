@@ -22,7 +22,7 @@ test('stepping creates one token at a time', async ({ page }) => {
 
   // First click initializes stepping
   await page.click('#step-btn');
-  let output = await page.locator('#output').textContent();
+  let output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('Scanner State');
   expect(output).toContain('(none yet)');
 
@@ -32,7 +32,7 @@ test('stepping creates one token at a time', async ({ page }) => {
   await page.click('#step-btn'); // t
   await page.click('#step-btn'); // space - emits KEYWORD
 
-  output = await page.locator('#output').textContent();
+  output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('KEYWORD');
   expect(output).toContain('let');
   expect(output).not.toContain('IDENTIFIER');
@@ -40,14 +40,14 @@ test('stepping creates one token at a time', async ({ page }) => {
   // Step through space (whitespace token) and then x
   await page.click('#step-btn'); // x - emits WHITESPACE, starts identifier
 
-  output = await page.locator('#output').textContent();
+  output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('WHITESPACE');
 
   // x is now in buffer, step to EOF to emit IDENTIFIER
   await page.click('#step-btn'); // EOF - emits IDENTIFIER
   await page.click('#step-btn'); // Process EOF token
 
-  output = await page.locator('#output').textContent();
+  output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('IDENTIFIER');
 });
 
@@ -59,7 +59,7 @@ test('scanner state shows line and column on separate rows', async ({ page }) =>
   await page.click('#step-btn');
   await page.click('#step-btn');
 
-  const output = await page.locator('#output').textContent();
+  const output = await page.locator('#tab-tokens').textContent();
 
   // Line and Column should be on separate rows
   expect(output).toContain('Line:');
@@ -124,7 +124,7 @@ test('clicking run during stepping shows all tokens', async ({ page }) => {
   // Now click Run to see all tokens at once
   await page.click('#run-btn');
 
-  const output = await page.locator('#output').textContent();
+  const output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('KEYWORD');
   expect(output).toContain('let');
   expect(output).toContain('IDENTIFIER');
@@ -139,7 +139,7 @@ test('reset clears tokens and returns to edit mode', async ({ page }) => {
   await page.click('#reset-btn');
 
   // Output should be cleared
-  const output = page.locator('#output');
+  const output = page.locator('#tab-tokens');
   await expect(output).toBeEmpty();
 
   // Textarea should be visible and editable
@@ -160,12 +160,12 @@ test('stepping through all tokens reaches EOF', async ({ page }) => {
   await page.click('#step-btn'); // 2
   await page.click('#step-btn'); // EOF - emits NUMBER
 
-  let output = await page.locator('#output').textContent();
+  let output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('NUMBER');
 
   // Step again for EOF token
   await page.click('#step-btn');
-  output = await page.locator('#output').textContent();
+  output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('EOF');
 
   // Step button should be disabled after EOF
@@ -178,7 +178,7 @@ test('run still works for full tokenization', async ({ page }) => {
   await page.fill('#code-editor', 'let x = 42');
   await page.click('#run-btn');
 
-  const output = await page.locator('#output').textContent();
+  const output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('KEYWORD');
   expect(output).toContain('let');
   expect(output).toContain('IDENTIFIER');
@@ -218,7 +218,7 @@ test('arrow indicates newly emitted token', async ({ page }) => {
   await page.click('#step-btn'); // t
   await page.click('#step-btn'); // space - emits KEYWORD
 
-  const output = await page.locator('#output').textContent();
+  const output = await page.locator('#tab-tokens').textContent();
   expect(output).toContain('→');
   expect(output).toContain('KEYWORD');
 });
@@ -324,7 +324,7 @@ test('can step through example program', async ({ page }) => {
     await page.click('#step-btn');
   }
 
-  const output = await page.locator('#output').textContent();
+  const output = await page.locator('#tab-tokens').textContent();
   // Should have processed at least the first comment
   expect(output).toContain('COMMENT');
 });

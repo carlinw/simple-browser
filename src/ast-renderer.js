@@ -8,11 +8,14 @@ class ASTRenderer {
   // Render the full AST
   render(ast) {
     this.container.innerHTML = '';
-    this.container.className = 'ast-tree';
     // Store AST as data attribute for testing
     this.container.dataset.ast = JSON.stringify(ast);
+    // Create wrapper with ast-tree class
+    const wrapper = document.createElement('div');
+    wrapper.className = 'ast-tree';
     const tree = this.renderNode(ast, 0);
-    this.container.appendChild(tree);
+    wrapper.appendChild(tree);
+    this.container.appendChild(wrapper);
   }
 
   // Render a single node and its children
