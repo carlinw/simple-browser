@@ -52,7 +52,7 @@ class ReferenceRenderer {
         { name: 'String index', desc: '"hello"[0] → "h"' },
       ],
       builtins: [
-        { name: 'print x', desc: 'output a value' },
+        { name: 'print(x)', desc: 'output a value' },
         { name: 'len(x)', desc: 'length of array or string' },
         { name: 'num(x)', desc: 'convert string to number' },
         { name: 'input()', desc: 'read line of input' },
@@ -60,6 +60,8 @@ class ReferenceRenderer {
         { name: 'random(min, max)', desc: 'random integer in range' },
         { name: 'sleep(ms)', desc: 'pause for milliseconds' },
         { name: 'pressed(key)', desc: 'true if key is held down' },
+      ],
+      graphics: [
         { name: 'clear()', desc: 'clear the canvas' },
         { name: 'color(name)', desc: 'set drawing color' },
         { name: 'rect(x,y,w,h)', desc: 'draw rectangle' },
@@ -115,6 +117,12 @@ class ReferenceRenderer {
           <h3>Built-in Functions</h3>
           <dl class="ref-list">
             ${content.builtins.map(b => `<dt>${b.name}</dt><dd>${b.desc}</dd>`).join('')}
+          </dl>
+        </section>
+        <section>
+          <h3>Graphics</h3>
+          <dl class="ref-list">
+            ${content.graphics.map(g => `<dt>${g.name}</dt><dd>${g.desc}</dd>`).join('')}
           </dl>
         </section>
         <section>

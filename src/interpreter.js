@@ -375,6 +375,14 @@ class Interpreter {
     }
 
     switch (funcName) {
+      case 'print': {
+        if (args.length !== 1) {
+          throw new RuntimeError('print() requires 1 argument');
+        }
+        this.onPrint(args[0]);
+        return null;
+      }
+
       case 'num': {
         if (args.length !== 1) {
           throw new RuntimeError('num() requires 1 argument');
