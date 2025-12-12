@@ -146,8 +146,7 @@ main {
   flex-direction: column;
 }
 
-#editor-pane h2,
-#output-pane h2 {
+#editor-pane h2 {
   font-size: 0.875rem;
   font-weight: 500;
   color: #666;
@@ -230,33 +229,51 @@ main {
   display: none !important;
 }
 
-/* Output Tabs */
-.output-tabs {
+/* Output Header */
+.output-header {
   display: flex;
-  gap: 4px;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.5rem;
 }
 
+.output-header h2 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+  margin: 0;
+}
+
+/* Output Tabs */
+.output-tabs {
+  display: flex;
+  gap: 2px;
+  background: #333;
+  padding: 3px;
+  border-radius: 6px;
+}
+
 .tab-btn {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
-  background: #2d2d2d;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: transparent;
   color: #888;
-  border: 1px solid #444;
-  border-radius: 4px 4px 0 0;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .tab-btn:hover {
-  background: #3d3d3d;
-  color: #aaa;
+  background: rgba(255, 255, 255, 0.08);
+  color: #bbb;
 }
 
 .tab-btn.active {
   background: #1e1e1e;
-  color: #d4d4d4;
-  border-bottom-color: #1e1e1e;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .tab-content {
@@ -274,7 +291,7 @@ main {
   padding: 0.75rem;
   background: #1e1e1e;
   color: #d4d4d4;
-  border-radius: 0 4px 4px 4px;
+  border-radius: 4px;
   overflow: auto;
   white-space: pre-wrap;
 }
