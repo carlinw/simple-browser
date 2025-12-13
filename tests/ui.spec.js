@@ -4,7 +4,7 @@ const { test, expect } = require('@playwright/test');
 
 test('page loads with correct title', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('Simple Interpreter');
+  await expect(page).toHaveTitle('Tiny Development Environment');
 });
 
 test('page has code editor', async ({ page }) => {
