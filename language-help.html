@@ -39,12 +39,19 @@
     <aside id="toc">
       <h2>Contents</h2>
       <ul>
-        <li><a href="#literals">Literals</a></li>
+        <li>
+          <a href="#literals">Literals</a>
+          <ul class="toc-subsections">
+            <li><a href="#numbers">Numbers</a></li>
+            <li><a href="#strings">Strings</a></li>
+            <li><a href="#booleans">Booleans</a></li>
+            <li><a href="#arrays">Arrays</a></li>
+          </ul>
+        </li>
         <li><a href="#hello-world">Hello World</a></li>
         <li>
           <a href="#variables">Variables</a>
           <ul class="toc-subsections">
-            <li><a href="#arrays">Arrays</a></li>
             <li><a href="#scoping">Scoping &amp; Closures</a></li>
           </ul>
         </li>
@@ -84,39 +91,65 @@
       <section id="literals">
         <h2>Literals</h2>
         <p>Literals are fixed values written directly in your code.</p>
+      </section>
 
-        <table class="ref-table">
-          <thead>
-            <tr><th>Type</th><th>Examples</th><th>Description</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>Integer</code></td>
-              <td><code>42</code>, <code>0</code>, <code>-5</code></td>
-              <td>Whole numbers</td>
-            </tr>
-            <tr>
-              <td><code>Float</code></td>
-              <td><code>3.14</code>, <code>0.5</code>, <code>-2.7</code></td>
-              <td>Decimal numbers</td>
-            </tr>
-            <tr>
-              <td><code>String</code></td>
-              <td><code>"hello"</code>, <code>"world"</code></td>
-              <td>Text (double quotes only)</td>
-            </tr>
-            <tr>
-              <td><code>Boolean</code></td>
-              <td><code>true</code>, <code>false</code></td>
-              <td>Logical values</td>
-            </tr>
-            <tr>
-              <td><code>Array</code></td>
-              <td><code>[1, 2, 3]</code></td>
-              <td>Ordered collection of values</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Numbers (subsection of Literals) -->
+      <section id="numbers" class="subsection">
+        <h3>Numbers</h3>
+        <p>Integers are whole numbers. Floats are decimal numbers.</p>
+        <pre class="code-block"><code>42        // integer
+-5        // negative integer
+3.14      // float
+0.5       // float
+-2.7      // negative float</code></pre>
+      </section>
+
+      <!-- Strings (subsection of Literals) -->
+      <section id="strings" class="subsection">
+        <h3>Strings</h3>
+        <p>Text enclosed in double quotes. Single quotes are not supported.</p>
+        <pre class="code-block"><code>"hello"
+"Hello, World!"
+""        // empty string</code></pre>
+        <p>Strings can be indexed like arrays:</p>
+        <pre class="code-block"><code>let word = "hello"
+print(word[0])  // "h"
+print(word[4])  // "o"
+print(len(word))  // 5</code></pre>
+      </section>
+
+      <!-- Booleans (subsection of Literals) -->
+      <section id="booleans" class="subsection">
+        <h3>Booleans</h3>
+        <p>Logical values for true/false conditions.</p>
+        <pre class="code-block"><code>true
+false</code></pre>
+      </section>
+
+      <!-- Arrays (subsection of Literals) -->
+      <section id="arrays" class="subsection">
+        <h3>Arrays</h3>
+        <p>Ordered collections of values. Can hold mixed types.</p>
+        <pre class="code-block"><code>[1, 2, 3, 4, 5]
+[1, "hello", true]    // mixed types
+[]                    // empty array
+[[1, 2], [3, 4]]      // nested arrays</code></pre>
+
+        <h4>Accessing Elements</h4>
+        <p>Arrays are zero-indexed:</p>
+        <pre class="code-block"><code>let arr = [10, 20, 30]
+print(arr[0])   // 10 (first element)
+print(arr[2])   // 30 (third element)
+print(len(arr)) // 3</code></pre>
+
+        <h4>Modifying Elements</h4>
+        <pre class="code-block"><code>let arr = [1, 2, 3]
+arr[1] = 99
+print(arr)  // [1, 99, 3]</code></pre>
+
+        <h4>Nested Arrays</h4>
+        <pre class="code-block"><code>let matrix = [[1, 2], [3, 4]]
+print(matrix[0][1])  // 2</code></pre>
       </section>
 
       <!-- Hello World -->
@@ -137,57 +170,19 @@
 let name = "Connor"
 let items = [1, 2, 3]</code></pre>
 
-        <h3>Assignment</h3>
-        <p>After declaration, you can reassign variables to new values (even different types):</p>
-        <pre class="code-block"><code>let x = 10
-x = 20          // reassign to new number
-x = "hello"     // dynamic typing - can change type</code></pre>
-
-        <h3>Rules</h3>
+        <h4>Naming Rules</h4>
         <ul>
           <li>Variable names must start with a letter or underscore</li>
           <li>Names can contain letters, numbers, and underscores</li>
           <li>Names are case-sensitive (<code>foo</code> and <code>Foo</code> are different)</li>
           <li>Cannot use reserved keywords as names</li>
         </ul>
-      </section>
 
-      <!-- Arrays (subsection of Variables) -->
-      <section id="arrays" class="subsection">
-        <h3>Arrays</h3>
-
-        <h4>Creating Arrays</h4>
-        <pre class="code-block"><code>let numbers = [1, 2, 3, 4, 5]
-let mixed = [1, "hello", true]
-let empty = []</code></pre>
-
-        <h4>Accessing Elements</h4>
-        <p>Arrays are zero-indexed:</p>
-        <pre class="code-block"><code>let arr = [10, 20, 30]
-print(arr[0])   // 10 (first element)
-print(arr[2])   // 30 (third element)</code></pre>
-
-        <h4>Modifying Elements</h4>
-        <pre class="code-block"><code>let arr = [1, 2, 3]
-arr[1] = 99
-print(arr)  // [1, 99, 3]</code></pre>
-
-        <h4>Nested Arrays</h4>
-        <pre class="code-block"><code>let matrix = [[1, 2], [3, 4]]
-print(matrix[0][1])  // 2</code></pre>
-
-        <h4>String Indexing</h4>
-        <p>Strings can be indexed like arrays:</p>
-        <pre class="code-block"><code>let word = "hello"
-print(word[0])  // "h"
-print(word[4])  // "o"</code></pre>
-
-        <h4>Length</h4>
-        <pre class="code-block"><code>let arr = [1, 2, 3]
-print(len(arr))      // 3
-
-let str = "hello"
-print(len(str))      // 5</code></pre>
+        <h3>Assignment</h3>
+        <p>After declaration, you can reassign variables to new values (even different types):</p>
+        <pre class="code-block"><code>let x = 10
+x = 20          // reassign to new number
+x = "hello"     // dynamic typing - can change type</code></pre>
       </section>
 
       <!-- Scoping (subsection of Variables) -->
