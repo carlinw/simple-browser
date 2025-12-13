@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Language Reference</title>
+  <link rel="stylesheet" href="styles/language-help.css">
+</head>
+<body>
+  <header>
+    <h1>Simple Language Reference</h1>
+    <nav>
+      <button id="back-btn" onclick="goBack()">Back to Code</button>
+    </nav>
+  </header>
+  <script>
+    function goBack() {
+      if (window.parent !== window) {
+        // In iframe, tell parent to hide help
+        window.parent.postMessage('hideHelp', '*');
+      } else {
+        // Direct access, go to index
+        window.location.href = 'index.html';
+      }
+    }
+  </script>
+
+  <main>
+    <aside id="toc">
+      <h2>Contents</h2>
+      <ul>
+        <li>
+          <a href="#variables">Variables</a>
+          <ul class="toc-subsections">
+            <li><a href="#types">Types</a></li>
+            <li><a href="#arrays">Arrays</a></li>
+            <li><a href="#scoping">Scoping &amp; Closures</a></li>
+          </ul>
+        </li>
+        <li><a href="#operators">Operators</a></li>
+        <li><a href="#control-flow">Control Flow</a></li>
+        <li>
+          <a href="#functions">Functions</a>
+          <ul class="toc-subsections">
+            <li><a href="#builtins">Built-in</a></li>
+            <li><a href="#keyboard">Keyboard</a></li>
+            <li><a href="#graphics">Graphics</a></li>
+            <li><a href="#colors">Colors</a></li>
+            <li><a href="#user-defined">User-defined</a></li>
+          </ul>
+        </li>
+      </ul>
+    </aside>
+
+    <article id="content">
+      <!-- Variables (main section) -->
+      <section id="variables">
+        <h2>Variables</h2>
+        <p>Variables store values and must be declared before use.</p>
+
+        <h3>Declaration</h3>
+        <pre class="code-block"><code>let x = 42
+let name = "Connor"
+let items = [1, 2, 3]</code></pre>
+
+        <h3>Assignment</h3>
+        <p>After declaration, you can reassign variables to new values (even different types):</p>
+        <pre class="code-block"><code>let x = 10
+x = 20          // reassign to new number
+x = "hello"     // dynamic typing - can change type</code></pre>
+
+        <h3>Rules</h3>
+        <ul>
+          <li>Variable names must start with a letter or underscore</li>
+          <li>Names can contain letters, numbers, and underscores</li>
+          <li>Names are case-sensitive (<code>foo</code> and <code>Foo</code> are different)</li>
+          <li>Cannot use reserved keywords as names</li>
+        </ul>
+      </section>
+
+      <!-- Types (subsection of Variables) -->
+      <section id="types" class="subsection">
+        <h3>Types</h3>
+        <p>Simple is dynamically typed. Variables can hold any type and change types during execution.</p>
+
+        <table class="ref-table">
+          <thead>
+            <tr><th>Type</th><th>Examples</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Integer</code></td>
+              <td><code>42</code>, <code>0</code>, <code>-5</code></td>
+              <td>Whole numbers</td>
+            </tr>
+            <tr>
+              <td><code>Float</code></td>
+              <td><code>3.14</code>, <code>0.5</code>, <code>-2.7</code></td>
+              <td>Decimal numbers</td>
+            </tr>
+            <tr>
+              <td><code>String</code></td>
+              <td><code>"hello"</code>, <code>"world"</code></td>
+              <td>Text (double quotes only)</td>
+            </tr>
+            <tr>
+              <td><code>Boolean</code></td>
+              <td><code>true</code>, <code>false</code></td>
+              <td>Logical values</td>
+            </tr>
+            <tr>
+              <td><code>Array</code></td>
+              <td><code>[1, 2, 3]</code></td>
+              <td>Ordered collection of values</td>
+            </tr>
+            <tr>
+              <td><code>Function</code></td>
+              <td><code>function name() { }</code></td>
+              <td>Reusable code block</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Arrays (subsection of Variables) -->
+      <section id="arrays" class="subsection">
+        <h3>Arrays</h3>
+
+        <h4>Creating Arrays</h4>
+        <pre class="code-block"><code>let numbers = [1, 2, 3, 4, 5]
+let mixed = [1, "hello", true]
+let empty = []</code></pre>
+
+        <h4>Accessing Elements</h4>
+        <p>Arrays are zero-indexed:</p>
+        <pre class="code-block"><code>let arr = [10, 20, 30]
+print(arr[0])   // 10 (first element)
+print(arr[2])   // 30 (third element)</code></pre>
+
+        <h4>Modifying Elements</h4>
+        <pre class="code-block"><code>let arr = [1, 2, 3]
+arr[1] = 99
+print(arr)  // [1, 99, 3]</code></pre>
+
+        <h4>Nested Arrays</h4>
+        <pre class="code-block"><code>let matrix = [[1, 2], [3, 4]]
+print(matrix[0][1])  // 2</code></pre>
+
+        <h4>String Indexing</h4>
+        <p>Strings can be indexed like arrays:</p>
+        <pre class="code-block"><code>let word = "hello"
+print(word[0])  // "h"
+print(word[4])  // "o"</code></pre>
+
+        <h4>Length</h4>
+        <pre class="code-block"><code>let arr = [1, 2, 3]
+print(len(arr))      // 3
+
+let str = "hello"
+print(len(str))      // 5</code></pre>
+      </section>
+
+      <!-- Scoping (subsection of Variables) -->
+      <section id="scoping" class="subsection">
+        <h3>Scoping &amp; Closures</h3>
+
+        <p>Simple uses <strong>lexical scoping</strong> with a scope chain. Variables are looked up starting from the innermost scope and moving outward to the global scope.</p>
+
+        <h4>Global Scope</h4>
+        <p>Variables declared at the top level are in the global scope and accessible everywhere:</p>
+        <pre class="code-block"><code>let globalVar = 100
+
+function foo() {
+  print(globalVar)  // can access global
+}
+
+foo()  // prints: 100</code></pre>
+
+        <h4>Local Scope</h4>
+        <p>Variables declared inside a function are local to that function:</p>
+        <pre class="code-block"><code>function foo() {
+  let localVar = 42
+  print(localVar)  // works
+}
+
+foo()
+print(localVar)  // ERROR: Undefined variable</code></pre>
+
+        <h4>Scope Chain (Multiple Layers)</h4>
+        <p>The scope chain goes up <strong>multiple layers</strong>, not just one. Inner functions can access variables from all enclosing scopes:</p>
+        <pre class="code-block"><code>let global = 100
+
+function outer() {
+  let outerVar = 50
+
+  function inner() {
+    let innerVar = 10
+    // Can access all three!
+    print(innerVar + outerVar + global)
+  }
+
+  inner()
+}
+
+outer()  // prints: 160</code></pre>
+
+        <div class="info-box">
+          <h4>How the Scope Chain Works</h4>
+          <p>When <code>inner()</code> runs and needs a variable:</p>
+          <ol>
+            <li>First checks <strong>inner's scope</strong> → finds <code>innerVar</code></li>
+            <li>Checks <strong>outer's scope</strong> (parent) → finds <code>outerVar</code></li>
+            <li>Checks <strong>global scope</strong> (grandparent) → finds <code>global</code></li>
+          </ol>
+          <p>The chain is: <code>inner → outer → global → (not found = error)</code></p>
+        </div>
+
+        <h4>Closures</h4>
+        <p>Functions capture their surrounding environment when created. This captured environment persists even after the outer function returns:</p>
+        <pre class="code-block"><code>function makeCounter() {
+  let count = 0
+
+  function increment() {
+    count = count + 1
+    return count
+  }
+
+  return increment
+}
+
+let counter = makeCounter()
+print(counter())  // 1
+print(counter())  // 2
+print(counter())  // 3</code></pre>
+
+        <p>Each call to <code>makeCounter()</code> creates a new closure with its own <code>count</code>:</p>
+        <pre class="code-block"><code>let counterA = makeCounter()
+let counterB = makeCounter()
+
+print(counterA())  // 1
+print(counterA())  // 2
+print(counterB())  // 1 (independent count)</code></pre>
+
+        <h4>Variable Shadowing</h4>
+        <p>A local variable can have the same name as an outer variable, "shadowing" it:</p>
+        <pre class="code-block"><code>let x = 10
+
+function foo() {
+  let x = 99  // shadows the outer x
+  print(x)    // 99
+}
+
+foo()
+print(x)  // 10 (outer x unchanged)</code></pre>
+
+        <h4>Assignment vs Declaration</h4>
+        <p>Using <code>let</code> creates a new variable in the current scope. Assignment without <code>let</code> modifies an existing variable in the scope chain:</p>
+        <pre class="code-block"><code>let x = 10
+
+function foo() {
+  x = 99  // modifies outer x (no let)
+}
+
+foo()
+print(x)  // 99</code></pre>
+      </section>
+
+      <!-- Operators -->
+      <section id="operators">
+        <h2>Operators</h2>
+
+        <h3>Arithmetic</h3>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Operator</th><th>Description</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>+</code></td><td>Addition</td><td><code>5 + 3</code> → <code>8</code></td></tr>
+            <tr><td><code>-</code></td><td>Subtraction</td><td><code>5 - 3</code> → <code>2</code></td></tr>
+            <tr><td><code>*</code></td><td>Multiplication</td><td><code>5 * 3</code> → <code>15</code></td></tr>
+            <tr><td><code>/</code></td><td>Division</td><td><code>15 / 3</code> → <code>5</code></td></tr>
+            <tr><td><code>%</code></td><td>Modulo (remainder)</td><td><code>7 % 3</code> → <code>1</code></td></tr>
+            <tr><td><code>-x</code></td><td>Negation</td><td><code>-5</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Comparison</h3>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Operator</th><th>Description</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>==</code></td><td>Equal to</td><td><code>5 == 5</code> → <code>true</code></td></tr>
+            <tr><td><code>!=</code></td><td>Not equal to</td><td><code>5 != 3</code> → <code>true</code></td></tr>
+            <tr><td><code>&lt;</code></td><td>Less than</td><td><code>3 &lt; 5</code> → <code>true</code></td></tr>
+            <tr><td><code>&gt;</code></td><td>Greater than</td><td><code>5 &gt; 3</code> → <code>true</code></td></tr>
+            <tr><td><code>&lt;=</code></td><td>Less than or equal</td><td><code>3 &lt;= 3</code> → <code>true</code></td></tr>
+            <tr><td><code>&gt;=</code></td><td>Greater than or equal</td><td><code>5 &gt;= 5</code> → <code>true</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Logical</h3>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Operator</th><th>Description</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>and</code></td><td>Logical AND</td><td><code>true and false</code> → <code>false</code></td></tr>
+            <tr><td><code>or</code></td><td>Logical OR</td><td><code>true or false</code> → <code>true</code></td></tr>
+            <tr><td><code>not</code></td><td>Logical NOT</td><td><code>not true</code> → <code>false</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>String Concatenation</h3>
+        <p>The <code>+</code> operator also concatenates strings:</p>
+        <pre class="code-block"><code>let greeting = "Hello, " + "World!"  // "Hello, World!"
+let msg = "Age: " + 25               // "Age: 25"</code></pre>
+
+        <h3>Operator Precedence</h3>
+        <p>From highest to lowest:</p>
+        <ol>
+          <li><code>not</code>, <code>-</code> (unary)</li>
+          <li><code>*</code>, <code>/</code>, <code>%</code></li>
+          <li><code>+</code>, <code>-</code></li>
+          <li><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
+          <li><code>==</code>, <code>!=</code></li>
+          <li><code>and</code></li>
+          <li><code>or</code></li>
+        </ol>
+        <p>Use parentheses to override: <code>(2 + 3) * 4</code> → <code>20</code></p>
+      </section>
+
+      <!-- Control Flow -->
+      <section id="control-flow">
+        <h2>Control Flow</h2>
+
+        <h3>If Statement</h3>
+        <pre class="code-block"><code>if (condition) {
+  // executed if condition is true
+}</code></pre>
+
+        <h3>If-Else Statement</h3>
+        <pre class="code-block"><code>if (x > 0) {
+  print("positive")
+} else {
+  print("not positive")
+}</code></pre>
+
+        <h3>While Loop</h3>
+        <pre class="code-block"><code>let i = 0
+while (i < 5) {
+  print(i)
+  i = i + 1
+}</code></pre>
+
+        <h3>Stop Statement</h3>
+        <p>The <code>stop</code> keyword immediately terminates program execution:</p>
+        <pre class="code-block"><code>while (true) {
+  let input = key()
+  if (input == "q") {
+    stop  // exit the program
+  }
+}</code></pre>
+      </section>
+
+      <!-- Functions (main section) -->
+      <section id="functions">
+        <h2>Functions</h2>
+        <p>Functions let you organize code into reusable blocks. Simple has built-in functions and you can define your own.</p>
+      </section>
+
+      <!-- Built-in Functions (subsection of Functions) -->
+      <section id="builtins" class="subsection">
+        <h3>Built-in</h3>
+
+        <table class="ref-table">
+          <thead>
+            <tr><th>Function</th><th>Description</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>print(x)</code></td>
+              <td>Output a value to the console</td>
+              <td><code>print("Hello")</code></td>
+            </tr>
+            <tr>
+              <td><code>len(x)</code></td>
+              <td>Length of array or string</td>
+              <td><code>len([1,2,3])</code> → <code>3</code></td>
+            </tr>
+            <tr>
+              <td><code>num(x)</code></td>
+              <td>Convert string to number</td>
+              <td><code>num("42")</code> → <code>42</code></td>
+            </tr>
+            <tr>
+              <td><code>random(min, max)</code></td>
+              <td>Random integer in range [min, max]</td>
+              <td><code>random(1, 6)</code></td>
+            </tr>
+            <tr>
+              <td><code>sleep(ms)</code></td>
+              <td>Pause execution for milliseconds</td>
+              <td><code>sleep(1000)</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Keyboard (subsection of Functions) -->
+      <section id="keyboard" class="subsection">
+        <h3>Keyboard</h3>
+
+        <table class="ref-table">
+          <thead>
+            <tr><th>Function</th><th>Description</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>input()</code></td>
+              <td>Read a line of text input</td>
+              <td><code>let name = input()</code></td>
+            </tr>
+            <tr>
+              <td><code>key()</code></td>
+              <td>Wait for and return single keypress</td>
+              <td><code>let k = key()</code></td>
+            </tr>
+            <tr>
+              <td><code>pressed(key)</code></td>
+              <td>Check if key is currently held down</td>
+              <td><code>pressed("ArrowUp")</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Common Key Names</h4>
+        <p>For <code>key()</code> and <code>pressed()</code>:</p>
+        <ul class="key-list">
+          <li><code>"ArrowUp"</code>, <code>"ArrowDown"</code>, <code>"ArrowLeft"</code>, <code>"ArrowRight"</code></li>
+          <li><code>"Enter"</code>, <code>"Space"</code>, <code>"Escape"</code></li>
+          <li><code>"a"</code> - <code>"z"</code> (lowercase letters)</li>
+          <li><code>"0"</code> - <code>"9"</code> (digits)</li>
+        </ul>
+
+        <h4>Example: Arrow Key Movement</h4>
+        <pre class="code-block"><code>let x = 100
+let y = 100
+
+while (true) {
+  if (pressed("ArrowUp")) { y = y - 5 }
+  if (pressed("ArrowDown")) { y = y + 5 }
+  if (pressed("ArrowLeft")) { x = x - 5 }
+  if (pressed("ArrowRight")) { x = x + 5 }
+
+  clear()
+  color("white")
+  circle(x, y, 10)
+  sleep(16)
+}</code></pre>
+      </section>
+
+      <!-- Graphics (subsection of Functions) -->
+      <section id="graphics" class="subsection">
+        <h3>Graphics</h3>
+        <p>Graphics functions draw to a canvas. The canvas appears automatically when any graphics function is called.</p>
+
+        <h4>Canvas Setup</h4>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Function</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>clear()</code></td><td>Clear canvas to black</td></tr>
+            <tr><td><code>fullscreen()</code></td><td>Enter fullscreen mode (ESC to exit)</td></tr>
+            <tr><td><code>width()</code></td><td>Get current canvas width</td></tr>
+            <tr><td><code>height()</code></td><td>Get current canvas height</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Drawing</h4>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Function</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>color(name)</code></td><td>Set drawing color (see Colors below)</td></tr>
+            <tr><td><code>rect(x, y, w, h)</code></td><td>Draw rectangle at (x,y) with width w, height h</td></tr>
+            <tr><td><code>circle(x, y, r)</code></td><td>Draw circle at (x,y) with radius r</td></tr>
+            <tr><td><code>line(x1, y1, x2, y2)</code></td><td>Draw line from (x1,y1) to (x2,y2)</td></tr>
+            <tr><td><code>triangle(x1,y1,x2,y2,x3,y3)</code></td><td>Draw triangle with three vertices</td></tr>
+            <tr><td><code>text(x, y, str)</code></td><td>Draw text at position (x,y)</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Drawing Modes</h4>
+        <table class="ref-table">
+          <thead>
+            <tr><th>Function</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>fill()</code></td><td>Shapes are filled solid (default)</td></tr>
+            <tr><td><code>stroke()</code></td><td>Shapes are outlined only</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Example: Bouncing Ball</h4>
+        <pre class="code-block"><code>let x = 100
+let y = 100
+let dx = 3
+let dy = 2
+
+while (true) {
+  // Move
+  x = x + dx
+  y = y + dy
+
+  // Bounce off walls
+  if (x < 10 or x > width() - 10) { dx = -dx }
+  if (y < 10 or y > height() - 10) { dy = -dy }
+
+  // Draw
+  clear()
+  color("red")
+  circle(x, y, 10)
+
+  sleep(16)
+}</code></pre>
+      </section>
+
+      <!-- Colors (subsection of Functions) -->
+      <section id="colors" class="subsection">
+        <h3>Colors</h3>
+        <p>Available color names for the <code>color()</code> function:</p>
+
+        <div class="color-grid" id="color-grid">
+          <!-- Colors will be populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- User-defined Functions (subsection of Functions) -->
+      <section id="user-defined" class="subsection">
+        <h3>User-defined</h3>
+
+        <h4>Declaration</h4>
+        <pre class="code-block"><code>function greet(name) {
+  print("Hello, " + name)
+}
+
+greet("Connor")  // prints: Hello, Connor</code></pre>
+
+        <h4>Return Values</h4>
+        <pre class="code-block"><code>function add(a, b) {
+  return a + b
+}
+
+let sum = add(3, 4)  // sum = 7</code></pre>
+
+        <h4>Multiple Parameters</h4>
+        <pre class="code-block"><code>function volume(width, height, depth) {
+  return width * height * depth
+}
+
+print(volume(2, 3, 4))  // prints: 24</code></pre>
+
+        <h4>Recursion</h4>
+        <p>Functions can call themselves:</p>
+        <pre class="code-block"><code>function factorial(n) {
+  if (n <= 1) {
+    return 1
+  }
+  return n * factorial(n - 1)
+}
+
+print(factorial(5))  // prints: 120</code></pre>
+      </section>
+    </article>
+  </main>
+
+  <footer>
+    <p>Simple Language Reference</p>
+  </footer>
+
+  <script src="src/constants.js"></script>
+  <script>
+    // Populate color grid
+    const colorGrid = document.getElementById('color-grid');
+    Object.entries(COLORS).forEach(([name, hex]) => {
+      const swatch = document.createElement('div');
+      swatch.className = 'color-swatch';
+      swatch.innerHTML = `
+        <div class="swatch-preview" style="background-color: ${hex}"></div>
+        <div class="swatch-info">
+          <code>${name}</code>
+          <span class="hex">${hex}</span>
+        </div>
+      `;
+      colorGrid.appendChild(swatch);
+    });
+  </script>
+</body>
+</html>

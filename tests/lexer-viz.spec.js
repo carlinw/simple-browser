@@ -223,31 +223,52 @@ test('arrow indicates newly emitted token', async ({ page }) => {
   expect(output).toContain('KEYWORD');
 });
 
-// Syntax Tab Tests
+// Language Help Tests (language help shows fullscreen when tab is clicked)
 
-test('syntax tab exists in interpreter pane', async ({ page }) => {
+test('language help tab exists in code pane', async ({ page }) => {
   await page.goto('/');
-  const syntaxTab = page.locator('.tab-btn[data-tab="syntax"]');
-  await expect(syntaxTab).toBeVisible();
-  await expect(syntaxTab).toHaveText('Syntax');
+  const helpTab = page.locator('#help-tab-btn');
+  await expect(helpTab).toBeVisible();
+  await expect(helpTab).toHaveText('Language Help');
 });
 
-test('clicking syntax tab shows reference content', async ({ page }) => {
+test('clicking language help tab shows help fullscreen', async ({ page }) => {
   await page.goto('/');
-  await page.click('.tab-btn[data-tab="syntax"]');
 
-  const syntaxPanel = page.locator('#tab-syntax');
-  await expect(syntaxPanel).toHaveClass(/active/);
+  // Click the help tab
+  await page.click('#help-tab-btn');
 
-  const content = page.locator('.reference-content');
-  await expect(content).toBeVisible();
+  // Main content should be hidden, help should be visible
+  await expect(page.locator('body')).toHaveClass(/help-active/);
+  await expect(page.locator('#language-help')).toBeVisible();
+
+  // Help iframe should contain the reference content
+  const iframe = page.frameLocator('#help-iframe');
+  await expect(iframe.locator('#types')).toBeVisible();
 });
 
-test('syntax tab shows keywords', async ({ page }) => {
+test('clicking back button returns to code view', async ({ page }) => {
   await page.goto('/');
-  await page.click('.tab-btn[data-tab="syntax"]');
 
-  const content = page.locator('#tab-syntax');
+  // Open help
+  await page.click('#help-tab-btn');
+  await expect(page.locator('body')).toHaveClass(/help-active/);
+
+  // Click back button in iframe
+  const iframe = page.frameLocator('#help-iframe');
+  await iframe.locator('#back-btn').click();
+
+  // Should be back to normal view
+  await expect(page.locator('body')).not.toHaveClass(/help-active/);
+  await expect(page.locator('#code-editor')).toBeVisible();
+});
+
+test('language help shows keywords', async ({ page }) => {
+  await page.goto('/');
+  await page.click('#help-tab-btn');
+
+  const iframe = page.frameLocator('#help-iframe');
+  const content = iframe.locator('#content');
   const text = await content.textContent();
   expect(text).toContain('let');
   expect(text).toContain('if');
@@ -255,11 +276,12 @@ test('syntax tab shows keywords', async ({ page }) => {
   expect(text).toContain('print');
 });
 
-test('syntax tab shows operators', async ({ page }) => {
+test('language help shows operators', async ({ page }) => {
   await page.goto('/');
-  await page.click('.tab-btn[data-tab="syntax"]');
+  await page.click('#help-tab-btn');
 
-  const content = page.locator('#tab-syntax');
+  const iframe = page.frameLocator('#help-iframe');
+  const content = iframe.locator('#content');
   const text = await content.textContent();
   expect(text).toContain('+');
   expect(text).toContain('-');
@@ -268,11 +290,12 @@ test('syntax tab shows operators', async ({ page }) => {
   expect(text).toContain('==');
 });
 
-test('syntax tab shows types', async ({ page }) => {
+test('language help shows types', async ({ page }) => {
   await page.goto('/');
-  await page.click('.tab-btn[data-tab="syntax"]');
+  await page.click('#help-tab-btn');
 
-  const content = page.locator('#tab-syntax');
+  const iframe = page.frameLocator('#help-iframe');
+  const content = iframe.locator('#content');
   const text = await content.textContent();
   expect(text).toContain('Integer');
   expect(text).toContain('Float');

@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabTokens = document.getElementById('tab-tokens');
   const tabAst = document.getElementById('tab-ast');
   const tabMemory = document.getElementById('tab-memory');
-  const tabSyntax = document.getElementById('tab-syntax');
 
   // Tab switching
   function switchTab(tabName) {
@@ -52,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     tabTokens.classList.toggle('active', tabName === 'tokens');
     tabAst.classList.toggle('active', tabName === 'ast');
     tabMemory.classList.toggle('active', tabName === 'memory');
-    tabSyntax.classList.toggle('active', tabName === 'syntax');
   }
 
   // Add click handlers to tabs
@@ -65,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const outputRenderer = new OutputRenderer(output);
   const astRenderer = new ASTRenderer(tabAst);
   const memoryRenderer = new MemoryRenderer(tabMemory);
-  const referenceRenderer = new ReferenceRenderer(tabSyntax);
 
   // Other Managers
   const visualizer = new CodeVisualizer(codeDisplay);
@@ -394,9 +391,44 @@ document.addEventListener('DOMContentLoaded', () => {
   resetBtn.addEventListener('click', reset);
   exampleBtn.addEventListener('click', showExamples);
 
-  // Keyboard navigation for AST/Memory/Syntax panels
+  // Language Help toggle
+  const helpTabBtn = document.getElementById('help-tab-btn');
+  const codeTabBtns = document.querySelectorAll('.code-tab-btn');
+
+  function showHelp() {
+    document.body.classList.add('help-active');
+    codeTabBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.codeTab === 'help');
+    });
+  }
+
+  function hideHelp() {
+    document.body.classList.remove('help-active');
+    codeTabBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.codeTab === 'code');
+    });
+  }
+
+  codeTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.codeTab === 'help') {
+        showHelp();
+      } else {
+        hideHelp();
+      }
+    });
+  });
+
+  // Listen for messages from iframe (back button)
+  window.addEventListener('message', (e) => {
+    if (e.data === 'hideHelp') {
+      hideHelp();
+    }
+  });
+
+  // Keyboard navigation for AST/Memory panels
   const SCROLL_AMOUNT = 50;
-  [tabAst, tabMemory, tabSyntax].forEach(panel => {
+  [tabAst, tabMemory].forEach(panel => {
     panel.setAttribute('tabindex', '0');
     panel.addEventListener('keydown', (e) => {
       switch (e.key) {

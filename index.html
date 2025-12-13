@@ -23,10 +23,15 @@
     </nav>
   </header>
 
-  <main>
+  <main id="main-content">
     <!-- Section 1: Code -->
     <section id="code-pane">
-      <h2>Code</h2>
+      <div class="pane-header">
+        <div class="code-tabs">
+          <button class="code-tab-btn active" data-code-tab="code">Code</button>
+          <button class="code-tab-btn" data-code-tab="help" id="help-tab-btn">Language Help</button>
+        </div>
+      </div>
       <textarea id="code-editor" placeholder="Write your code here..."></textarea>
       <pre id="code-display" class="code-display hidden"></pre>
     </section>
@@ -39,14 +44,12 @@
           <button class="tab-btn active" data-tab="tokens">Parser</button>
           <button class="tab-btn" data-tab="ast">AST</button>
           <button class="tab-btn" data-tab="memory">Memory</button>
-          <button class="tab-btn" data-tab="syntax">Syntax</button>
         </div>
       </div>
       <div class="tab-content">
         <div id="tab-tokens" class="tab-panel active"></div>
         <div id="tab-ast" class="tab-panel"></div>
         <div id="tab-memory" class="tab-panel"></div>
-        <div id="tab-syntax" class="tab-panel"></div>
       </div>
     </section>
 
@@ -56,6 +59,11 @@
       <pre id="output"></pre>
     </section>
   </main>
+
+  <!-- Language Help (fullscreen overlay) -->
+  <div id="language-help">
+    <iframe src="language-help.html" id="help-iframe"></iframe>
+  </div>
 
   <script src="src/constants.js"></script>
   <script src="src/utils.js"></script>
@@ -70,7 +78,6 @@
   <script src="src/memory-renderer.js"></script>
   <script src="src/visualizer.js"></script>
   <script src="src/modal.js"></script>
-  <script src="src/reference.js"></script>
   <script src="src/examples/tokenizer-demo.js"></script>
   <script src="src/examples/variables.js"></script>
   <script src="src/examples/arithmetic.js"></script>

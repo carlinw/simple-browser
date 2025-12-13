@@ -40,16 +40,15 @@ test('can type in code editor', async ({ page }) => {
   await expect(editor).toHaveValue('print hello');
 });
 
-// Interpreter Tabs Tests (4 tabs)
+// Interpreter Tabs Tests (3 tabs)
 
-test('interpreter pane has four tabs', async ({ page }) => {
+test('interpreter pane has three tabs', async ({ page }) => {
   await page.goto('/');
   const tabs = page.locator('.interpreter-tabs .tab-btn');
-  await expect(tabs).toHaveCount(4);
+  await expect(tabs).toHaveCount(3);
   await expect(tabs.nth(0)).toHaveText('Parser');
   await expect(tabs.nth(1)).toHaveText('AST');
   await expect(tabs.nth(2)).toHaveText('Memory');
-  await expect(tabs.nth(3)).toHaveText('Syntax');
 });
 
 test('parser tab shows character and line count', async ({ page }) => {
