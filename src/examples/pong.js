@@ -9,61 +9,113 @@ export const example = {
   code: `// Tiny Pong
 // Use up/down arrow keys to move paddle
 
-let paddleY = 130
-let paddleH = 40
-let ballX = 200
-let ballY = 150
-let ballDX = 4
-let ballDY = 3
+class Ball {
+  x,
+  y,
+  dx,
+  dy,
+
+  move() {
+    this.x = this.x + this.dx
+    this.y = this.y + this.dy
+  }
+
+  bounceY() {
+    this.dy = 0 - this.dy
+  }
+
+  bounceX() {
+    this.dx = 0 - this.dx
+  }
+
+  reset() {
+    this.x = 200
+    this.y = 150
+  }
+
+  draw() {
+    circle(this.x, this.y, 5)
+  }
+}
+
+class Paddle {
+  x,
+  y,
+  width,
+  height,
+  speed,
+
+  moveUp() {
+    if (this.y > 0) {
+      this.y = this.y - this.speed
+    }
+  }
+
+  moveDown() {
+    if (this.y < 300 - this.height) {
+      this.y = this.y + this.speed
+    }
+  }
+
+  draw() {
+    rect(this.x, this.y, this.width, this.height)
+  }
+
+  hits(ballX, ballY) {
+    if (ballX < this.x + this.width + 5 and ballX > this.x + 5) {
+      if (ballY > this.y and ballY < this.y + this.height) {
+        return true
+      }
+    }
+    return false
+  }
+}
+
+let ball = new Ball(200, 150, 4, 3)
+let paddle = new Paddle(10, 130, 10, 40, 6)
 let score = 0
 
 while (true) {
   clear()
-
-  // Draw paddle
   color("white")
-  rect(10, paddleY, 10, paddleH)
 
-  // Draw ball
-  circle(ballX, ballY, 5)
+  // Draw game objects
+  paddle.draw()
+  ball.draw()
 
-  // Draw score
+  // Draw score bar
   rect(395, 10, 2, score * 5)
 
-  // Move paddle
-  if (pressed("up") and paddleY > 0) {
-    paddleY = paddleY - 6
+  // Handle input
+  if (pressed("up")) {
+    paddle.moveUp()
   }
-  if (pressed("down") and paddleY < 300 - paddleH) {
-    paddleY = paddleY + 6
+  if (pressed("down")) {
+    paddle.moveDown()
   }
 
   // Move ball
-  ballX = ballX + ballDX
-  ballY = ballY + ballDY
+  ball.move()
 
   // Bounce off top/bottom
-  if (ballY < 5 or ballY > 295) {
-    ballDY = 0 - ballDY
+  if (ball.y < 5 or ball.y > 295) {
+    ball.bounceY()
   }
 
   // Bounce off right wall
-  if (ballX > 395) {
-    ballDX = 0 - ballDX
+  if (ball.x > 395) {
+    ball.bounceX()
   }
 
   // Bounce off paddle
-  if (ballX < 25 and ballX > 15) {
-    if (ballY > paddleY and ballY < paddleY + paddleH) {
-      ballDX = 0 - ballDX
-      score = score + 1
-    }
+  if (paddle.hits(ball.x, ball.y)) {
+    ball.bounceX()
+    score = score + 1
   }
 
   // Reset if ball goes off left
-  if (ballX < 0) {
-    ballX = 200
-    ballY = 150
+  if (ball.x < 0) {
+    ball.reset()
     score = 0
   }
 

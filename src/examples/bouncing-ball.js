@@ -7,33 +7,42 @@ export const example = {
   name: 'Bouncing Ball',
   description: 'Ball bounces around the canvas',
   code: `// Bouncing Ball
-// Watch the ball bounce off walls
+// Using a Ball class to encapsulate state and behavior
 
-let x = 200
-let y = 150
-let dx = 3
-let dy = 2
-let radius = 10
+class Ball {
+  x,
+  y,
+  dx,
+  dy,
+  radius,
+
+  move() {
+    this.x = this.x + this.dx
+    this.y = this.y + this.dy
+  }
+
+  bounce() {
+    if (this.x < this.radius or this.x > 400 - this.radius) {
+      this.dx = 0 - this.dx
+    }
+    if (this.y < this.radius or this.y > 300 - this.radius) {
+      this.dy = 0 - this.dy
+    }
+  }
+
+  draw() {
+    color("white")
+    circle(this.x, this.y, this.radius)
+  }
+}
+
+let ball = new Ball(200, 150, 3, 2, 10)
 
 while (true) {
   clear()
-
-  // Draw ball
-  color("white")
-  circle(x, y, radius)
-
-  // Move ball
-  x = x + dx
-  y = y + dy
-
-  // Bounce off walls
-  if (x < radius or x > 400 - radius) {
-    dx = 0 - dx
-  }
-  if (y < radius or y > 300 - radius) {
-    dy = 0 - dy
-  }
-
+  ball.draw()
+  ball.move()
+  ball.bounce()
   sleep(16)
 }`
 };

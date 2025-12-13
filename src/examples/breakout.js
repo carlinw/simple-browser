@@ -9,16 +9,74 @@ export const example = {
   code: `// Breakout
 // Use left/right arrows to move paddle
 
-// Paddle
-let paddleX = 175
-let paddleW = 50
-let paddleH = 8
+class Ball {
+  x,
+  y,
+  dx,
+  dy,
 
-// Ball
-let ballX = 200
-let ballY = 250
-let ballDX = 3
-let ballDY = -3
+  move() {
+    this.x = this.x + this.dx
+    this.y = this.y + this.dy
+  }
+
+  bounceX() {
+    this.dx = 0 - this.dx
+  }
+
+  bounceY() {
+    this.dy = 0 - this.dy
+  }
+
+  reset() {
+    this.x = 200
+    this.y = 250
+    this.dx = 3
+    this.dy = -3
+  }
+
+  draw() {
+    color("white")
+    circle(this.x, this.y, 5)
+  }
+}
+
+class Paddle {
+  x,
+  y,
+  width,
+  height,
+  speed,
+
+  moveLeft() {
+    if (this.x > 0) {
+      this.x = this.x - this.speed
+    }
+  }
+
+  moveRight() {
+    if (this.x < 400 - this.width) {
+      this.x = this.x + this.speed
+    }
+  }
+
+  hits(ballX, ballY) {
+    if (ballY > this.y and ballY < this.y + 10) {
+      if (ballX > this.x and ballX < this.x + this.width) {
+        return true
+      }
+    }
+    return false
+  }
+
+  draw() {
+    color("white")
+    rect(this.x, this.y, this.width, this.height)
+  }
+}
+
+let ball = new Ball(200, 250, 3, -3)
+let paddle = new Paddle(175, 285, 50, 8, 6)
 
 // Bricks (5 rows x 8 columns = 40 bricks)
 let brickW = 45
@@ -30,39 +88,33 @@ let score = 0
 while (true) {
   clear()
 
-  // Move paddle
-  if (pressed("left") and paddleX > 0) {
-    paddleX = paddleX - 6
+  // Handle input
+  if (pressed("left")) {
+    paddle.moveLeft()
   }
-  if (pressed("right") and paddleX < 400 - paddleW) {
-    paddleX = paddleX + 6
+  if (pressed("right")) {
+    paddle.moveRight()
   }
 
   // Move ball
-  ballX = ballX + ballDX
-  ballY = ballY + ballDY
+  ball.move()
 
   // Ball wall collision
-  if (ballX < 5 or ballX > 395) {
-    ballDX = 0 - ballDX
+  if (ball.x < 5 or ball.x > 395) {
+    ball.bounceX()
   }
-  if (ballY < 5) {
-    ballDY = 0 - ballDY
+  if (ball.y < 5) {
+    ball.bounceY()
   }
 
   // Ball paddle collision
-  if (ballY > 280 and ballY < 290) {
-    if (ballX > paddleX and ballX < paddleX + paddleW) {
-      ballDY = 0 - ballDY
-    }
+  if (paddle.hits(ball.x, ball.y)) {
+    ball.bounceY()
   }
 
   // Ball missed paddle
-  if (ballY > 300) {
-    ballX = 200
-    ballY = 250
-    ballDX = 3
-    ballDY = -3
+  if (ball.y > 300) {
+    ball.reset()
   }
 
   // Check brick collisions
@@ -75,10 +127,10 @@ while (true) {
         let bx = col * 50 + 5
         let by = row * 15 + 20
         // Check collision
-        if (ballX > bx and ballX < bx + brickW) {
-          if (ballY > by and ballY < by + brickH) {
+        if (ball.x > bx and ball.x < bx + brickW) {
+          if (ball.y > by and ball.y < by + brickH) {
             bricks[idx] = 0
-            ballDY = 0 - ballDY
+            ball.bounceY()
             score = score + 1
           }
         }
@@ -107,12 +159,9 @@ while (true) {
     row = row + 1
   }
 
-  // Draw paddle
-  color("white")
-  rect(paddleX, 285, paddleW, paddleH)
-
-  // Draw ball
-  circle(ballX, ballY, 5)
+  // Draw game objects
+  paddle.draw()
+  ball.draw()
 
   sleep(16)
 }`
