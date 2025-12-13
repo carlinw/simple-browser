@@ -1,4 +1,4 @@
-# Simple Browser Interpreter
+# Tiny Development Environment
 
 A browser-based interpreter with visual debugging tools to teach how programming languages, interpreters, and memory management work.
 
