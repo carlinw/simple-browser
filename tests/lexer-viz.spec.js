@@ -297,8 +297,9 @@ test('language help shows types', async ({ page }) => {
   const iframe = page.frameLocator('#help-iframe');
   const content = iframe.locator('#content');
   const text = await content.textContent();
-  expect(text).toContain('Integer');
-  expect(text).toContain('Float');
+  // Types are documented in the Literals section
+  expect(text).toContain('integer');
+  expect(text).toContain('float');
   expect(text).toContain('String');
   expect(text).toContain('Boolean');
   expect(text).toContain('Array');

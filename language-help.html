@@ -52,7 +52,9 @@
         <li>
           <a href="#variables">Variables</a>
           <ul class="toc-subsections">
-            <li><a href="#scoping">Scoping &amp; Closures</a></li>
+            <li><a href="#naming">Naming</a></li>
+            <li><a href="#declaration">Declaration</a></li>
+            <li><a href="#scoping">Scoping</a></li>
           </ul>
         </li>
         <li>
@@ -96,12 +98,16 @@
       <!-- Numbers (subsection of Literals) -->
       <section id="numbers" class="subsection">
         <h3>Numbers</h3>
-        <p>Integers are whole numbers. Floats are decimal numbers.</p>
+        <p>Tiny has a single number type that handles both integers (whole numbers) and floats (decimal numbers). The interpreter displays them differently in the visualization but they work the same way in expressions.</p>
         <pre class="code-block"><code>42        // integer
 -5        // negative integer
 3.14      // float
 0.5       // float
 -2.7      // negative float</code></pre>
+        <p>Math operations work on any numbers:</p>
+        <pre class="code-block"><code>print(5 / 2)      // 2.5 (float result)
+print(4 / 2)      // 2 (integer result)
+print(3.5 + 1.5)  // 5 (integer result)</code></pre>
       </section>
 
       <!-- Strings (subsection of Literals) -->
@@ -164,13 +170,11 @@ print(matrix[0][1])  // 2</code></pre>
       <section id="variables">
         <h2>Variables</h2>
         <p>Variables store values and must be declared before use. Tiny is dynamically typed - variables can hold any type and change types during execution.</p>
+      </section>
 
-        <h3>Declaration</h3>
-        <pre class="code-block"><code>let x = 42
-let name = "Connor"
-let items = [1, 2, 3]</code></pre>
-
-        <h4>Naming Rules</h4>
+      <!-- Naming (subsection of Variables) -->
+      <section id="naming" class="subsection">
+        <h3>Naming</h3>
         <ul>
           <li>Variable names must start with a letter or underscore</li>
           <li>Names can contain letters, numbers, and underscores</li>
@@ -178,17 +182,26 @@ let items = [1, 2, 3]</code></pre>
           <li>Cannot use reserved keywords or built-in function names</li>
         </ul>
 
-        <h5>Reserved Keywords</h5>
+        <h4>Reserved Keywords</h4>
         <p class="keyword-list">
-          <code>let</code> <code>if</code> <code>else</code> <code>while</code> <code>function</code> <code>return</code> <code>true</code> <code>false</code> <code>stop</code> <code>and</code> <code>or</code> <code>not</code> <code>equals</code>
+          <code>and</code> <code>else</code> <code>equals</code> <code>false</code> <code>function</code> <code>if</code> <code>let</code> <code>not</code> <code>or</code> <code>return</code> <code>stop</code> <code>true</code> <code>while</code>
         </p>
 
-        <h5>Built-in Functions</h5>
+        <h4>Built-in Functions</h4>
         <p class="keyword-list">
-          <code>print</code> <code>len</code> <code>num</code> <code>random</code> <code>sleep</code> <code>input</code> <code>key</code> <code>pressed</code> <code>clear</code> <code>color</code> <code>rect</code> <code>circle</code> <code>line</code> <code>text</code> <code>triangle</code> <code>fill</code> <code>stroke</code> <code>fullscreen</code> <code>width</code> <code>height</code>
+          <code>circle</code> <code>clear</code> <code>color</code> <code>fill</code> <code>fullscreen</code> <code>height</code> <code>input</code> <code>key</code> <code>len</code> <code>line</code> <code>num</code> <code>pressed</code> <code>print</code> <code>random</code> <code>rect</code> <code>sleep</code> <code>stroke</code> <code>text</code> <code>triangle</code> <code>width</code>
         </p>
+      </section>
 
-        <h3>Assignment</h3>
+      <!-- Declaration (subsection of Variables) -->
+      <section id="declaration" class="subsection">
+        <h3>Declaration</h3>
+        <p>Use <code>let</code> to declare a variable with an initial value:</p>
+        <pre class="code-block"><code>let x = 42
+let name = "Connor"
+let items = [1, 2, 3]</code></pre>
+
+        <h4>Assignment</h4>
         <p>After declaration, you can reassign variables to new values (even different types):</p>
         <pre class="code-block"><code>let x = 10
 x = 20          // reassign to new number
@@ -197,7 +210,7 @@ x = "hello"     // dynamic typing - can change type</code></pre>
 
       <!-- Scoping (subsection of Variables) -->
       <section id="scoping" class="subsection">
-        <h3>Scoping &amp; Closures</h3>
+        <h3>Scoping</h3>
 
         <p>Tiny uses <strong>lexical scoping</strong> with a scope chain. Variables are looked up starting from the innermost scope and moving outward to the global scope.</p>
 
