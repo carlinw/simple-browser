@@ -1,4 +1,4 @@
-// Simple Interpreter - Memory Tab Renderer
+// Tiny - Memory Tab Renderer
 // Displays call stack with variables in each frame
 
 class MemoryRenderer {

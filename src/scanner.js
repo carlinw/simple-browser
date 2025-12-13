@@ -1,4 +1,4 @@
-// Simple Interpreter - Character-by-Character Scanner
+// Tiny - Character-by-Character Scanner
 // Wraps the lexer to expose the scanning process step by step
 
 const ScanState = {

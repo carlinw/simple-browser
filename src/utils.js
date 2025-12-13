@@ -1,4 +1,4 @@
-// Simple Interpreter - Shared Utility Functions
+// Tiny - Shared Utility Functions
 
 // Character classification utilities
 function isDigit(char) {

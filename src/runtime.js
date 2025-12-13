@@ -1,4 +1,4 @@
-// Simple Interpreter - Runtime Classes
+// Tiny - Runtime Classes
 // Environment, function values, and error types
 
 // Environment class - stores variable bindings with scope chain

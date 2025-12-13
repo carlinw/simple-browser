@@ -1,4 +1,4 @@
-// Simple Interpreter - Expression Evaluator
+// Tiny - Expression Evaluator
 // Walks the AST and computes values
 // Uses Environment, TinyFunction, ReturnValue, RuntimeError from runtime.js
 

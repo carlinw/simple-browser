@@ -1,4 +1,4 @@
-// Simple Interpreter - Code Visualizer
+// Tiny - Code Visualizer
 // Handles source code highlighting for step-through mode
 
 class CodeVisualizer {

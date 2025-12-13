@@ -1,4 +1,4 @@
-// Simple Interpreter - Parser Tab Renderer
+// Tiny - Parser Tab Renderer
 // Renders token lists and scanner state to the Parser tab
 
 class ParserRenderer {

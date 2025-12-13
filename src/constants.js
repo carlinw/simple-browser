@@ -1,4 +1,4 @@
-// Simple Interpreter - Shared Constants
+// Tiny - Shared Constants
 
 // Canvas dimensions
 const CANVAS_WIDTH = 400;

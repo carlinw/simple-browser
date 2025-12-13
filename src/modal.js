@@ -1,4 +1,4 @@
-// Simple Interpreter - Modal Base Class
+// Tiny - Modal Base Class
 // Reusable modal dialog component
 
 class Modal {

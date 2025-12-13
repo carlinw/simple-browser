@@ -1,4 +1,4 @@
-// Simple Interpreter - Main Entry Point
+// Tiny - Main Entry Point
 
 // Keyboard state tracking for pressed() builtin
 const keysPressed = new Set();

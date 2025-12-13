@@ -1,4 +1,4 @@
-// Simple Interpreter - Lexer
+// Tiny - Lexer
 // Converts source code into tokens
 
 const TokenType = {

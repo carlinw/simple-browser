@@ -1,4 +1,4 @@
-// Simple Interpreter - Output Tab Renderer
+// Tiny - Output Tab Renderer
 // Renders errors and program output to the Output tab
 
 class OutputRenderer {

@@ -1,4 +1,4 @@
-// Simple Interpreter - Parser
+// Tiny - Parser
 // Converts tokens into an Abstract Syntax Tree (AST)
 
 class Parser {

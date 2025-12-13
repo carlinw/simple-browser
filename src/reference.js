@@ -1,4 +1,4 @@
-// Simple Interpreter - Language Reference Renderer
+// Tiny - Language Reference Renderer
 // Shows available syntax and examples in a tab panel
 
 class ReferenceRenderer {

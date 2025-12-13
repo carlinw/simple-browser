@@ -1,4 +1,4 @@
-// Simple Interpreter - Example Programs Manager
+// Tiny - Example Programs Manager
 // Manages the example selector modal
 // Example definitions are in src/examples/*.js
 
