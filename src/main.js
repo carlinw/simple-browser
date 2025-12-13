@@ -270,8 +270,10 @@ function init() {
         return value;
       },
       onKey: async () => {
-        // Render current output before waiting for key
-        outputRenderer.renderOutput(printedOutput);
+        // Only render text output if not in graphics mode
+        if (!outputRenderer.hasCanvas()) {
+          outputRenderer.renderOutput(printedOutput);
+        }
         const value = await outputRenderer.waitForKeypress();
         // Add the key to printed output so it shows in final render
         printedOutput.push(value);

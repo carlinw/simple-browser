@@ -118,7 +118,24 @@ export class OutputRenderer {
     return new Promise((resolve) => {
       this.keyResolve = resolve;
 
-      // Preserve current text content
+      // If we have a canvas, don't destroy it - just focus it for key input
+      if (this.canvas) {
+        this.canvas.focus();
+
+        // Listen for keydown on canvas
+        this.keyHandler = (e) => {
+          let key = e.key;
+          this.canvas.removeEventListener('keydown', this.keyHandler);
+          this.keyHandler = null;
+          this.keyResolve = null;
+          resolve(key);
+        };
+
+        this.canvas.addEventListener('keydown', this.keyHandler);
+        return;
+      }
+
+      // Text mode - preserve current text content
       const currentText = this.container.textContent;
 
       // Clear and rebuild with proper structure
@@ -165,6 +182,9 @@ export class OutputRenderer {
 
     if (this.keyHandler) {
       document.removeEventListener('keydown', this.keyHandler);
+      if (this.canvas) {
+        this.canvas.removeEventListener('keydown', this.keyHandler);
+      }
       this.keyHandler = null;
     }
     this.keyResolve = null;
@@ -408,6 +428,11 @@ export class OutputRenderer {
       this.fullscreenOverlay.remove();
       this.fullscreenOverlay = null;
     }
+  }
+
+  // Check if canvas is active
+  hasCanvas() {
+    return this.canvas !== null;
   }
 
   // Get canvas width
