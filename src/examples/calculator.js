@@ -1,12 +1,12 @@
-// Example: Simple Calculator
+// Example: Tiny Calculator
 // Basic arithmetic with user input
 
 window.EXAMPLES = window.EXAMPLES || {};
 
 window.EXAMPLES['calculator'] = {
   name: 'Calculator',
-  description: 'Simple arithmetic calculator',
-  code: `// Simple Calculator
+  description: 'Tiny arithmetic calculator',
+  code: `// Tiny Calculator
 // Enter two numbers and an operation
 
 print("Enter first number:")

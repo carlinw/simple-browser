@@ -1,12 +1,12 @@
-// Example: Simple Pong
+// Example: Tiny Pong
 // Classic pong game with one paddle
 
 window.EXAMPLES = window.EXAMPLES || {};
 
 window.EXAMPLES['pong'] = {
-  name: 'Simple Pong',
+  name: 'Tiny Pong',
   description: 'Classic pong with arrow keys',
-  code: `// Simple Pong
+  code: `// Tiny Pong
 // Use up/down arrow keys to move paddle
 
 let paddleY = 130

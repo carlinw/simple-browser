@@ -33,7 +33,7 @@ function factorial(n) {
   return n * factorial(n - 1)
 }
 
-// Simple call
+// Basic call
 result = add(3, 4)
 print("3 + 4 = " + result)
 

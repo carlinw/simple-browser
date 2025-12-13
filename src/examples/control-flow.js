@@ -8,7 +8,7 @@ window.EXAMPLES['control-flow'] = {
   description: 'if/else branches and while loops',
   code: `// Control Flow Demo
 
-// Simple if statement
+// Basic if statement
 let temperature = 75
 if (temperature > 70) {
   print("It's warm outside")
