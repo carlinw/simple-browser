@@ -125,32 +125,6 @@ export class MemoryRenderer {
     this.container.innerHTML = html;
   }
 
-  // Legacy render method for backward compatibility with old tests
-  renderLegacy(environment) {
-    const variables = environment.getAll();
-
-    if (variables.length === 0) {
-      this.container.innerHTML = '<div class="memory-empty">(no variables)</div>' + this.getLegendHtml();
-      return;
-    }
-
-    let html = '<div class="memory-list">';
-    for (const [name, value] of variables) {
-      const type = this.getType(value);
-      const displayValue = this.formatValue(value);
-      html += `
-        <div class="memory-var" data-name="${name}">
-          <span class="var-name">${name}</span>
-          <span class="var-type var-type-${type}">${type}</span>
-          <span class="var-value var-value-${type}">${displayValue}</span>
-        </div>
-      `;
-    }
-    html += '</div>';
-    html += this.getLegendHtml();
-    this.container.innerHTML = html;
-  }
-
   // Get type abbreviation
   getType(value) {
     if (typeof value === 'number') {

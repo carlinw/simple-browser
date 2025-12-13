@@ -18,7 +18,8 @@ export const TokenType = {
 export const KEYWORDS = new Set([
   'let', 'if', 'else', 'while', 'function',
   'return', 'true', 'false', 'stop',
-  'and', 'or', 'not', 'equals'
+  'and', 'or', 'not', 'equals',
+  'class', 'new', 'this'
 ]);
 
 const OPERATORS = {
@@ -34,7 +35,7 @@ const OPERATORS = {
   '>=': '>=',
 };
 
-const PUNCTUATION = new Set(['(', ')', '{', '}', ',', '[', ']']);
+const PUNCTUATION = new Set(['(', ')', '{', '}', ',', '[', ']', '.']);
 
 export class Lexer {
   constructor(source) {
@@ -167,7 +168,7 @@ export class Lexer {
         end: this.pos
       };
     }
-    // Invalid character
+    // Invalid character - skip it and return null (caller will try again)
     else {
       this.errors.push({
         message: `Invalid character '${char}'`,
@@ -175,8 +176,7 @@ export class Lexer {
         column: this.column
       });
       this.advance();
-      // Try to get next valid token
-      return this.nextToken();
+      return null;
     }
 
     this.lastToken = token;

@@ -86,6 +86,14 @@
             <li><a href="#user-defined">User-defined</a></li>
           </ul>
         </li>
+        <li>
+          <a href="#classes">Classes</a>
+          <ul class="toc-subsections">
+            <li><a href="#class-definition">Definition</a></li>
+            <li><a href="#creating-instances">Instances</a></li>
+            <li><a href="#methods">Methods</a></li>
+          </ul>
+        </li>
       </ul>
     </aside>
 
@@ -185,7 +193,7 @@ print(matrix[0][1])  // 2</code></pre>
 
         <h4>Reserved Keywords</h4>
         <p class="keyword-list">
-          <code>and</code> <code>else</code> <code>equals</code> <code>false</code> <code>function</code> <code>if</code> <code>let</code> <code>not</code> <code>or</code> <code>return</code> <code>stop</code> <code>true</code> <code>while</code>
+          <code>and</code> <code>class</code> <code>else</code> <code>equals</code> <code>false</code> <code>function</code> <code>if</code> <code>let</code> <code>new</code> <code>not</code> <code>or</code> <code>return</code> <code>stop</code> <code>this</code> <code>true</code> <code>while</code>
         </p>
 
         <h4>Built-in Functions</h4>
@@ -670,6 +678,84 @@ print(volume(2, 3, 4))  // prints: 24</code></pre>
 }
 
 print(factorial(5))  // prints: 120</code></pre>
+      </section>
+
+      <!-- Classes (main section) -->
+      <section id="classes">
+        <h2>Classes</h2>
+        <p>Classes let you bundle related data and behavior together. They're useful for representing things like players, enemies, or game objects.</p>
+      </section>
+
+      <!-- Class Definition (subsection of Classes) -->
+      <section id="class-definition" class="subsection">
+        <h3>Definition</h3>
+        <p>Define a class with fields (data) and methods (behavior):</p>
+        <pre class="code-block"><code>class Player {
+  name,
+  x,
+  y,
+  health,
+
+  takeDamage(amount) {
+    this.health = this.health - amount
+  }
+}</code></pre>
+        <p>Fields are listed first (separated by commas), followed by methods.</p>
+      </section>
+
+      <!-- Creating Instances (subsection of Classes) -->
+      <section id="creating-instances" class="subsection">
+        <h3>Instances</h3>
+        <p>Create an instance with <code>new</code>, passing values for each field in order:</p>
+        <pre class="code-block"><code>let p = new Player("Connor", 100, 200, 10)
+print(p.name)    // "Connor"
+print(p.x)       // 100
+print(p.health)  // 10</code></pre>
+
+        <h4>Modifying Fields</h4>
+        <p>Access and modify fields with dot notation:</p>
+        <pre class="code-block"><code>p.x = 150
+p.health = p.health - 1
+print(p.x)       // 150
+print(p.health)  // 9</code></pre>
+      </section>
+
+      <!-- Methods (subsection of Classes) -->
+      <section id="methods" class="subsection">
+        <h3>Methods</h3>
+        <p>Methods are functions that operate on instance data. Use <code>this</code> to access fields:</p>
+        <pre class="code-block"><code>class Point {
+  x,
+  y,
+
+  move(dx, dy) {
+    this.x = this.x + dx
+    this.y = this.y + dy
+  }
+
+  distanceFromOrigin() {
+    return this.x + this.y
+  }
+}
+
+let pt = new Point(10, 20)
+pt.move(5, -3)
+print(pt.x)  // 15
+print(pt.y)  // 17
+print(pt.distanceFromOrigin())  // 32</code></pre>
+
+        <h4>Methods with Return Values</h4>
+        <pre class="code-block"><code>class Rectangle {
+  width,
+  height,
+
+  area() {
+    return this.width * this.height
+  }
+}
+
+let r = new Rectangle(10, 5)
+print(r.area())  // 50</code></pre>
       </section>
     </article>
   </main>

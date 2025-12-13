@@ -100,6 +100,7 @@ export class Parser {
       if (this.check('KEYWORD', 'while')) return;
       if (this.check('KEYWORD', 'function')) return;
       if (this.check('KEYWORD', 'return')) return;
+      if (this.check('KEYWORD', 'class')) return;
       this.advance();
     }
   }
@@ -121,6 +122,9 @@ export class Parser {
     if (this.match('KEYWORD', 'return')) {
       return this.parseReturnStatement();
     }
+    if (this.match('KEYWORD', 'class')) {
+      return this.parseClassDeclaration();
+    }
     if (this.check('PUNCTUATION', '{')) {
       return this.parseBlock();
     }
@@ -131,9 +135,10 @@ export class Parser {
       return this.parseAssignStatement();
     }
 
-    // Check for index assignment (identifier followed by [)
+    // Check for index/member assignment (identifier followed by [ or .)
     if (this.check('IDENTIFIER') && this.peekNext() &&
-        this.peekNext().type === 'PUNCTUATION' && this.peekNext().value === '[') {
+        this.peekNext().type === 'PUNCTUATION' &&
+        (this.peekNext().value === '[' || this.peekNext().value === '.')) {
       const expr = this.parseExpression();
 
       // Check if this is an index assignment
@@ -150,6 +155,20 @@ export class Parser {
         };
       }
 
+      // Check if this is a member assignment (obj.field = value)
+      if (expr.type === 'MemberExpression' && this.check('OPERATOR', '=')) {
+        this.advance(); // consume '='
+        const value = this.parseExpression();
+        return {
+          type: 'MemberAssignStatement',
+          object: expr.object,
+          property: expr.property,
+          token: expr.token,
+          value: value,
+          endToken: this.previous()
+        };
+      }
+
       // Otherwise it's an expression statement
       return {
         type: 'ExpressionStatement',
@@ -161,6 +180,21 @@ export class Parser {
 
     // Expression statement (for future use)
     const expr = this.parseExpression();
+
+    // Handle member assignment for expressions starting with 'this'
+    if (expr.type === 'MemberExpression' && this.check('OPERATOR', '=')) {
+      this.advance(); // consume '='
+      const value = this.parseExpression();
+      return {
+        type: 'MemberAssignStatement',
+        object: expr.object,
+        property: expr.property,
+        token: expr.token,
+        value: value,
+        endToken: this.previous()
+      };
+    }
+
     return {
       type: 'ExpressionStatement',
       expression: expr,
@@ -290,6 +324,70 @@ export class Parser {
       value: value,
       token: returnToken,
       endToken: value ? this.previous() : returnToken
+    };
+  }
+
+  parseClassDeclaration() {
+    const classToken = this.previous(); // 'class' keyword we just matched
+    const nameToken = this.consume('IDENTIFIER', null, "Expected class name");
+
+    this.consume('PUNCTUATION', '{', "Expected '{' after class name");
+
+    const fields = [];
+    const methods = [];
+
+    while (!this.check('PUNCTUATION', '}') && !this.isAtEnd()) {
+      // Check if this is a method (identifier followed by '(')
+      if (this.check('IDENTIFIER')) {
+        const nameT = this.advance();
+
+        if (this.check('PUNCTUATION', '(')) {
+          // It's a method
+          this.consume('PUNCTUATION', '(', "Expected '(' after method name");
+
+          const params = [];
+          if (!this.check('PUNCTUATION', ')')) {
+            do {
+              const param = this.consume('IDENTIFIER', null, "Expected parameter name");
+              params.push(param.value);
+            } while (this.match('PUNCTUATION', ','));
+          }
+
+          this.consume('PUNCTUATION', ')', "Expected ')' after parameters");
+          const body = this.parseBlock();
+
+          methods.push({
+            type: 'MethodDeclaration',
+            name: nameT.value,
+            params: params,
+            body: body,
+            token: nameT,
+            endToken: this.previous()
+          });
+        } else {
+          // It's a field
+          fields.push({
+            type: 'FieldDeclaration',
+            name: nameT.value,
+            token: nameT
+          });
+          // Consume optional comma
+          this.match('PUNCTUATION', ',');
+        }
+      } else {
+        this.error("Expected field or method declaration in class");
+      }
+    }
+
+    const closeBrace = this.consume('PUNCTUATION', '}', "Expected '}' after class body");
+
+    return {
+      type: 'ClassDeclaration',
+      name: nameToken.value,
+      fields: fields,
+      methods: methods,
+      token: classToken,
+      endToken: closeBrace
     };
   }
 
@@ -483,6 +581,36 @@ export class Parser {
       return this.parsePostfix({ type: 'BooleanLiteral', value: false, token: token });
     }
 
+    // 'this' keyword
+    if (this.check('KEYWORD', 'this')) {
+      const token = this.advance();
+      return this.parsePostfix({ type: 'ThisExpression', token: token });
+    }
+
+    // 'new' expression
+    if (this.check('KEYWORD', 'new')) {
+      const newToken = this.advance();
+      const classNameToken = this.consume('IDENTIFIER', null, "Expected class name after 'new'");
+      this.consume('PUNCTUATION', '(', "Expected '(' after class name");
+
+      const args = [];
+      if (!this.check('PUNCTUATION', ')')) {
+        do {
+          args.push(this.parseExpression());
+        } while (this.match('PUNCTUATION', ','));
+      }
+
+      const closeParen = this.consume('PUNCTUATION', ')', "Expected ')' after arguments");
+
+      return this.parsePostfix({
+        type: 'NewExpression',
+        className: classNameToken.value,
+        arguments: args,
+        token: newToken,
+        endToken: closeParen
+      });
+    }
+
     // Array literal
     if (this.match('PUNCTUATION', '[')) {
       return this.parsePostfix(this.parseArrayLiteral());
@@ -521,19 +649,60 @@ export class Parser {
     this.error(`Unexpected token: ${this.peek()?.type} '${this.peek()?.value}'`);
   }
 
-  // Parse postfix operators like index access [expr]
+  // Parse postfix operators like index access [expr], member access .field, and method calls .method()
   parsePostfix(expr) {
-    while (this.check('PUNCTUATION', '[')) {
-      const openBracket = this.advance();
-      const index = this.parseExpression();
-      const closeBracket = this.consume('PUNCTUATION', ']', "Expected ']' after index");
-      expr = {
-        type: 'IndexExpression',
-        object: expr,
-        index: index,
-        token: expr.token,
-        endToken: closeBracket
-      };
+    while (true) {
+      // Index access: expr[index]
+      if (this.check('PUNCTUATION', '[')) {
+        const openBracket = this.advance();
+        const index = this.parseExpression();
+        const closeBracket = this.consume('PUNCTUATION', ']', "Expected ']' after index");
+        expr = {
+          type: 'IndexExpression',
+          object: expr,
+          index: index,
+          token: expr.token,
+          endToken: closeBracket
+        };
+      }
+      // Member access or method call: expr.field or expr.method()
+      else if (this.check('PUNCTUATION', '.')) {
+        this.advance(); // consume '.'
+        const propertyToken = this.consume('IDENTIFIER', null, "Expected property name after '.'");
+
+        // Check if this is a method call
+        if (this.check('PUNCTUATION', '(')) {
+          this.advance(); // consume '('
+          const args = [];
+          if (!this.check('PUNCTUATION', ')')) {
+            do {
+              args.push(this.parseExpression());
+            } while (this.match('PUNCTUATION', ','));
+          }
+          const closeParen = this.consume('PUNCTUATION', ')', "Expected ')' after arguments");
+
+          expr = {
+            type: 'MethodCall',
+            object: expr,
+            method: propertyToken.value,
+            arguments: args,
+            token: expr.token,
+            endToken: closeParen
+          };
+        } else {
+          // Just member access
+          expr = {
+            type: 'MemberExpression',
+            object: expr,
+            property: propertyToken.value,
+            token: expr.token,
+            endToken: propertyToken
+          };
+        }
+      }
+      else {
+        break;
+      }
     }
     return expr;
   }

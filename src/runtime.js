@@ -56,6 +56,38 @@ export class TinyFunction {
   }
 }
 
+// Class value - stores class definition
+export class TinyClass {
+  constructor(name, fields, methods) {
+    this.name = name;
+    this.fields = fields;     // Array of field names
+    this.methods = methods;   // Map of method name -> method declaration
+  }
+}
+
+// Instance value - stores instance data
+export class TinyInstance {
+  constructor(klass) {
+    this.klass = klass;
+    this.fields = new Map();  // Field name -> value
+  }
+
+  get(name) {
+    if (this.fields.has(name)) {
+      return this.fields.get(name);
+    }
+    throw new RuntimeError(`Undefined property: ${name}`);
+  }
+
+  set(name, value) {
+    this.fields.set(name, value);
+  }
+
+  has(name) {
+    return this.fields.has(name);
+  }
+}
+
 // Return value - used as exception to unwind call stack
 export class ReturnValue {
   constructor(value) {

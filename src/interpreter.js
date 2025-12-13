@@ -2,7 +2,7 @@
 // Walks the AST and computes values
 
 import { CANVAS_WIDTH, CANVAS_HEIGHT, MAX_LOOP_ITERATIONS, COLORS } from './constants.js';
-import { Environment, TinyFunction, ReturnValue, RuntimeError } from './runtime.js';
+import { Environment, TinyFunction, TinyClass, TinyInstance, ReturnValue, RuntimeError } from './runtime.js';
 
 export class Interpreter {
   constructor(options = {}) {
@@ -122,6 +122,31 @@ export class Interpreter {
         const value = await this.evaluate(node.value);
         this.validateArrayAccess(object, index);
         object[index] = value;
+        this.onVariableChange(null, object, 'update');
+        break;
+      }
+
+      case 'ClassDeclaration': {
+        // Build methods map
+        const methods = new Map();
+        for (const method of node.methods) {
+          methods.set(method.name, method);
+        }
+        // Create class with field names
+        const fieldNames = node.fields.map(f => f.name);
+        const klass = new TinyClass(node.name, fieldNames, methods);
+        this.environment.define(node.name, klass);
+        this.onVariableChange(node.name, '[class]', 'define');
+        break;
+      }
+
+      case 'MemberAssignStatement': {
+        const object = await this.evaluate(node.object);
+        if (!(object instanceof TinyInstance)) {
+          throw new RuntimeError('Cannot set property on non-instance');
+        }
+        const value = await this.evaluate(node.value);
+        object.set(node.property, value);
         this.onVariableChange(null, object, 'update');
         break;
       }
@@ -270,6 +295,112 @@ export class Interpreter {
             break;
           default:
             throw new RuntimeError(`Unknown built-in function: ${node.name}`);
+        }
+        break;
+      }
+
+      case 'ThisExpression': {
+        // 'this' is bound in the current environment
+        result = this.environment.get('this');
+        break;
+      }
+
+      case 'NewExpression': {
+        // Get the class
+        const klass = this.environment.get(node.className);
+        if (!(klass instanceof TinyClass)) {
+          throw new RuntimeError(`'${node.className}' is not a class`);
+        }
+
+        // Evaluate arguments
+        const args = [];
+        for (const arg of node.arguments) {
+          args.push(await this.evaluate(arg));
+        }
+
+        // Check argument count matches field count
+        if (args.length !== klass.fields.length) {
+          throw new RuntimeError(
+            `Class ${node.className} expects ${klass.fields.length} arguments but got ${args.length}`
+          );
+        }
+
+        // Create instance and initialize fields
+        const instance = new TinyInstance(klass);
+        for (let i = 0; i < klass.fields.length; i++) {
+          instance.set(klass.fields[i], args[i]);
+        }
+
+        result = instance;
+        break;
+      }
+
+      case 'MemberExpression': {
+        const object = await this.evaluate(node.object);
+        if (!(object instanceof TinyInstance)) {
+          throw new RuntimeError('Cannot access property on non-instance');
+        }
+        result = object.get(node.property);
+        break;
+      }
+
+      case 'MethodCall': {
+        const object = await this.evaluate(node.object);
+        if (!(object instanceof TinyInstance)) {
+          throw new RuntimeError('Cannot call method on non-instance');
+        }
+
+        // Get method from class
+        const method = object.klass.methods.get(node.method);
+        if (!method) {
+          throw new RuntimeError(`Undefined method: ${node.method}`);
+        }
+
+        // Evaluate arguments
+        const args = [];
+        for (const arg of node.arguments) {
+          args.push(await this.evaluate(arg));
+        }
+
+        // Check argument count
+        if (args.length !== method.params.length) {
+          throw new RuntimeError(
+            `Method ${node.method} expects ${method.params.length} arguments but got ${args.length}`
+          );
+        }
+
+        // Create new environment for method execution
+        // Method has access to global scope (not closure-based for simplicity)
+        const methodEnv = new Environment(this.environment);
+
+        // Bind 'this' to the instance
+        methodEnv.define('this', object);
+
+        // Bind parameters to arguments
+        for (let i = 0; i < method.params.length; i++) {
+          methodEnv.define(method.params[i], args[i]);
+        }
+
+        // Execute method body in new environment
+        const previousEnv = this.environment;
+        this.environment = methodEnv;
+
+        // Notify call start
+        this.onCallStart(node.method, args, methodEnv);
+
+        try {
+          await this.execute(method.body);
+          result = null; // No explicit return
+        } catch (e) {
+          if (e instanceof ReturnValue) {
+            result = e.value;
+          } else {
+            throw e;
+          }
+        } finally {
+          this.environment = previousEnv;
+          // Notify call end
+          this.onCallEnd(node.method, result);
         }
         break;
       }

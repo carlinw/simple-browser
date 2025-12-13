@@ -34,11 +34,13 @@ import { example as tetris } from './examples/tetris.js';
 import { example as tokenizerDemo } from './examples/tokenizer-demo.js';
 import { example as towersOfHanoi } from './examples/towers-of-hanoi.js';
 import { example as variables } from './examples/variables.js';
+import { example as classes } from './examples/classes.js';
 
 // Aggregate all examples into a single object
 const EXAMPLES = {
   'tokenizer-demo': tokenizerDemo,
   'variables': variables,
+  'classes': classes,
   'arithmetic': arithmetic,
   'comparisons': comparisons,
   'control-flow': controlFlow,
