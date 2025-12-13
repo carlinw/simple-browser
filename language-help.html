@@ -726,9 +726,16 @@ print(factorial(5))  // prints: 120</code></pre>
       <!-- Classes (main section) -->
       <section id="classes">
         <h2>Classes</h2>
-        <p>Classes let you bundle related data and behavior together. Instead of using separate variables and functions, you can group everything about a "thing" into one place.</p>
+        <p>Objects let you work with complex things by building them from simpler things, and those from even simpler things—all the way down to primitives.</p>
 
-        <h4>Why Use Classes?</h4>
+        <ul>
+          <li><strong>Compose:</strong> Bundle variables into concepts (Player = name + x + y + health)</li>
+          <li><strong>Nest:</strong> Build bigger concepts from smaller ones (Team has Players, Game has Teams)</li>
+          <li><strong>Pass around:</strong> One reference handles the whole bundle</li>
+          <li><strong>Organize:</strong> Code lives with the data it operates on</li>
+        </ul>
+
+        <h4>Without Classes vs With Classes</h4>
         <p>Without classes, you might track a player like this:</p>
         <pre class="code-block"><code>// Without classes - messy!
 let player1X = 100
@@ -759,13 +766,6 @@ let player1 = new Player("Connor", 100, 200, 10)
 let player2 = new Player("Alex", 300, 200, 10)
 
 player1.move(5, 0)  // player1 moves itself</code></pre>
-
-        <p>Classes are especially useful for:</p>
-        <ul>
-          <li><strong>Game objects:</strong> Players, enemies, bullets, items</li>
-          <li><strong>Data with behavior:</strong> Things that need to "do" something</li>
-          <li><strong>Multiple similar things:</strong> When you have many objects of the same type</li>
-        </ul>
       </section>
 
       <!-- Class Definition (subsection of Classes) -->
