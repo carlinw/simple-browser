@@ -21,5 +21,7 @@ export const COLORS = {
   'orange': '#ff8800',
   'purple': '#8800ff',
   'cyan': '#00ffff',
-  'pink': '#ff88ff'
+  'pink': '#ff88ff',
+  'gray': '#888888',
+  'lime': '#00ff00'
 };
