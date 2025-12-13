@@ -254,6 +254,10 @@ function init() {
         if (animated) {
           outputRenderer.renderOutput(printedOutput);
         }
+        // In graphics mode, also print to the text area
+        if (outputRenderer.hasCanvas()) {
+          outputRenderer.printText(value);
+        }
       },
       onCallStart: (funcName, args, env) => {
         memoryRenderer.pushFrame(funcName, args, env);

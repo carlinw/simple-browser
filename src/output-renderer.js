@@ -12,6 +12,8 @@ export class OutputRenderer {
     this.keyHandler = null;
     this.canvas = null;
     this.ctx = null;
+    this.textArea = null;  // Text area for mixed mode (print + canvas)
+    this.textLines = [];   // Accumulated print lines in graphics mode
     this.currentColor = '#ffffff';
     this.fillMode = true; // true = fill, false = stroke
     this.isFullscreen = false;
@@ -208,6 +210,13 @@ export class OutputRenderer {
     this.canvas.tabIndex = 0;
     this.container.innerHTML = '';
     this.container.appendChild(this.canvas);
+
+    // Create text area for mixed mode (print + canvas)
+    this.textArea = document.createElement('div');
+    this.textArea.className = 'output-text';
+    this.container.appendChild(this.textArea);
+    this.textLines = [];
+
     // Focus canvas for keyboard input
     this.canvas.focus();
     this.ctx = this.canvas.getContext('2d');
@@ -215,6 +224,15 @@ export class OutputRenderer {
     this.ctx.fillStyle = COLORS.black;
     this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.currentColor = COLORS.white;
+  }
+
+  // Print text to the text area (works in both text and graphics mode)
+  printText(value) {
+    if (this.canvas && this.textArea) {
+      // Graphics mode - add to text area
+      this.textLines.push(String(value));
+      this.textArea.textContent = this.textLines.join('\n');
+    }
   }
 
   // Clear the canvas to black
@@ -450,6 +468,8 @@ export class OutputRenderer {
     this.exitFullscreen();
     this.canvas = null;
     this.ctx = null;
+    this.textArea = null;
+    this.textLines = [];
     this.currentColor = '#ffffff';
     this.fillMode = true;
     this.canvasWidth = CANVAS_WIDTH;

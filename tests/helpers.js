@@ -22,6 +22,16 @@ async function runFastGraphics(page, code) {
 }
 
 /**
+ * Run code with Run Fast button and wait for mixed mode (canvas + text area)
+ */
+async function runFastMixed(page, code) {
+  await page.fill('#code-editor', code);
+  await page.click('#run-fast-btn');
+  await page.waitForSelector('#output canvas', { timeout: 5000 });
+  await page.waitForSelector('#output .output-text', { timeout: 5000 });
+}
+
+/**
  * Get the text content of the output pane
  */
 async function getOutput(page) {
@@ -31,5 +41,6 @@ async function getOutput(page) {
 module.exports = {
   runFast,
   runFastGraphics,
+  runFastMixed,
   getOutput
 };

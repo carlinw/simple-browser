@@ -151,16 +151,42 @@ false</code></pre>
 [[1, 2], [3, 4]]      // nested arrays</code></pre>
 
         <h4>Accessing Elements</h4>
-        <p>Arrays are zero-indexed:</p>
+        <p>Arrays are zero-indexed. Reading an index that doesn't exist causes an error:</p>
         <pre class="code-block"><code>let arr = [10, 20, 30]
 print(arr[0])   // 10 (first element)
 print(arr[2])   // 30 (third element)
-print(len(arr)) // 3</code></pre>
+print(len(arr)) // 3
+print(arr[5])   // Error: Index 5 out of bounds</code></pre>
 
         <h4>Modifying Elements</h4>
         <pre class="code-block"><code>let arr = [1, 2, 3]
 arr[1] = 99
 print(arr)  // [1, 99, 3]</code></pre>
+
+        <h4>Growing Arrays</h4>
+        <p>Arrays can grow by assigning to indices beyond the current length. Gaps are filled with <code>null</code>:</p>
+        <pre class="code-block"><code>let arr = []
+arr[0] = 10
+arr[1] = 20
+arr[2] = 30
+print(len(arr))  // 3
+
+// Gaps are filled with null
+let sparse = []
+sparse[2] = 99
+print(sparse[0])  // null
+print(sparse[1])  // null
+print(sparse[2])  // 99</code></pre>
+
+        <h4>Building Arrays in Loops</h4>
+        <p>A common pattern is to build an array using a loop:</p>
+        <pre class="code-block"><code>let squares = []
+let i = 0
+while (i < 5) {
+  squares[i] = i * i
+  i = i + 1
+}
+print(squares)  // [0, 1, 4, 9, 16]</code></pre>
 
         <h4>Nested Arrays</h4>
         <pre class="code-block"><code>let matrix = [[1, 2], [3, 4]]
