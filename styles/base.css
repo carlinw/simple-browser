@@ -237,6 +237,11 @@ body.help-active #toolbar {
   display: none;
 }
 
+/* Remove border appearance when help is shown */
+body.help-active {
+  background: var(--color-panel);
+}
+
 /* Hidden utility */
 .hidden {
   display: none !important;
