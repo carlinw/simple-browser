@@ -355,13 +355,36 @@ class Parser {
   parseEquality() {
     let left = this.parseComparison();
 
-    while (this.check('OPERATOR', '==') || this.check('OPERATOR', '!=')) {
-      const operator = this.advance();
-      const right = this.parseComparison();
-      left = this.makeBinaryExpr(left, operator, right);
+    while (this.check('KEYWORD', 'equals') || this.checkNotEquals()) {
+      if (this.match('KEYWORD', 'equals')) {
+        const operator = this.previous();
+        const right = this.parseComparison();
+        left = this.makeBinaryExpr(left, operator, right);
+      } else {
+        // 'not equals' - consume both keywords
+        this.advance(); // consume 'not'
+        const notToken = this.previous();
+        this.advance(); // consume 'equals'
+        const right = this.parseComparison();
+        left = {
+          type: 'BinaryExpression',
+          operator: 'not equals',
+          left: left,
+          right: right,
+          token: left.token,
+          endToken: right.endToken || right.token
+        };
+      }
     }
 
     return left;
+  }
+
+  // Check if we're at 'not' followed by 'equals'
+  checkNotEquals() {
+    if (!this.check('KEYWORD', 'not')) return false;
+    const next = this.peekNext();
+    return next && next.type === 'KEYWORD' && next.value === 'equals';
   }
 
   parseComparison() {

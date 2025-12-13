@@ -19,16 +19,16 @@ print("Enter second number:")
 let b = num(input())
 
 let result = 0
-if (op == "+") {
+if (op equals "+") {
   result = a + b
 } else {
-  if (op == "-") {
+  if (op equals "-") {
     result = a - b
   } else {
-    if (op == "*") {
+    if (op equals "*") {
       result = a * b
     } else {
-      if (op == "/") {
+      if (op equals "/") {
         result = a / b
       }
     }

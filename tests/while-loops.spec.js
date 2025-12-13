@@ -53,7 +53,7 @@ test('nested while loops', async ({ page }) => {
 
 test('while loop with variable condition', async ({ page }) => {
   await page.goto('/');
-  const output = await runCode(page, 'let running = true\nlet i = 0\nwhile (running) { i = i + 1\nif (i == 3) { running = false } }\nprint(i)');
+  const output = await runCode(page, 'let running = true\nlet i = 0\nwhile (running) { i = i + 1\nif (i equals 3) { running = false } }\nprint(i)');
   expect(output).toContain('3');
 });
 

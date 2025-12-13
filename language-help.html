@@ -175,8 +175,18 @@ let items = [1, 2, 3]</code></pre>
           <li>Variable names must start with a letter or underscore</li>
           <li>Names can contain letters, numbers, and underscores</li>
           <li>Names are case-sensitive (<code>foo</code> and <code>Foo</code> are different)</li>
-          <li>Cannot use reserved keywords as names</li>
+          <li>Cannot use reserved keywords or built-in function names</li>
         </ul>
+
+        <h5>Reserved Keywords</h5>
+        <p class="keyword-list">
+          <code>let</code> <code>if</code> <code>else</code> <code>while</code> <code>function</code> <code>return</code> <code>true</code> <code>false</code> <code>stop</code> <code>and</code> <code>or</code> <code>not</code> <code>equals</code>
+        </p>
+
+        <h5>Built-in Functions</h5>
+        <p class="keyword-list">
+          <code>print</code> <code>len</code> <code>num</code> <code>random</code> <code>sleep</code> <code>input</code> <code>key</code> <code>pressed</code> <code>clear</code> <code>color</code> <code>rect</code> <code>circle</code> <code>line</code> <code>text</code> <code>triangle</code> <code>fill</code> <code>stroke</code> <code>fullscreen</code> <code>width</code> <code>height</code>
+        </p>
 
         <h3>Assignment</h3>
         <p>After declaration, you can reassign variables to new values (even different types):</p>
@@ -322,8 +332,8 @@ print(x)  // 99</code></pre>
             <tr><th>Operator</th><th>Description</th><th>Example</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>==</code></td><td>Equal to</td><td><code>5 == 5</code> → <code>true</code></td></tr>
-            <tr><td><code>!=</code></td><td>Not equal to</td><td><code>5 != 3</code> → <code>true</code></td></tr>
+            <tr><td><code>equals</code></td><td>Equal to</td><td><code>5 equals 5</code> → <code>true</code></td></tr>
+            <tr><td><code>not equals</code></td><td>Not equal to</td><td><code>5 not equals 3</code> → <code>true</code></td></tr>
             <tr><td><code>&lt;</code></td><td>Less than</td><td><code>3 &lt; 5</code> → <code>true</code></td></tr>
             <tr><td><code>&gt;</code></td><td>Greater than</td><td><code>5 &gt; 3</code> → <code>true</code></td></tr>
             <tr><td><code>&lt;=</code></td><td>Less than or equal</td><td><code>3 &lt;= 3</code> → <code>true</code></td></tr>
@@ -364,7 +374,7 @@ let msg = "Age: " + 25               // "Age: 25"</code></pre>
           <li><code>*</code>, <code>/</code>, <code>%</code></li>
           <li><code>+</code>, <code>-</code></li>
           <li><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
-          <li><code>==</code>, <code>!=</code></li>
+          <li><code>equals</code>, <code>not equals</code></li>
           <li><code>and</code></li>
           <li><code>or</code></li>
         </ol>
@@ -414,7 +424,7 @@ while (i < 5) {
         <p>The <code>stop</code> keyword immediately terminates program execution:</p>
         <pre class="code-block"><code>while (true) {
   let input = key()
-  if (input == "q") {
+  if (input equals "q") {
     stop  // exit the program
   }
 }</code></pre>

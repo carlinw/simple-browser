@@ -122,7 +122,7 @@ test('interpreter evaluates comparison to boolean', async ({ page }) => {
 
 test('interpreter evaluates equality to boolean', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print(5 == 5)');
+  await runFast(page, 'print(5 equals 5)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');

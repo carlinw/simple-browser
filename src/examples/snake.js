@@ -22,19 +22,19 @@ let tailY = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 while (true) {
   // Handle input
-  if (pressed("up") and dy == 0) {
+  if (pressed("up") and dy equals 0) {
     dx = 0
     dy = 0 - size
   }
-  if (pressed("down") and dy == 0) {
+  if (pressed("down") and dy equals 0) {
     dx = 0
     dy = size
   }
-  if (pressed("left") and dx == 0) {
+  if (pressed("left") and dx equals 0) {
     dx = 0 - size
     dy = 0
   }
-  if (pressed("right") and dx == 0) {
+  if (pressed("right") and dx equals 0) {
     dx = size
     dy = 0
   }
@@ -60,7 +60,7 @@ while (true) {
   if (y > 290) { y = 0 }
 
   // Check food collision
-  if (x == foodX and y == foodY) {
+  if (x equals foodX and y equals foodY) {
     if (length < 20) {
       length = length + 1
     }

@@ -64,7 +64,7 @@ class Scanner {
 
   isTwoCharOperator(first, second) {
     const combo = first + second;
-    return combo === '==' || combo === '!=' || combo === '<=' || combo === '>=';
+    return combo === '<=' || combo === '>=';
   }
 
   // Create a token from current buffer

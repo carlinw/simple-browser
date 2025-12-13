@@ -37,7 +37,7 @@ print("Length: " + len(text))
 // Compare strings
 let a = "apple"
 let b = "banana"
-if (a == "apple") {
+if (a equals "apple") {
   print("Found apple!")
 }
 

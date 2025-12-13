@@ -17,11 +17,11 @@ let choice = key()
 
 let cols = 10
 let rows = 8
-if (choice == "2") {
+if (choice equals "2") {
   cols = 15
   rows = 12
 }
-if (choice == "3") {
+if (choice equals "3") {
   cols = 20
   rows = 15
 }
@@ -72,7 +72,7 @@ function setWall(x, y, val) {
 }
 
 function isVisited(x, y) {
-  return visited[idx(x, y)] == 1
+  return visited[idx(x, y)] equals 1
 }
 
 function markVisited(x, y) {
@@ -123,7 +123,7 @@ function drawMaze() {
       let w = getWall(x, y)
 
       // Draw solution path
-      if (solution[idx(x, y)] == 1) {
+      if (solution[idx(x, y)] equals 1) {
         color("blue")
         rect(px + 2, py + 2, cellW - 4, cellH - 4)
       }
@@ -246,7 +246,7 @@ while (stackTop > 0 and not found) {
   sleep(30)
 
   // Check if we reached the goal
-  if (mouseX == cols - 1 and mouseY == rows - 1) {
+  if (mouseX equals cols - 1 and mouseY equals rows - 1) {
     found = true
   } else {
     // Find unvisited neighbor we can move to (no wall between)

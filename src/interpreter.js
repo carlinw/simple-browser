@@ -329,9 +329,9 @@ class Interpreter {
     }
 
     // Comparison operators work on numbers and booleans
-    if (node.operator === '==' || node.operator === '!=') {
-      if (node.operator === '==') return left === right;
-      if (node.operator === '!=') return left !== right;
+    if (node.operator === 'equals' || node.operator === 'not equals') {
+      if (node.operator === 'equals') return left === right;
+      if (node.operator === 'not equals') return left !== right;
     }
 
     // Arithmetic and comparison require numbers

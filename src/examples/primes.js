@@ -16,7 +16,7 @@ function isPrime(n) {
   }
   let i = 2
   while (i * i <= n) {
-    if (n % i == 0) {
+    if (n % i equals 0) {
       return false
     }
     i = i + 1

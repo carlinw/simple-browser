@@ -16,7 +16,7 @@ const TokenType = {
 const KEYWORDS = new Set([
   'let', 'if', 'else', 'while', 'function',
   'return', 'true', 'false', 'stop',
-  'and', 'or', 'not'
+  'and', 'or', 'not', 'equals'
 ]);
 
 const OPERATORS = {
@@ -26,8 +26,6 @@ const OPERATORS = {
   '/': '/',
   '%': '%',
   '=': '=',
-  '==': '==',
-  '!=': '!=',
   '<': '<',
   '>': '>',
   '<=': '<=',
@@ -385,7 +383,7 @@ class Lexer {
   }
 
   isTwoCharOperatorStart(char) {
-    return char === '=' || char === '!' || char === '<' || char === '>';
+    return char === '<' || char === '>';
   }
 
   makeToken(type, value, raw) {

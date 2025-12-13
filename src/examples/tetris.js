@@ -51,7 +51,7 @@ function canPlace(px, py) {
   while (i < 4) {
     let cx = px + piecesX[pieceType * 4 + i]
     let cy = py + piecesY[pieceType * 4 + i]
-    if (getCell(cx, cy) != 0) {
+    if (getCell(cx, cy) not equals 0) {
       return false
     }
     i = i + 1
@@ -75,7 +75,7 @@ function clearLines() {
     let full = true
     let x = 0
     while (x < gridW) {
-      if (getCell(x, y) == 0) {
+      if (getCell(x, y) equals 0) {
         full = false
       }
       x = x + 1
@@ -108,13 +108,13 @@ function newPiece() {
 }
 
 function drawPieceColor(t) {
-  if (t == 1) { color("cyan") }
-  if (t == 2) { color("yellow") }
-  if (t == 3) { color("purple") }
-  if (t == 4) { color("green") }
-  if (t == 5) { color("red") }
-  if (t == 6) { color("blue") }
-  if (t == 7) { color("orange") }
+  if (t equals 1) { color("cyan") }
+  if (t equals 2) { color("yellow") }
+  if (t equals 3) { color("purple") }
+  if (t equals 4) { color("green") }
+  if (t equals 5) { color("red") }
+  if (t equals 6) { color("blue") }
+  if (t equals 7) { color("orange") }
 }
 
 newPiece()

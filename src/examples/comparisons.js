@@ -16,8 +16,8 @@ print(5 >= 5)
 print(3 <= 2)
 
 // Equality
-print(10 == 10)
-print(5 != 3)
+print(10 equals 10)
+print(5 not equals 3)
 
 // Compare variables
 let x = 10

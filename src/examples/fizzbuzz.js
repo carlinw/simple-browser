@@ -14,13 +14,13 @@ window.EXAMPLES['fizzbuzz'] = {
 
 let n = 1
 while (n <= 20) {
-  if (n % 3 == 0 and n % 5 == 0) {
+  if (n % 3 equals 0 and n % 5 equals 0) {
     print("FizzBuzz")
   } else {
-    if (n % 3 == 0) {
+    if (n % 3 equals 0) {
       print("Fizz")
     } else {
-      if (n % 5 == 0) {
+      if (n % 5 equals 0) {
         print("Buzz")
       } else {
         print(n)

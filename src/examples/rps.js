@@ -22,43 +22,43 @@ while (playing) {
   print("Your choice:")
   let player = key()
 
-  if (player == "q") {
+  if (player equals "q") {
     playing = false
   } else {
     // Computer picks randomly
     let pick = random(1, 3)
     let computer = "rock"
-    if (pick == 2) {
+    if (pick equals 2) {
       computer = "paper"
     } else {
-      if (pick == 3) {
+      if (pick equals 3) {
         computer = "scissors"
       }
     }
     print("Computer: " + computer)
 
     // Check winner
-    if (player == "r" and computer == "scissors") {
+    if (player equals "r" and computer equals "scissors") {
       print("You win!")
       wins = wins + 1
     } else {
-      if (player == "p" and computer == "rock") {
+      if (player equals "p" and computer equals "rock") {
         print("You win!")
         wins = wins + 1
       } else {
-        if (player == "s" and computer == "paper") {
+        if (player equals "s" and computer equals "paper") {
           print("You win!")
           wins = wins + 1
         } else {
-          if (player == "r" and computer == "rock") {
+          if (player equals "r" and computer equals "rock") {
             print("Tie!")
             ties = ties + 1
           } else {
-            if (player == "p" and computer == "paper") {
+            if (player equals "p" and computer equals "paper") {
               print("Tie!")
               ties = ties + 1
             } else {
-              if (player == "s" and computer == "scissors") {
+              if (player equals "s" and computer equals "scissors") {
                 print("Tie!")
                 ties = ties + 1
               } else {

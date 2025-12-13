@@ -116,11 +116,11 @@ test('parser parses comparison expressions', async ({ page }) => {
 
 test('parser parses equality expressions', async ({ page }) => {
   await page.goto('/');
-  const ast = await getAST(page, 'x == 1');
+  const ast = await getAST(page, 'x equals 1');
 
   const expr = ast.statements[0].expression;
   expect(expr.type).toBe('BinaryExpression');
-  expect(expr.operator).toBe('==');
+  expect(expr.operator).toBe('equals');
 });
 
 test('parser parses grouped expressions', async ({ page }) => {

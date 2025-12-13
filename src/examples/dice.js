@@ -17,9 +17,9 @@ let total = 0
 let rolls = 0
 let k = ""
 
-while (k != "q") {
+while (k not equals "q") {
   k = key()
-  if (k != "q") {
+  if (k not equals "q") {
     let die1 = random(1, 6)
     let die2 = random(1, 6)
     rolls = rolls + 1

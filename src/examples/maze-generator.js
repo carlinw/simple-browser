@@ -38,7 +38,7 @@ function setWall(x, y, val) {
 }
 
 function isVisited(x, y) {
-  return visited[idx(x, y)] == 1
+  return visited[idx(x, y)] equals 1
 }
 
 function markVisited(x, y) {

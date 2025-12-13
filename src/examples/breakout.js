@@ -71,7 +71,7 @@ while (true) {
     let col = 0
     while (col < 8) {
       let idx = row * 8 + col
-      if (bricks[idx] == 1) {
+      if (bricks[idx] equals 1) {
         let bx = col * 50 + 5
         let by = row * 15 + 20
         // Check collision
@@ -94,12 +94,12 @@ while (true) {
     let col = 0
     while (col < 8) {
       let idx = row * 8 + col
-      if (bricks[idx] == 1) {
-        if (row == 0) { color("red") }
-        if (row == 1) { color("orange") }
-        if (row == 2) { color("yellow") }
-        if (row == 3) { color("green") }
-        if (row == 4) { color("cyan") }
+      if (bricks[idx] equals 1) {
+        if (row equals 0) { color("red") }
+        if (row equals 1) { color("orange") }
+        if (row equals 2) { color("yellow") }
+        if (row equals 3) { color("green") }
+        if (row equals 4) { color("cyan") }
         rect(col * 50 + 5, row * 15 + 20, brickW, brickH)
       }
       col = col + 1

@@ -15,7 +15,7 @@ let attempts = 0
 
 print("I'm thinking of a number between 1 and 100")
 
-while (guess != secret) {
+while (guess not equals secret) {
   print("Your guess:")
   guess = num(input())
   attempts = attempts + 1

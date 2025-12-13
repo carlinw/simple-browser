@@ -125,7 +125,7 @@ test('10 % 3 returns 1', async ({ page }) => {
 
 test('even number check', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let n = 4\nprint(n % 2 == 0)');
+  await runFast(page, 'let n = 4\nprint(n % 2 equals 0)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -133,7 +133,7 @@ test('even number check', async ({ page }) => {
 
 test('odd number check', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let n = 7\nprint(n % 2 == 1)');
+  await runFast(page, 'let n = 7\nprint(n % 2 equals 1)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');

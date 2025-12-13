@@ -287,7 +287,7 @@ test('language help shows operators', async ({ page }) => {
   expect(text).toContain('-');
   expect(text).toContain('*');
   expect(text).toContain('/');
-  expect(text).toContain('==');
+  expect(text).toContain('equals');
 });
 
 test('language help shows types', async ({ page }) => {

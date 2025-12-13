@@ -16,7 +16,7 @@ let count = 42
 // - Keywords: let, if, while, print
 // - Numbers: 42, 0, 100
 // - Strings: "hello"
-// - Operators: + - * / = == < >
+// - Operators: + - * / = < >
 
 print(message)
 print(count + 1)

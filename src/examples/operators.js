@@ -26,7 +26,7 @@ if (not isRaining) {
 // Modulo - check even/odd
 let n = 0
 while (n < 6) {
-  if (n % 2 == 0) {
+  if (n % 2 equals 0) {
     print(n + " is even")
   } else {
     print(n + " is odd")

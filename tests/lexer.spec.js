@@ -32,14 +32,12 @@ test('lexer tokenizes numbers', async ({ page }) => {
 });
 
 test('lexer tokenizes operators', async ({ page }) => {
-  const output = await runLexer(page, '+ - * / = == != < > <= >=');
+  const output = await runLexer(page, '+ - * / = < > <= >=');
   expect(output).toContain('OPERATOR');
   expect(output).toContain('+');
   expect(output).toContain('-');
   expect(output).toContain('*');
   expect(output).toContain('/');
-  expect(output).toContain('==');
-  expect(output).toContain('!=');
   expect(output).toContain('<=');
   expect(output).toContain('>=');
 });
