@@ -212,15 +212,21 @@ main {
 /* Language Help Fullscreen */
 #language-help {
   display: none;
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--color-panel);
-  width: 100%;
+  z-index: 50;
 }
 
 #help-iframe {
   width: 100%;
   height: 100%;
   border: none;
+  outline: none;
+  display: block;
 }
 
 /* Hide main content when help is shown */
@@ -229,7 +235,7 @@ body.help-active #main-content {
 }
 
 body.help-active #language-help {
-  display: flex !important;
+  display: block !important;
 }
 
 /* Hide toolbar buttons when help is shown (except those we want) */
@@ -240,6 +246,8 @@ body.help-active #toolbar {
 /* Remove border appearance when help is shown */
 body.help-active {
   background: var(--color-panel);
+  overflow: hidden;
+  position: relative;
 }
 
 /* Hidden utility */
