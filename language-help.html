@@ -766,59 +766,56 @@ print(r.area())  // 50</code></pre>
 
   <script>
     // Color definitions (duplicated from src/constants.js for standalone use)
+    // Organized by hue for easy browsing
     const COLORS = {
-      red: '#ff0000',
-      orange: '#ff7f00',
-      yellow: '#ffff00',
-      green: '#00ff00',
-      blue: '#0000ff',
-      purple: '#7f00ff',
-      pink: '#ff00ff',
-      cyan: '#00ffff',
+      // Neutrals
       white: '#ffffff',
+      lightgray: '#d3d3d3',
+      gray: '#888888',
+      darkgray: '#444444',
       black: '#000000',
-      gray: '#808080',
-      grey: '#808080',
-      brown: '#8b4513',
-      gold: '#ffd700',
-      silver: '#c0c0c0',
-      navy: '#000080',
-      teal: '#008080',
-      maroon: '#800000',
-      olive: '#808000',
-      lime: '#32cd32',
-      aqua: '#00ffff',
-      coral: '#ff7f50',
-      salmon: '#fa8072',
-      khaki: '#f0e68c',
-      violet: '#ee82ee',
-      indigo: '#4b0082',
+
+      // Reds
+      red: '#ff0000',
       crimson: '#dc143c',
-      turquoise: '#40e0d0',
-      magenta: '#ff00ff',
-      tan: '#d2b48c',
+      salmon: '#fa8072',
+      coral: '#ff7f50',
+
+      // Oranges/Browns
+      orange: '#ff8800',
+      brown: '#8b4513',
+
+      // Yellows
+      yellow: '#ffff00',
       beige: '#f5f5dc',
       ivory: '#fffff0',
-      lavender: '#e6e6fa',
-      plum: '#dda0dd',
-      orchid: '#da70d6',
-      peru: '#cd853f',
-      sienna: '#a0522d',
-      chocolate: '#d2691e',
-      tomato: '#ff6347',
-      wheat: '#f5deb3',
-      azure: '#f0ffff',
-      mint: '#98ff98',
-      peach: '#ffdab9',
-      hotpink: '#ff69b4',
-      skyblue: '#87ceeb',
-      steelblue: '#4682b4',
+
+      // Greens
+      lime: '#00ff00',
+      green: '#228b22',
       forestgreen: '#228b22',
       seagreen: '#2e8b57',
-      slategray: '#708090',
-      dimgray: '#696969',
-      darkgray: '#a9a9a9',
-      lightgray: '#d3d3d3'
+
+      // Cyans
+      cyan: '#00ffff',
+      turquoise: '#40e0d0',
+      skyblue: '#87ceeb',
+
+      // Blues
+      blue: '#0000ff',
+      steelblue: '#4682b4',
+      navy: '#000080',
+      indigo: '#4b0082',
+
+      // Purples/Pinks
+      purple: '#8800ff',
+      violet: '#ee82ee',
+      magenta: '#ff00ff',
+      pink: '#ff88ff',
+      hotpink: '#ff69b4',
+      lavender: '#e6e6fa',
+      plum: '#dda0dd',
+      orchid: '#da70d6'
     };
 
     // Populate color grid

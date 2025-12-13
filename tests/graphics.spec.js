@@ -75,7 +75,7 @@ test('line draws on canvas', async ({ page }) => {
 
 test('color changes drawing color', async ({ page }) => {
   await page.goto('/');
-  await runFastGraphics(page, 'color("green")\nrect(0, 0, 10, 10)\ncolor("yellow")\nrect(20, 0, 10, 10)');
+  await runFastGraphics(page, 'color("lime")\nrect(0, 0, 10, 10)\ncolor("yellow")\nrect(20, 0, 10, 10)');
 
   // Canvas element should exist
   const canvas = await page.locator('#output canvas');
@@ -84,21 +84,21 @@ test('color changes drawing color', async ({ page }) => {
   // Check for both colors
   const colors = await page.evaluate(() => {
     const canvas = document.querySelector('#output canvas');
-    if (!canvas) return { green: false, yellow: false };
+    if (!canvas) return { lime: false, yellow: false };
     const ctx = canvas.getContext('2d');
 
-    // Sample green rectangle
-    const greenPixel = ctx.getImageData(5, 5, 1, 1).data;
-    const hasGreen = greenPixel[0] === 0 && greenPixel[1] === 255 && greenPixel[2] === 0;
+    // Sample lime rectangle (bright green #00ff00)
+    const limePixel = ctx.getImageData(5, 5, 1, 1).data;
+    const hasLime = limePixel[0] === 0 && limePixel[1] === 255 && limePixel[2] === 0;
 
     // Sample yellow rectangle
     const yellowPixel = ctx.getImageData(25, 5, 1, 1).data;
     const hasYellow = yellowPixel[0] === 255 && yellowPixel[1] === 255 && yellowPixel[2] === 0;
 
-    return { green: hasGreen, yellow: hasYellow };
+    return { lime: hasLime, yellow: hasYellow };
   });
 
-  expect(colors.green).toBe(true);
+  expect(colors.lime).toBe(true);
   expect(colors.yellow).toBe(true);
 });
 
