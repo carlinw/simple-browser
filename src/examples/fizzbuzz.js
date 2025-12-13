@@ -1,9 +1,9 @@
 // Example: FizzBuzz
 // Classic programming challenge
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['fizzbuzz'] = {
+
+export const example = {
   name: 'FizzBuzz',
   description: 'Classic programming challenge',
   code: `// FizzBuzz - Classic Programming Challenge

@@ -2,7 +2,7 @@
 // Environment, function values, and error types
 
 // Environment class - stores variable bindings with scope chain
-class Environment {
+export class Environment {
   constructor(parent = null) {
     this.values = new Map();
     this.parent = parent;
@@ -49,7 +49,7 @@ class Environment {
 }
 
 // Function value - stores declaration and closure environment
-class TinyFunction {
+export class TinyFunction {
   constructor(declaration, closure) {
     this.declaration = declaration;
     this.closure = closure;
@@ -57,21 +57,16 @@ class TinyFunction {
 }
 
 // Return value - used as exception to unwind call stack
-class ReturnValue {
+export class ReturnValue {
   constructor(value) {
     this.value = value;
   }
 }
 
 // Runtime error class
-class RuntimeError extends Error {
+export class RuntimeError extends Error {
   constructor(message) {
     super(message);
     this.name = 'RuntimeError';
   }
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Environment, TinyFunction, ReturnValue, RuntimeError };
 }

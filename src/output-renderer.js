@@ -1,7 +1,9 @@
 // Tiny - Output Tab Renderer
 // Renders errors and program output to the Output tab
 
-class OutputRenderer {
+import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS } from './constants.js';
+
+export class OutputRenderer {
   constructor(container) {
     this.container = container;
     this.inputField = null;
@@ -430,7 +432,3 @@ class OutputRenderer {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { OutputRenderer };
-}

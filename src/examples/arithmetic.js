@@ -1,9 +1,9 @@
 // Example: Arithmetic
 // Basic math operations and operator precedence
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['arithmetic'] = {
+
+export const example = {
   name: 'Arithmetic',
   description: 'Basic math operations and operator precedence',
   code: `// Arithmetic Demo
@@ -20,5 +20,5 @@ print(2 + 3 * 4)
 print((2 + 3) * 4)
 
 // Complex expression
-print(1 + 2 * 3 - 4 / 2)`)
+print(1 + 2 * 3 - 4 / 2)`
 };

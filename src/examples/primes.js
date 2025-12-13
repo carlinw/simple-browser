@@ -1,9 +1,9 @@
 // Example: Prime Numbers
 // Find and check prime numbers
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['primes'] = {
+
+export const example = {
   name: 'Prime Numbers',
   description: 'Find and check prime numbers',
   code: `// Prime Numbers
@@ -60,5 +60,5 @@ while (num <= 100) {
   }
   num = num + 1
 }
-print("There are " + count + " primes up to 100")`)
+print("There are " + count + " primes up to 100")`
 };

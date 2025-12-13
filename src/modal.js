@@ -1,7 +1,7 @@
 // Tiny - Modal Base Class
 // Reusable modal dialog component
 
-class Modal {
+export class Modal {
   constructor() {
     this.isOpen = false;
     this.overlay = null;
@@ -82,7 +82,3 @@ class Modal {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Modal };
-}

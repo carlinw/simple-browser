@@ -1,9 +1,9 @@
 // Example: Conway's Game of Life
 // Classic cellular automaton simulation
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['game-of-life'] = {
+
+export const example = {
   name: "Game of Life",
   description: "Conway's cellular automaton - cells live or die based on neighbors",
   code: `// Conway's Game of Life

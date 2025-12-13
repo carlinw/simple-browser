@@ -1,9 +1,9 @@
 // Example: Maze Generator
 // Watch a maze being generated step by step
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['maze-generator'] = {
+
+export const example = {
   name: 'Maze Generator',
   description: 'Watch recursive backtracking build a maze',
   code: `// Maze Generator

@@ -1,9 +1,9 @@
 // Example: Drawing App
 // Draw with arrow keys
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['drawing'] = {
+
+export const example = {
   name: 'Drawing App',
   description: 'Draw with arrow keys, space to clear',
   code: `// Drawing App

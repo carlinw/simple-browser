@@ -1,9 +1,9 @@
 // Example: Strings
 // String operations and concatenation
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['strings'] = {
+
+export const example = {
   name: 'Strings',
   description: 'String operations and concatenation',
   code: `// Strings Demo
@@ -43,5 +43,5 @@ if (a equals "apple") {
 
 // Multi-word messages
 print("The quick brown fox")
-print("jumps over the lazy dog")`)
+print("jumps over the lazy dog")`
 };

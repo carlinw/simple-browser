@@ -1,9 +1,9 @@
 // Example: Rock Paper Scissors
 // Classic game against the computer
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['rps'] = {
+
+export const example = {
   name: 'Rock Paper Scissors',
   description: 'Play against the computer',
   code: `// Rock Paper Scissors
@@ -62,5 +62,5 @@ while (playing) {
   }
 }
 
-print("Final: " + wins + "W " + losses + "L " + ties + "T")`)
+print("Final: " + wins + "W " + losses + "L " + ties + "T")`
 };

@@ -1,7 +1,10 @@
 // Tiny - Character-by-Character Scanner
 // Wraps the lexer to expose the scanning process step by step
 
-const ScanState = {
+import { isDigit, isAlpha, isAlphaNumeric } from './utils.js';
+import { KEYWORDS } from './lexer.js';
+
+export const ScanState = {
   IDLE: 'IDLE',           // Not building a token yet
   IDENTIFIER: 'IDENTIFIER', // Building identifier/keyword
   NUMBER: 'NUMBER',       // Building number
@@ -11,7 +14,7 @@ const ScanState = {
   COMMENT: 'COMMENT'      // Building comment
 };
 
-class Scanner {
+export class Scanner {
   constructor(source) {
     this.source = source;
     this.pos = 0;
@@ -187,7 +190,7 @@ class Scanner {
       return `'/' followed by '/' starts a comment. Start building COMMENT token.`;
     }
 
-    if (CharUtils.isDigit(char)) {
+    if (isDigit(char)) {
       this.state = ScanState.NUMBER;
       this.buffer = char;
       this.advanceChar(char);
@@ -201,7 +204,7 @@ class Scanner {
       return `'"' opens a string. Start building STRING token.`;
     }
 
-    if (CharUtils.isAlpha(char)) {
+    if (isAlpha(char)) {
       this.state = ScanState.IDENTIFIER;
       this.buffer = char;
       this.advanceChar(char);
@@ -229,7 +232,7 @@ class Scanner {
 
   // Handle IDENTIFIER state
   handleIdentifier(char, result) {
-    if (CharUtils.isAlphaNumeric(char)) {
+    if (isAlphaNumeric(char)) {
       this.buffer += char;
       this.advanceChar(char);
       return `'${char}' is alphanumeric. Add to buffer: "${this.buffer}"`;
@@ -243,7 +246,7 @@ class Scanner {
 
   // Handle NUMBER state
   handleNumber(char, result) {
-    if (CharUtils.isDigit(char)) {
+    if (isDigit(char)) {
       this.buffer += char;
       this.advanceChar(char);
       return `'${char}' is a digit. Add to buffer: "${this.buffer}"`;
@@ -252,7 +255,7 @@ class Scanner {
     // Check for decimal point followed by digit
     if (char === '.' && !this.buffer.includes('.')) {
       const nextChar = this.pos + 1 < this.source.length ? this.source[this.pos + 1] : '\0';
-      if (CharUtils.isDigit(nextChar)) {
+      if (isDigit(nextChar)) {
         this.buffer += char;
         this.advanceChar(char);
         return `'${char}' is decimal point. Add to buffer: "${this.buffer}"`;
@@ -388,7 +391,3 @@ class Scanner {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Scanner, ScanState };
-}

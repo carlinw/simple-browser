@@ -1,9 +1,9 @@
 // Example: Snake
 // Classic snake game
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['snake'] = {
+
+export const example = {
   name: 'Snake',
   description: 'Classic snake with arrow keys',
   code: `// Snake Game

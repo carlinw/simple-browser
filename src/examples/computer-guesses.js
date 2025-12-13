@@ -1,9 +1,9 @@
 // Example: Computer Guesses
 // Binary search algorithm demonstration
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['computer-guesses'] = {
+
+export const example = {
   name: 'Computer Guesses',
   description: 'Computer guesses your number using binary search',
   code: `// Computer Guesses Your Number

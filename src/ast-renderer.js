@@ -1,6 +1,6 @@
 // AST Renderer - Graphical tree display for Abstract Syntax Trees
 
-class ASTRenderer {
+export class ASTRenderer {
   constructor(container) {
     this.container = container;
     this.nodeElements = new Map();  // Map AST node -> DOM element

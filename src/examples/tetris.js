@@ -1,9 +1,9 @@
 // Example: Tetris
 // Classic falling blocks game
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['tetris'] = {
+
+export const example = {
   name: 'Tetris',
   description: 'Arrow keys to move/rotate, down to drop',
   code: `// Tetris

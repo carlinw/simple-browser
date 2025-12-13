@@ -1,7 +1,7 @@
 // Arrays example
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['arrays'] = {
+
+export const example = {
   name: 'Arrays',
   description: 'Array creation and manipulation',
   code: `// Create an array
@@ -25,5 +25,5 @@ while (i < len(numbers)) {
   sum = sum + numbers[i]
   i = i + 1
 }
-print("Sum: " + sum)`)
+print("Sum: " + sum)`
 };

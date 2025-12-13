@@ -1,9 +1,9 @@
 // Example: Maze Solver
 // Generate a maze then watch a mouse find the exit
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['maze-solver'] = {
+
+export const example = {
   name: 'Maze Solver',
   description: 'Watch a mouse find its way through a maze (fullscreen)',
   code: `// Maze Solver (Fullscreen Demo)

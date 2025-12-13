@@ -1,5 +1,17 @@
 // Tiny - Main Entry Point
 
+import { STEP_DELAY_MS } from './constants.js';
+import { Lexer } from './lexer.js';
+import { Scanner } from './scanner.js';
+import { Parser } from './parser.js';
+import { Interpreter } from './interpreter.js';
+import { ASTRenderer } from './ast-renderer.js';
+import { ParserRenderer } from './parser-renderer.js';
+import { OutputRenderer } from './output-renderer.js';
+import { MemoryRenderer } from './memory-renderer.js';
+import { CodeVisualizer } from './visualizer.js';
+import { ExamplesManager } from './examples.js';
+
 // Keyboard state tracking for pressed() builtin
 const keysPressed = new Set();
 
@@ -23,7 +35,8 @@ document.addEventListener('keyup', (e) => {
   keysPressed.delete(normalizeKey(e.key));
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+// ES modules are deferred by default, so DOM may already be ready
+function init() {
   // DOM Elements
   const codeEditor = document.getElementById('code-editor');
   const codeDisplay = document.getElementById('code-display');
@@ -454,4 +467,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize UI
   updateUI();
-});
+}
+
+// ES modules execute after DOM is parsed, but call init to be safe
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

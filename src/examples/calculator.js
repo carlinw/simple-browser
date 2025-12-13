@@ -1,9 +1,9 @@
 // Example: Tiny Calculator
 // Basic arithmetic with user input
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['calculator'] = {
+
+export const example = {
   name: 'Calculator',
   description: 'Tiny arithmetic calculator',
   code: `// Tiny Calculator
@@ -29,5 +29,5 @@ if (op equals "+") {
   result = a / b
 }
 
-print(a + " " + op + " " + b + " = " + result)`)
+print(a + " " + op + " " + b + " = " + result)`
 };

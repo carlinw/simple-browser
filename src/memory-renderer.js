@@ -1,7 +1,7 @@
 // Tiny - Memory Tab Renderer
 // Displays call stack with variables in each frame
 
-class MemoryRenderer {
+export class MemoryRenderer {
   constructor(container) {
     this.container = container;
     this.callStack = [];  // Stack of { name, args, environment } frames
@@ -196,7 +196,3 @@ class MemoryRenderer {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { MemoryRenderer };
-}

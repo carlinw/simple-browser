@@ -2,10 +2,76 @@
 // Manages the example selector modal
 // Example definitions are in src/examples/*.js
 
-class ExamplesManager extends Modal {
+import { Modal } from './modal.js';
+
+// Import all example modules
+import { example as arithmetic } from './examples/arithmetic.js';
+import { example as arrays } from './examples/arrays.js';
+import { example as bouncingBall } from './examples/bouncing-ball.js';
+import { example as breakout } from './examples/breakout.js';
+import { example as calculator } from './examples/calculator.js';
+import { example as comparisons } from './examples/comparisons.js';
+import { example as computerGuesses } from './examples/computer-guesses.js';
+import { example as controlFlow } from './examples/control-flow.js';
+import { example as dice } from './examples/dice.js';
+import { example as drawing } from './examples/drawing.js';
+import { example as fibonacci } from './examples/fibonacci.js';
+import { example as fizzbuzz } from './examples/fizzbuzz.js';
+import { example as flappyBird } from './examples/flappy-bird.js';
+import { example as functions } from './examples/functions.js';
+import { example as gameOfLife } from './examples/game-of-life.js';
+import { example as guessNumber } from './examples/guess-number.js';
+import { example as mazeGenerator } from './examples/maze-generator.js';
+import { example as mazeSolver } from './examples/maze-solver.js';
+import { example as operators } from './examples/operators.js';
+import { example as pong } from './examples/pong.js';
+import { example as primes } from './examples/primes.js';
+import { example as rps } from './examples/rps.js';
+import { example as snake } from './examples/snake.js';
+import { example as starfield } from './examples/starfield.js';
+import { example as strings } from './examples/strings.js';
+import { example as tetris } from './examples/tetris.js';
+import { example as tokenizerDemo } from './examples/tokenizer-demo.js';
+import { example as towersOfHanoi } from './examples/towers-of-hanoi.js';
+import { example as variables } from './examples/variables.js';
+
+// Aggregate all examples into a single object
+const EXAMPLES = {
+  'tokenizer-demo': tokenizerDemo,
+  'variables': variables,
+  'arithmetic': arithmetic,
+  'comparisons': comparisons,
+  'control-flow': controlFlow,
+  'strings': strings,
+  'functions': functions,
+  'arrays': arrays,
+  'operators': operators,
+  'fizzbuzz': fizzbuzz,
+  'fibonacci': fibonacci,
+  'primes': primes,
+  'guess-number': guessNumber,
+  'computer-guesses': computerGuesses,
+  'calculator': calculator,
+  'dice': dice,
+  'rps': rps,
+  'bouncing-ball': bouncingBall,
+  'pong': pong,
+  'snake': snake,
+  'drawing': drawing,
+  'starfield': starfield,
+  'breakout': breakout,
+  'flappy-bird': flappyBird,
+  'tetris': tetris,
+  'maze-generator': mazeGenerator,
+  'maze-solver': mazeSolver,
+  'game-of-life': gameOfLife,
+  'towers-of-hanoi': towersOfHanoi
+};
+
+export class ExamplesManager extends Modal {
   constructor() {
     super();
-    this.examples = window.EXAMPLES || {};
+    this.examples = EXAMPLES;
     this.onSelect = null;
   }
 
@@ -72,9 +138,4 @@ class ExamplesManager extends Modal {
       };
     });
   }
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ExamplesManager };
 }

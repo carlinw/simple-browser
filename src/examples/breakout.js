@@ -1,9 +1,9 @@
 // Example: Breakout
 // Classic brick breaker game
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['breakout'] = {
+
+export const example = {
   name: 'Breakout',
   description: 'Classic brick breaker game',
   code: `// Breakout

@@ -1,6 +1,6 @@
 // Logical Operators Example
-window.EXAMPLES = window.EXAMPLES || {};
-window.EXAMPLES['operators'] = {
+
+export const example = {
   name: 'Logical Operators',
   description: 'Boolean logic and modulo',
   code: `// Logical AND
@@ -36,5 +36,5 @@ while (n < 6) {
 
 // Unary minus
 let temp = 10
-print("Opposite: " + -temp)`)
+print("Opposite: " + -temp)`
 };

@@ -1,9 +1,9 @@
 // Example: Functions & Call Stack
 // Watch the call stack grow and shrink as functions call each other
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['functions'] = {
+
+export const example = {
   name: 'Functions & Call Stack',
   description: 'Watch the call stack grow and shrink as functions call each other',
   code: `// Functions & Call Stack Demo
@@ -43,5 +43,5 @@ print("3 * 4 = " + result)
 
 // Recursive calls - watch the stack grow!
 result = factorial(4)
-print("4! = " + result)`)
+print("4! = " + result)`
 };

@@ -1,9 +1,9 @@
 // Example: Control Flow
 // if/else branches and while loops
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['control-flow'] = {
+
+export const example = {
   name: 'Control Flow',
   description: 'if/else branches and while loops',
   code: `// Control Flow Demo
@@ -48,5 +48,5 @@ let power = 1
 while (power <= 100) {
   power = power * 2
 }
-print("First power of 2 over 100: " + power)`)
+print("First power of 2 over 100: " + power)`
 };

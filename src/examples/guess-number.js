@@ -1,9 +1,9 @@
 // Example: Guess the Number
 // Interactive game using input() and random()
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['guess-number'] = {
+
+export const example = {
   name: 'Guess the Number',
   description: 'Classic guessing game with input and random',
   code: `// Guess the Number
@@ -27,5 +27,5 @@ while (guess not equals secret) {
   }
 }
 
-print("Correct! You got it in " + attempts + " attempts")`)
+print("Correct! You got it in " + attempts + " attempts")`
 };

@@ -1,9 +1,9 @@
 // Example: Dice Roller
 // Random dice simulation
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['dice'] = {
+
+export const example = {
   name: 'Dice Roller',
   description: 'Roll dice with random numbers',
   code: `// Dice Roller
@@ -30,5 +30,5 @@ while (k not equals "q") {
 
 print("")
 print("Total rolls: " + rolls)
-print("Sum of all rolls: " + total)`)
+print("Sum of all rolls: " + total)`
 };

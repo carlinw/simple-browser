@@ -1,9 +1,9 @@
 // Example: Tiny Pong
 // Classic pong game with one paddle
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['pong'] = {
+
+export const example = {
   name: 'Tiny Pong',
   description: 'Classic pong with arrow keys',
   code: `// Tiny Pong

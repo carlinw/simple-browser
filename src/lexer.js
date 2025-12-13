@@ -1,7 +1,9 @@
 // Tiny - Lexer
 // Converts source code into tokens
 
-const TokenType = {
+import { isDigit, isAlpha, isAlphaNumeric } from './utils.js';
+
+export const TokenType = {
   NUMBER: 'NUMBER',
   STRING: 'STRING',
   IDENTIFIER: 'IDENTIFIER',
@@ -13,7 +15,7 @@ const TokenType = {
   EOF: 'EOF'
 };
 
-const KEYWORDS = new Set([
+export const KEYWORDS = new Set([
   'let', 'if', 'else', 'while', 'function',
   'return', 'true', 'false', 'stop',
   'and', 'or', 'not', 'equals'
@@ -34,7 +36,7 @@ const OPERATORS = {
 
 const PUNCTUATION = new Set(['(', ')', '{', '}', ',', '[', ']']);
 
-class Lexer {
+export class Lexer {
   constructor(source) {
     this.source = source;
     this.pos = 0;
@@ -100,7 +102,7 @@ class Lexer {
     let token = null;
 
     // Numbers
-    if (CharUtils.isDigit(char)) {
+    if (isDigit(char)) {
       token = this.readNumber();
     }
     // Strings
@@ -108,7 +110,7 @@ class Lexer {
       token = this.readString();
     }
     // Identifiers and keywords
-    else if (CharUtils.isAlpha(char)) {
+    else if (isAlpha(char)) {
       token = this.readIdentifierOrKeyword();
     }
     // Operators (check two-character operators first)
@@ -195,14 +197,14 @@ class Lexer {
     let raw = '';
 
     // Read integer part
-    while (!this.isAtEnd() && CharUtils.isDigit(this.peek())) {
+    while (!this.isAtEnd() && isDigit(this.peek())) {
       raw += this.advance();
     }
 
     // Check for decimal part
-    if (!this.isAtEnd() && this.peek() === '.' && CharUtils.isDigit(this.peekNext())) {
+    if (!this.isAtEnd() && this.peek() === '.' && isDigit(this.peekNext())) {
       raw += this.advance(); // consume '.'
-      while (!this.isAtEnd() && CharUtils.isDigit(this.peek())) {
+      while (!this.isAtEnd() && isDigit(this.peek())) {
         raw += this.advance();
       }
     }
@@ -271,7 +273,7 @@ class Lexer {
   readIdentifierOrKeyword() {
     let raw = '';
 
-    while (!this.isAtEnd() && CharUtils.isAlphaNumeric(this.peek())) {
+    while (!this.isAtEnd() && isAlphaNumeric(this.peek())) {
       raw += this.advance();
     }
 
@@ -399,7 +401,3 @@ class Lexer {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Lexer, TokenType, KEYWORDS };
-}

@@ -1,9 +1,9 @@
 // Example: Fibonacci
 // Generate and explore the Fibonacci sequence
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['fibonacci'] = {
+
+export const example = {
   name: 'Fibonacci',
   description: 'Generate the Fibonacci sequence',
   code: `// Fibonacci Sequence

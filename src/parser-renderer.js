@@ -1,7 +1,7 @@
 // Tiny - Parser Tab Renderer
 // Renders token lists and scanner state to the Parser tab
 
-class ParserRenderer {
+export class ParserRenderer {
   constructor(container) {
     this.container = container;
   }
@@ -140,7 +140,3 @@ class ParserRenderer {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ParserRenderer };
-}

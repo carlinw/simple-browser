@@ -1,9 +1,9 @@
 // Example: Flappy Bird
 // Tap space to fly through pipes
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['flappy-bird'] = {
+
+export const example = {
   name: 'Flappy Bird',
   description: 'Press space to fly',
   code: `// Flappy Bird

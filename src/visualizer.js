@@ -1,7 +1,7 @@
 // Tiny - Code Visualizer
 // Handles source code highlighting for step-through mode
 
-class CodeVisualizer {
+export class CodeVisualizer {
   constructor(containerElement) {
     this.container = containerElement;
     this.source = '';
@@ -116,7 +116,3 @@ class CodeVisualizer {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { CodeVisualizer };
-}

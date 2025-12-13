@@ -1,9 +1,9 @@
 // Example: Variables
 // Learn how to declare, use, and reassign variables
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['variables'] = {
+
+export const example = {
   name: 'Variables',
   description: 'Learn how to declare, use, and reassign variables',
   code: `// Variables Demo
@@ -20,5 +20,5 @@ print(count)
 // Dynamic typing - types can change
 let value = 10
 value = "hello"
-print(value)`)
+print(value)`
 };

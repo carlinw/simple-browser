@@ -1,9 +1,9 @@
 // Example: Tokenizer Demo
 // Step through to see how the lexer breaks code into tokens
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['tokenizer-demo'] = {
+
+export const example = {
   name: 'Tokenizer Demo',
   description: 'Step through to see how the lexer breaks code into tokens',
   code: `// Tokenizer Demo

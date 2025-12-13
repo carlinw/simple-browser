@@ -1,9 +1,9 @@
 // Example: Bouncing Ball
 // A ball bounces around the screen
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['bouncing-ball'] = {
+
+export const example = {
   name: 'Bouncing Ball',
   description: 'Ball bounces around the canvas',
   code: `// Bouncing Ball

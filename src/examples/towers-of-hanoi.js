@@ -1,9 +1,9 @@
 // Example: Towers of Hanoi
 // Classic recursive puzzle visualization
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['towers-of-hanoi'] = {
+
+export const example = {
   name: "Towers of Hanoi",
   description: "Watch the classic recursive puzzle solve itself",
   code: `// Towers of Hanoi

@@ -1,7 +1,7 @@
 // Tiny - Parser
 // Converts tokens into an Abstract Syntax Tree (AST)
 
-class Parser {
+export class Parser {
   constructor(tokens) {
     // Filter out whitespace and comments - parser doesn't need them
     this.tokens = tokens.filter(t =>
@@ -594,7 +594,3 @@ class Parser {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Parser };
-}

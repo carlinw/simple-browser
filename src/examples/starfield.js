@@ -1,9 +1,9 @@
 // Example: Starfield
 // Flying through space effect
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['starfield'] = {
+
+export const example = {
   name: 'Starfield',
   description: 'Flying through space',
   code: `// Starfield

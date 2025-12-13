@@ -1,8 +1,10 @@
 // Tiny - Expression Evaluator
 // Walks the AST and computes values
-// Uses Environment, TinyFunction, ReturnValue, RuntimeError from runtime.js
 
-class Interpreter {
+import { CANVAS_WIDTH, CANVAS_HEIGHT, MAX_LOOP_ITERATIONS, COLORS } from './constants.js';
+import { Environment, TinyFunction, ReturnValue, RuntimeError } from './runtime.js';
+
+export class Interpreter {
   constructor(options = {}) {
     this.onNodeEnter = options.onNodeEnter || (() => {});
     this.onNodeExit = options.onNodeExit || (() => {});
@@ -613,7 +615,3 @@ class Interpreter {
   }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Interpreter };
-}

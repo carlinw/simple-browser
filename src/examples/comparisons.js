@@ -1,9 +1,9 @@
 // Example: Comparisons
 // Compare values and see boolean results
 
-window.EXAMPLES = window.EXAMPLES || {};
 
-window.EXAMPLES['comparisons'] = {
+
+export const example = {
   name: 'Comparisons',
   description: 'Compare values and see boolean results',
   code: `// Comparisons Demo
@@ -22,5 +22,5 @@ print(5 not equals 3)
 // Compare variables
 let x = 10
 let y = 20
-print(x < y)`)
+print(x < y)`
 };
