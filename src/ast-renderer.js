@@ -168,7 +168,7 @@ export class ASTRenderer {
       case 'ReturnStatement':
         return 'return';
       case 'CallExpression':
-        return `call <em>${this.escapeHtml(node.callee)}</em>`;
+        return 'call';
       case 'ParamList':
         return 'params';
       case 'Block':
@@ -289,6 +289,8 @@ export class ASTRenderer {
         break;
 
       case 'CallExpression':
+        // Show callee as first child
+        children.push({ node: { type: 'Identifier', name: node.callee } });
         for (const arg of node.arguments) {
           children.push({ label: 'arg', node: arg });
         }
