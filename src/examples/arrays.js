@@ -16,12 +16,12 @@ numbers[1] = 25
 print(numbers[1])
 
 // Get array length
-print(len(numbers))
+print(numbers.length())
 
 // Loop through array
 let i = 0
 let sum = 0
-while (i < len(numbers)) {
+while (i < numbers.length()) {
   sum = sum + numbers[i]
   i = i + 1
 }

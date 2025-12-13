@@ -620,11 +620,6 @@ export class Parser {
     if (this.check('IDENTIFIER')) {
       const token = this.advance();
 
-      // Check if this is a built-in function call (len)
-      if (token.value === 'len' && this.check('PUNCTUATION', '(')) {
-        return this.parsePostfix(this.parseBuiltinCall(token));
-      }
-
       // Check if this is a function call
       if (this.check('PUNCTUATION', '(')) {
         return this.parsePostfix(this.parseCallExpression(token));
@@ -724,20 +719,6 @@ export class Parser {
       elements: elements,
       token: openBracket,
       endToken: closeBracket
-    };
-  }
-
-  parseBuiltinCall(nameToken) {
-    this.consume('PUNCTUATION', '(', "Expected '(' after built-in function");
-    const arg = this.parseExpression();
-    const closeParen = this.consume('PUNCTUATION', ')', "Expected ')' after argument");
-
-    return {
-      type: 'BuiltinCall',
-      name: nameToken.value,
-      argument: arg,
-      token: nameToken,
-      endToken: closeParen
     };
   }
 

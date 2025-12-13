@@ -45,7 +45,7 @@ test('string index with expression', async ({ page }) => {
 
 test('string index in loop', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "ab"\nlet i = 0\nwhile (i < len(s)) {\nprint(s[i])\ni = i + 1\n}');
+  await runFast(page, 'let s = "ab"\nlet i = 0\nwhile (i < s.length()) {\nprint(s[i])\ni = i + 1\n}');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('a');

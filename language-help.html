@@ -130,7 +130,7 @@ print(3.5 + 1.5)  // 5 (integer result)</code></pre>
         <pre class="code-block"><code>let word = "hello"
 print(word[0])  // "h"
 print(word[4])  // "o"
-print(len(word))  // 5</code></pre>
+print(word.length())  // 5</code></pre>
       </section>
 
       <!-- Booleans (subsection of Literals) -->
@@ -155,7 +155,7 @@ false</code></pre>
         <pre class="code-block"><code>let arr = [10, 20, 30]
 print(arr[0])   // 10 (first element)
 print(arr[2])   // 30 (third element)
-print(len(arr)) // 3
+print(arr.length()) // 3
 print(arr[5])   // Error: Index 5 out of bounds</code></pre>
 
         <h4>Modifying Elements</h4>
@@ -169,7 +169,7 @@ print(arr)  // [1, 99, 3]</code></pre>
 arr[0] = 10
 arr[1] = 20
 arr[2] = 30
-print(len(arr))  // 3
+print(arr.length())  // 3
 
 // Gaps are filled with null
 let sparse = []
@@ -224,7 +224,12 @@ print(matrix[0][1])  // 2</code></pre>
 
         <h4>Built-in Functions</h4>
         <p class="keyword-list">
-          <code>circle</code> <code>clear</code> <code>color</code> <code>fill</code> <code>fullscreen</code> <code>height</code> <code>input</code> <code>key</code> <code>len</code> <code>line</code> <code>num</code> <code>pressed</code> <code>print</code> <code>random</code> <code>rect</code> <code>sleep</code> <code>stroke</code> <code>text</code> <code>triangle</code> <code>width</code>
+          <code>circle</code> <code>clear</code> <code>color</code> <code>fill</code> <code>fullscreen</code> <code>height</code> <code>input</code> <code>key</code> <code>line</code> <code>num</code> <code>pressed</code> <code>print</code> <code>random</code> <code>rect</code> <code>sleep</code> <code>stroke</code> <code>text</code> <code>triangle</code> <code>width</code>
+        </p>
+
+        <h4>Built-in Methods</h4>
+        <p class="keyword-list">
+          <code>.length()</code>
         </p>
       </section>
 
@@ -515,9 +520,9 @@ while (i < 5) {
               <td><code>print("Hello")</code></td>
             </tr>
             <tr>
-              <td><code>len(x)</code></td>
+              <td><code>x.length()</code></td>
               <td>Length of array or string</td>
-              <td><code>len([1,2,3])</code> → <code>3</code></td>
+              <td><code>[1,2,3].length()</code> → <code>3</code></td>
             </tr>
             <tr>
               <td><code>num(x)</code></td>
@@ -595,6 +600,18 @@ while (true) {
       <section id="graphics" class="subsection">
         <h3>Graphics</h3>
         <p>Graphics functions draw to a canvas. The canvas appears automatically when any graphics function is called.</p>
+
+        <h4>Output Modes</h4>
+        <p>Tiny has two output modes:</p>
+        <ul>
+          <li><strong>Text Mode:</strong> When you only use <code>print()</code>, output appears as scrollable text.</li>
+          <li><strong>Mixed Mode:</strong> When you use graphics functions like <code>clear()</code>, a canvas appears. Any <code>print()</code> statements will appear in a text area below the canvas, similar to the Apple II's split-screen mode.</li>
+        </ul>
+        <pre class="code-block"><code>// Mixed mode example
+clear()
+color("red")
+circle(100, 100, 50)
+print("Score: 100")  // appears below canvas</code></pre>
 
         <h4>Canvas Setup</h4>
         <table class="ref-table">
@@ -709,7 +726,46 @@ print(factorial(5))  // prints: 120</code></pre>
       <!-- Classes (main section) -->
       <section id="classes">
         <h2>Classes</h2>
-        <p>Classes let you bundle related data and behavior together. They're useful for representing things like players, enemies, or game objects.</p>
+        <p>Classes let you bundle related data and behavior together. Instead of using separate variables and functions, you can group everything about a "thing" into one place.</p>
+
+        <h4>Why Use Classes?</h4>
+        <p>Without classes, you might track a player like this:</p>
+        <pre class="code-block"><code>// Without classes - messy!
+let player1X = 100
+let player1Y = 200
+let player1Health = 10
+let player1Name = "Connor"
+
+let player2X = 300
+let player2Y = 200
+let player2Health = 10
+let player2Name = "Alex"
+
+// Functions need lots of parameters
+function movePlayer(x, y, dx, dy) { ... }</code></pre>
+
+        <p>With classes, each player is a self-contained object:</p>
+        <pre class="code-block"><code>// With classes - clean!
+class Player {
+  name, x, y, health,
+
+  move(dx, dy) {
+    this.x = this.x + dx
+    this.y = this.y + dy
+  }
+}
+
+let player1 = new Player("Connor", 100, 200, 10)
+let player2 = new Player("Alex", 300, 200, 10)
+
+player1.move(5, 0)  // player1 moves itself</code></pre>
+
+        <p>Classes are especially useful for:</p>
+        <ul>
+          <li><strong>Game objects:</strong> Players, enemies, bullets, items</li>
+          <li><strong>Data with behavior:</strong> Things that need to "do" something</li>
+          <li><strong>Multiple similar things:</strong> When you have many objects of the same type</li>
+        </ul>
       </section>
 
       <!-- Class Definition (subsection of Classes) -->

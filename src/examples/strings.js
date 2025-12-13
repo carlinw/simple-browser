@@ -32,7 +32,7 @@ print(stars)
 
 // String length
 let text = "Hello, World!"
-print("Length: " + len(text))
+print("Length: " + text.length())
 
 // Compare strings
 let a = "apple"

@@ -285,22 +285,8 @@ export class Interpreter {
       }
 
       case 'BuiltinCall': {
-        const arg = await this.evaluate(node.argument);
-
-        switch (node.name) {
-          case 'len':
-            if (Array.isArray(arg)) {
-              result = arg.length;
-            } else if (typeof arg === 'string') {
-              result = arg.length;
-            } else {
-              throw new RuntimeError('len() requires an array or string');
-            }
-            break;
-          default:
-            throw new RuntimeError(`Unknown built-in function: ${node.name}`);
-        }
-        break;
+        // len() has been replaced by .length() method
+        throw new RuntimeError(`Unknown built-in function: ${node.name}. Did you mean .length()?`);
       }
 
       case 'ThisExpression': {
@@ -350,6 +336,19 @@ export class Interpreter {
 
       case 'MethodCall': {
         const object = await this.evaluate(node.object);
+
+        // Handle built-in methods on arrays and strings
+        if (Array.isArray(object) || typeof object === 'string') {
+          if (node.method === 'length') {
+            if (node.arguments.length !== 0) {
+              throw new RuntimeError('length() takes no arguments');
+            }
+            result = object.length;
+            break;
+          }
+          throw new RuntimeError(`Unknown method: ${node.method}`);
+        }
+
         if (!(object instanceof TinyInstance)) {
           throw new RuntimeError('Cannot call method on non-instance');
         }

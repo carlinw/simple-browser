@@ -5,7 +5,7 @@ const { runFast } = require('./helpers');
 
 test('array literal creates array', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let arr = [1, 2, 3]\nprint(len(arr))');
+  await runFast(page, 'let arr = [1, 2, 3]\nprint(arr.length())');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('3');
@@ -13,7 +13,7 @@ test('array literal creates array', async ({ page }) => {
 
 test('empty array', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let arr = []\nprint(len(arr))');
+  await runFast(page, 'let arr = []\nprint(arr.length())');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('0');
@@ -37,7 +37,7 @@ test('array first element (zero-based)', async ({ page }) => {
 
 test('array last element', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let arr = [1, 2, 3]\nprint(arr[len(arr) - 1])');
+  await runFast(page, 'let arr = [1, 2, 3]\nprint(arr[arr.length() - 1])');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('3');
@@ -75,9 +75,9 @@ test('nested array access', async ({ page }) => {
   expect(output).toContain('3');
 });
 
-test('len works on strings', async ({ page }) => {
+test('string.length() works', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print(len("hello"))');
+  await runFast(page, 'print("hello".length())');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('5');
@@ -85,7 +85,7 @@ test('len works on strings', async ({ page }) => {
 
 test('array in loop', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let arr = [1, 2, 3]\nlet sum = 0\nlet i = 0\nwhile (i < len(arr)) { sum = sum + arr[i]\ni = i + 1 }\nprint(sum)');
+  await runFast(page, 'let arr = [1, 2, 3]\nlet sum = 0\nlet i = 0\nwhile (i < arr.length()) { sum = sum + arr[i]\ni = i + 1 }\nprint(sum)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('6');
@@ -135,10 +135,10 @@ test('index non-array', async ({ page }) => {
   expect(output).toContain('Cannot index non-array');
 });
 
-test('len on non-array/string', async ({ page }) => {
+test('.length() on non-array/string shows error', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print(len(42))');
+  await runFast(page, 'let x = 42\nprint(x.length())');
 
   const output = await page.locator('#output').textContent();
-  expect(output).toContain('requires an array or string');
+  expect(output).toContain('Error');
 });
