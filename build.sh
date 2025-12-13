@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Building Simple Interpreter..."
+echo "Building Tiny Development Environment..."
 
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then

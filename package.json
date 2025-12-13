@@ -1,5 +1,5 @@
 {
-  "name": "simple-interpreter",
+  "name": "tiny",
   "version": "1.0.0",
   "description": "A browser-based interpreter with visual debugging",
   "scripts": {
