@@ -120,7 +120,11 @@ export class Interpreter {
         const object = await this.evaluate(node.object);
         const index = await this.evaluate(node.index);
         const value = await this.evaluate(node.value);
-        this.validateArrayAccess(object, index);
+        this.validateArrayAssign(object, index);
+        // Fill gaps with null if growing array
+        while (object.length < index) {
+          object.push(null);
+        }
         object[index] = value;
         this.onVariableChange(null, object, 'update');
         break;
@@ -420,7 +424,7 @@ export class Interpreter {
     return true;  // numbers (including 0) and strings are truthy
   }
 
-  // DRY helper for array/string access validation
+  // DRY helper for array/string access validation (reading)
   validateArrayAccess(object, index) {
     if (!Array.isArray(object) && typeof object !== 'string') {
       throw new RuntimeError('Cannot index non-array/string value');
@@ -430,6 +434,19 @@ export class Interpreter {
     }
     if (index < 0 || index >= object.length) {
       throw new RuntimeError(`Index ${index} out of bounds (length: ${object.length})`);
+    }
+  }
+
+  // Validation for array assignment (allows growth)
+  validateArrayAssign(object, index) {
+    if (!Array.isArray(object)) {
+      throw new RuntimeError('Cannot assign to index of non-array value');
+    }
+    if (typeof index !== 'number' || !Number.isInteger(index)) {
+      throw new RuntimeError('Index must be an integer');
+    }
+    if (index < 0) {
+      throw new RuntimeError(`Index ${index} out of bounds (cannot be negative)`);
     }
   }
 
