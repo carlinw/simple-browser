@@ -244,7 +244,7 @@ test('clicking language help tab shows help fullscreen', async ({ page }) => {
 
   // Help iframe should contain the reference content
   const iframe = page.frameLocator('#help-iframe');
-  await expect(iframe.locator('#types')).toBeVisible();
+  await expect(iframe.locator('#literals')).toBeVisible();
 });
 
 test('clicking back button returns to code view', async ({ page }) => {

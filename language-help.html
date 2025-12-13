@@ -39,15 +39,25 @@
     <aside id="toc">
       <h2>Contents</h2>
       <ul>
+        <li><a href="#literals">Literals</a></li>
+        <li><a href="#hello-world">Hello World</a></li>
         <li>
           <a href="#variables">Variables</a>
           <ul class="toc-subsections">
-            <li><a href="#types">Types</a></li>
             <li><a href="#arrays">Arrays</a></li>
             <li><a href="#scoping">Scoping &amp; Closures</a></li>
           </ul>
         </li>
-        <li><a href="#operators">Operators</a></li>
+        <li>
+          <a href="#operators">Operators</a>
+          <ul class="toc-subsections">
+            <li><a href="#arithmetic">Arithmetic</a></li>
+            <li><a href="#comparison">Comparison</a></li>
+            <li><a href="#logical">Logical</a></li>
+            <li><a href="#string-ops">String</a></li>
+            <li><a href="#precedence">Precedence</a></li>
+          </ul>
+        </li>
         <li><a href="#control-flow">Control Flow</a></li>
         <li>
           <a href="#functions">Functions</a>
@@ -63,35 +73,10 @@
     </aside>
 
     <article id="content">
-      <!-- Variables (main section) -->
-      <section id="variables">
-        <h2>Variables</h2>
-        <p>Variables store values and must be declared before use.</p>
-
-        <h3>Declaration</h3>
-        <pre class="code-block"><code>let x = 42
-let name = "Connor"
-let items = [1, 2, 3]</code></pre>
-
-        <h3>Assignment</h3>
-        <p>After declaration, you can reassign variables to new values (even different types):</p>
-        <pre class="code-block"><code>let x = 10
-x = 20          // reassign to new number
-x = "hello"     // dynamic typing - can change type</code></pre>
-
-        <h3>Rules</h3>
-        <ul>
-          <li>Variable names must start with a letter or underscore</li>
-          <li>Names can contain letters, numbers, and underscores</li>
-          <li>Names are case-sensitive (<code>foo</code> and <code>Foo</code> are different)</li>
-          <li>Cannot use reserved keywords as names</li>
-        </ul>
-      </section>
-
-      <!-- Types (subsection of Variables) -->
-      <section id="types" class="subsection">
-        <h3>Types</h3>
-        <p>Tiny is dynamically typed. Variables can hold any type and change types during execution.</p>
+      <!-- Literals -->
+      <section id="literals">
+        <h2>Literals</h2>
+        <p>Literals are fixed values written directly in your code. Tiny is dynamically typed - variables can hold any type.</p>
 
         <table class="ref-table">
           <thead>
@@ -123,13 +108,41 @@ x = "hello"     // dynamic typing - can change type</code></pre>
               <td><code>[1, 2, 3]</code></td>
               <td>Ordered collection of values</td>
             </tr>
-            <tr>
-              <td><code>Function</code></td>
-              <td><code>function name() { }</code></td>
-              <td>Reusable code block</td>
-            </tr>
           </tbody>
         </table>
+      </section>
+
+      <!-- Hello World -->
+      <section id="hello-world">
+        <h2>Hello World</h2>
+        <p>The classic first program - print a message to the output:</p>
+        <pre class="code-block"><code>print("Hello, World!")</code></pre>
+        <p>Click <strong>Run</strong> to see the output. Click <strong>Step</strong> to execute one step at a time and watch the interpreter work.</p>
+      </section>
+
+      <!-- Variables (main section) -->
+      <section id="variables">
+        <h2>Variables</h2>
+        <p>Variables store values and must be declared before use.</p>
+
+        <h3>Declaration</h3>
+        <pre class="code-block"><code>let x = 42
+let name = "Connor"
+let items = [1, 2, 3]</code></pre>
+
+        <h3>Assignment</h3>
+        <p>After declaration, you can reassign variables to new values (even different types):</p>
+        <pre class="code-block"><code>let x = 10
+x = 20          // reassign to new number
+x = "hello"     // dynamic typing - can change type</code></pre>
+
+        <h3>Rules</h3>
+        <ul>
+          <li>Variable names must start with a letter or underscore</li>
+          <li>Names can contain letters, numbers, and underscores</li>
+          <li>Names are case-sensitive (<code>foo</code> and <code>Foo</code> are different)</li>
+          <li>Cannot use reserved keywords as names</li>
+        </ul>
       </section>
 
       <!-- Arrays (subsection of Variables) -->
@@ -278,7 +291,11 @@ print(x)  // 99</code></pre>
       <!-- Operators -->
       <section id="operators">
         <h2>Operators</h2>
+        <p>Operators perform computations and comparisons on values.</p>
+      </section>
 
+      <!-- Arithmetic (subsection of Operators) -->
+      <section id="arithmetic" class="subsection">
         <h3>Arithmetic</h3>
         <table class="ref-table">
           <thead>
@@ -293,7 +310,10 @@ print(x)  // 99</code></pre>
             <tr><td><code>-x</code></td><td>Negation</td><td><code>-5</code></td></tr>
           </tbody>
         </table>
+      </section>
 
+      <!-- Comparison (subsection of Operators) -->
+      <section id="comparison" class="subsection">
         <h3>Comparison</h3>
         <table class="ref-table">
           <thead>
@@ -308,7 +328,10 @@ print(x)  // 99</code></pre>
             <tr><td><code>&gt;=</code></td><td>Greater than or equal</td><td><code>5 &gt;= 5</code> → <code>true</code></td></tr>
           </tbody>
         </table>
+      </section>
 
+      <!-- Logical (subsection of Operators) -->
+      <section id="logical" class="subsection">
         <h3>Logical</h3>
         <table class="ref-table">
           <thead>
@@ -320,13 +343,19 @@ print(x)  // 99</code></pre>
             <tr><td><code>not</code></td><td>Logical NOT</td><td><code>not true</code> → <code>false</code></td></tr>
           </tbody>
         </table>
+      </section>
 
-        <h3>String Concatenation</h3>
-        <p>The <code>+</code> operator also concatenates strings:</p>
+      <!-- String (subsection of Operators) -->
+      <section id="string-ops" class="subsection">
+        <h3>String</h3>
+        <p>The <code>+</code> operator concatenates strings:</p>
         <pre class="code-block"><code>let greeting = "Hello, " + "World!"  // "Hello, World!"
 let msg = "Age: " + 25               // "Age: 25"</code></pre>
+      </section>
 
-        <h3>Operator Precedence</h3>
+      <!-- Precedence (subsection of Operators) -->
+      <section id="precedence" class="subsection">
+        <h3>Precedence</h3>
         <p>From highest to lowest:</p>
         <ol>
           <li><code>not</code>, <code>-</code> (unary)</li>
