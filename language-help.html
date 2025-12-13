@@ -10,6 +10,7 @@
   <header>
     <h1>Simple Language Reference</h1>
     <nav>
+      <button id="breakout-btn" onclick="breakOut()">Open in New Tab</button>
       <button id="back-btn" onclick="goBack()">Back to Code</button>
     </nav>
   </header>
@@ -22,6 +23,15 @@
         // Direct access, go to index
         window.location.href = 'index.html';
       }
+    }
+
+    function breakOut() {
+      window.open('language-help.html', '_blank');
+    }
+
+    // Hide breakout button if already in own tab
+    if (window.parent === window) {
+      document.getElementById('breakout-btn').style.display = 'none';
     }
   </script>
 
