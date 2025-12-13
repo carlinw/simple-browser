@@ -1,6 +1,6 @@
 // Simple Interpreter - Expression Evaluator
 // Walks the AST and computes values
-// Uses Environment, SimpleFunction, ReturnValue, RuntimeError from runtime.js
+// Uses Environment, TinyFunction, ReturnValue, RuntimeError from runtime.js
 
 class Interpreter {
   constructor(options = {}) {
@@ -100,7 +100,7 @@ class Interpreter {
         break;
 
       case 'FunctionDeclaration': {
-        const func = new SimpleFunction(node, this.environment);
+        const func = new TinyFunction(node, this.environment);
         this.environment.define(node.name, func);
         this.onVariableChange(node.name, '[function]', 'define');
         break;
@@ -187,7 +187,7 @@ class Interpreter {
 
         const callee = this.environment.get(node.callee);
 
-        if (!(callee instanceof SimpleFunction)) {
+        if (!(callee instanceof TinyFunction)) {
           throw new RuntimeError(`'${node.callee}' is not a function`);
         }
 

@@ -49,7 +49,7 @@ class Environment {
 }
 
 // Function value - stores declaration and closure environment
-class SimpleFunction {
+class TinyFunction {
   constructor(declaration, closure) {
     this.declaration = declaration;
     this.closure = closure;
@@ -73,5 +73,5 @@ class RuntimeError extends Error {
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { Environment, SimpleFunction, ReturnValue, RuntimeError };
+  module.exports = { Environment, TinyFunction, ReturnValue, RuntimeError };
 }
