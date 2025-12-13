@@ -222,3 +222,100 @@ test('running empty program shows error', async ({ page }) => {
   const output = await page.locator('#output').textContent();
   expect(output).toContain('No program');
 });
+
+// else if Tests
+
+test('else if executes first matching branch', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, `let x = 1
+if (x equals 1) {
+  print("one")
+} else if (x equals 2) {
+  print("two")
+} else {
+  print("other")
+}`);
+
+  const output = await page.locator('#output').textContent();
+  expect(output).toBe('one');
+});
+
+test('else if executes second branch', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, `let x = 2
+if (x equals 1) {
+  print("one")
+} else if (x equals 2) {
+  print("two")
+} else {
+  print("other")
+}`);
+
+  const output = await page.locator('#output').textContent();
+  expect(output).toBe('two');
+});
+
+test('else if executes else branch when no conditions match', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, `let x = 99
+if (x equals 1) {
+  print("one")
+} else if (x equals 2) {
+  print("two")
+} else {
+  print("other")
+}`);
+
+  const output = await page.locator('#output').textContent();
+  expect(output).toBe('other');
+});
+
+test('else if skips remaining branches after match', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, `let x = 1
+let count = 0
+if (x equals 1) {
+  count = count + 1
+} else if (x equals 1) {
+  count = count + 10
+} else {
+  count = count + 100
+}
+print(count)`);
+
+  const output = await page.locator('#output').textContent();
+  expect(output).toBe('1');
+});
+
+test('else if chain with multiple conditions', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, `let grade = 85
+if (grade >= 90) {
+  print("A")
+} else if (grade >= 80) {
+  print("B")
+} else if (grade >= 70) {
+  print("C")
+} else if (grade >= 60) {
+  print("D")
+} else {
+  print("F")
+}`);
+
+  const output = await page.locator('#output').textContent();
+  expect(output).toBe('B');
+});
+
+test('else if without final else', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, `let x = 3
+if (x equals 1) {
+  print("one")
+} else if (x equals 2) {
+  print("two")
+}
+print("done")`);
+
+  const output = await page.locator('#output').textContent();
+  expect(output).toBe('done');
+});

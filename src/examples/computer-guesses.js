@@ -32,12 +32,10 @@ while (found equals false) {
   if (response equals "c") {
     print("I got it!")
     found = true
+  } else if (response equals "h") {
+    high = mid - 1
   } else {
-    if (response equals "h") {
-      high = mid - 1
-    } else {
-      low = mid + 1
-    }
+    low = mid + 1
   }
 }`
 };

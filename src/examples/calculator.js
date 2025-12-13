@@ -21,18 +21,12 @@ let b = num(input())
 let result = 0
 if (op equals "+") {
   result = a + b
-} else {
-  if (op equals "-") {
-    result = a - b
-  } else {
-    if (op equals "*") {
-      result = a * b
-    } else {
-      if (op equals "/") {
-        result = a / b
-      }
-    }
-  }
+} else if (op equals "-") {
+  result = a - b
+} else if (op equals "*") {
+  result = a * b
+} else if (op equals "/") {
+  result = a / b
 }
 
 print(a + " " + op + " " + b + " = " + result)`)

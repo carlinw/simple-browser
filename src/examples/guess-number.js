@@ -22,10 +22,8 @@ while (guess not equals secret) {
 
   if (guess < secret) {
     print("Too low!")
-  } else {
-    if (guess > secret) {
-      print("Too high!")
-    }
+  } else if (guess > secret) {
+    print("Too high!")
   }
 }
 

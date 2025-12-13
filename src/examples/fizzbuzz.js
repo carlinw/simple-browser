@@ -23,19 +23,15 @@ while (n <= 20) {
   if (n % 3 equals 0 and n % 5 equals 0) {
     // Divisible by both 3 and 5
     print("FizzBuzz")
+  } else if (n % 3 equals 0) {
+    // Divisible by 3 only
+    print("Fizz")
+  } else if (n % 5 equals 0) {
+    // Divisible by 5 only
+    print("Buzz")
   } else {
-    if (n % 3 equals 0) {
-      // Divisible by 3 only
-      print("Fizz")
-    } else {
-      if (n % 5 equals 0) {
-        // Divisible by 5 only
-        print("Buzz")
-      } else {
-        // Not divisible by 3 or 5
-        print(n)
-      }
-    }
+    // Not divisible by 3 or 5
+    print(n)
   }
   n = n + 1
 }`

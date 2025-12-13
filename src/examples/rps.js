@@ -30,10 +30,8 @@ while (playing) {
     let computer = "rock"
     if (pick equals 2) {
       computer = "paper"
-    } else {
-      if (pick equals 3) {
-        computer = "scissors"
-      }
+    } else if (pick equals 3) {
+      computer = "scissors"
     }
     print("Computer: " + computer)
 
@@ -41,34 +39,24 @@ while (playing) {
     if (player equals "r" and computer equals "scissors") {
       print("You win!")
       wins = wins + 1
+    } else if (player equals "p" and computer equals "rock") {
+      print("You win!")
+      wins = wins + 1
+    } else if (player equals "s" and computer equals "paper") {
+      print("You win!")
+      wins = wins + 1
+    } else if (player equals "r" and computer equals "rock") {
+      print("Tie!")
+      ties = ties + 1
+    } else if (player equals "p" and computer equals "paper") {
+      print("Tie!")
+      ties = ties + 1
+    } else if (player equals "s" and computer equals "scissors") {
+      print("Tie!")
+      ties = ties + 1
     } else {
-      if (player equals "p" and computer equals "rock") {
-        print("You win!")
-        wins = wins + 1
-      } else {
-        if (player equals "s" and computer equals "paper") {
-          print("You win!")
-          wins = wins + 1
-        } else {
-          if (player equals "r" and computer equals "rock") {
-            print("Tie!")
-            ties = ties + 1
-          } else {
-            if (player equals "p" and computer equals "paper") {
-              print("Tie!")
-              ties = ties + 1
-            } else {
-              if (player equals "s" and computer equals "scissors") {
-                print("Tie!")
-                ties = ties + 1
-              } else {
-                print("You lose!")
-                losses = losses + 1
-              }
-            }
-          }
-        }
-      }
+      print("You lose!")
+      losses = losses + 1
     }
     print("")
   }

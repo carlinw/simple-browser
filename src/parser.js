@@ -210,7 +210,12 @@ class Parser {
 
     let elseBranch = null;
     if (this.match('KEYWORD', 'else')) {
-      elseBranch = this.parseBlock();
+      // Check for 'else if' - parse as nested if statement
+      if (this.match('KEYWORD', 'if')) {
+        elseBranch = this.parseIfStatement();
+      } else {
+        elseBranch = this.parseBlock();
+      }
     }
 
     const endToken = this.previous(); // closing '}'

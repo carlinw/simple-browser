@@ -261,3 +261,56 @@ test('parser reports unexpected token', async ({ page }) => {
   expect(output).toContain('Parser Errors:');
   expect(output).toContain('Expected variable name');
 });
+
+// else if Parser Tests
+
+test('parser parses else if correctly', async ({ page }) => {
+  await page.goto('/');
+  const ast = await getAST(page, `if (x equals 1) {
+  print("one")
+} else if (x equals 2) {
+  print("two")
+}`);
+
+  expect(ast.statements[0].type).toBe('IfStatement');
+  // The else branch should be an IfStatement (not a Block)
+  expect(ast.statements[0].elseBranch.type).toBe('IfStatement');
+  expect(ast.statements[0].elseBranch.condition.operator).toBe('equals');
+});
+
+test('parser parses else if chain correctly', async ({ page }) => {
+  await page.goto('/');
+  const ast = await getAST(page, `if (x equals 1) {
+  print("one")
+} else if (x equals 2) {
+  print("two")
+} else if (x equals 3) {
+  print("three")
+}`);
+
+  const ifStmt = ast.statements[0];
+  expect(ifStmt.type).toBe('IfStatement');
+  // First else if
+  expect(ifStmt.elseBranch.type).toBe('IfStatement');
+  // Second else if (nested in first else if's else)
+  expect(ifStmt.elseBranch.elseBranch.type).toBe('IfStatement');
+  expect(ifStmt.elseBranch.elseBranch.elseBranch).toBeNull();
+});
+
+test('parser parses else if with final else correctly', async ({ page }) => {
+  await page.goto('/');
+  const ast = await getAST(page, `if (x equals 1) {
+  print("one")
+} else if (x equals 2) {
+  print("two")
+} else {
+  print("other")
+}`);
+
+  const ifStmt = ast.statements[0];
+  expect(ifStmt.type).toBe('IfStatement');
+  // else if branch
+  expect(ifStmt.elseBranch.type).toBe('IfStatement');
+  // final else is a Block
+  expect(ifStmt.elseBranch.elseBranch.type).toBe('Block');
+});
