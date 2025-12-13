@@ -232,6 +232,11 @@ body.help-active #language-help {
   display: flex !important;
 }
 
+/* Hide toolbar buttons when help is shown (except those we want) */
+body.help-active #toolbar {
+  display: none;
+}
+
 /* Hidden utility */
 .hidden {
   display: none !important;
