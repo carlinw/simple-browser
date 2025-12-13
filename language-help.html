@@ -58,7 +58,14 @@
             <li><a href="#precedence">Precedence</a></li>
           </ul>
         </li>
-        <li><a href="#control-flow">Control Flow</a></li>
+        <li>
+          <a href="#control-flow">Control Flow</a>
+          <ul class="toc-subsections">
+            <li><a href="#if-statements">If</a></li>
+            <li><a href="#loops">Loops</a></li>
+            <li><a href="#stop">Stop</a></li>
+          </ul>
+        </li>
         <li>
           <a href="#functions">Functions</a>
           <ul class="toc-subsections">
@@ -76,7 +83,7 @@
       <!-- Literals -->
       <section id="literals">
         <h2>Literals</h2>
-        <p>Literals are fixed values written directly in your code. Tiny is dynamically typed - variables can hold any type.</p>
+        <p>Literals are fixed values written directly in your code.</p>
 
         <table class="ref-table">
           <thead>
@@ -123,7 +130,7 @@
       <!-- Variables (main section) -->
       <section id="variables">
         <h2>Variables</h2>
-        <p>Variables store values and must be declared before use.</p>
+        <p>Variables store values and must be declared before use. Tiny is dynamically typed - variables can hold any type and change types during execution.</p>
 
         <h3>Declaration</h3>
         <pre class="code-block"><code>let x = 42
@@ -372,27 +379,43 @@ let msg = "Age: " + 25               // "Age: 25"</code></pre>
       <!-- Control Flow -->
       <section id="control-flow">
         <h2>Control Flow</h2>
+        <p>Control flow statements determine which code runs and in what order.</p>
+      </section>
 
-        <h3>If Statement</h3>
+      <!-- If Statements (subsection of Control Flow) -->
+      <section id="if-statements" class="subsection">
+        <h3>If</h3>
         <pre class="code-block"><code>if (condition) {
   // executed if condition is true
 }</code></pre>
 
-        <h3>If-Else Statement</h3>
+        <h4>If-Else</h4>
         <pre class="code-block"><code>if (x > 0) {
   print("positive")
 } else {
   print("not positive")
 }</code></pre>
+      </section>
 
-        <h3>While Loop</h3>
+      <!-- Loops (subsection of Control Flow) -->
+      <section id="loops" class="subsection">
+        <h3>Loops</h3>
+        <p>The <code>while</code> loop repeats code as long as a condition is true:</p>
         <pre class="code-block"><code>let i = 0
 while (i < 5) {
   print(i)
   i = i + 1
 }</code></pre>
 
-        <h3>Stop Statement</h3>
+        <div class="info-box">
+          <h4>Loop Limit</h4>
+          <p>To prevent infinite loops from freezing your browser, loops are limited to <strong>10,000 iterations</strong>. If exceeded, the program stops with an error.</p>
+        </div>
+      </section>
+
+      <!-- Stop (subsection of Control Flow) -->
+      <section id="stop" class="subsection">
+        <h3>Stop</h3>
         <p>The <code>stop</code> keyword immediately terminates program execution:</p>
         <pre class="code-block"><code>while (true) {
   let input = key()
