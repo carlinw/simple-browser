@@ -5,7 +5,7 @@ const { runFast } = require('./helpers');
 
 test('string index returns character', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "hello"\nprint s[0]');
+  await runFast(page, 'let s = "hello"\nprint(s[0])');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('h');
@@ -13,7 +13,7 @@ test('string index returns character', async ({ page }) => {
 
 test('string last character', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "hello"\nprint s[4]');
+  await runFast(page, 'let s = "hello"\nprint(s[4])');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('o');
@@ -21,7 +21,7 @@ test('string last character', async ({ page }) => {
 
 test('string index out of bounds', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "hi"\nprint s[5]');
+  await runFast(page, 'let s = "hi"\nprint(s[5])');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('out of bounds');
@@ -29,7 +29,7 @@ test('string index out of bounds', async ({ page }) => {
 
 test('string index negative', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "hi"\nprint s[-1]');
+  await runFast(page, 'let s = "hi"\nprint(s[-1])');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('out of bounds');
@@ -37,7 +37,7 @@ test('string index negative', async ({ page }) => {
 
 test('string index with expression', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "abc"\nlet i = 1\nprint s[i]');
+  await runFast(page, 'let s = "abc"\nlet i = 1\nprint(s[i])');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('b');
@@ -45,7 +45,7 @@ test('string index with expression', async ({ page }) => {
 
 test('string index in loop', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "ab"\nlet i = 0\nwhile (i < len(s)) {\nprint s[i]\ni = i + 1\n}');
+  await runFast(page, 'let s = "ab"\nlet i = 0\nwhile (i < len(s)) {\nprint(s[i])\ni = i + 1\n}');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('a');

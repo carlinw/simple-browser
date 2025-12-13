@@ -157,8 +157,6 @@ class ASTRenderer {
         return 'let';
       case 'AssignStatement':
         return '=';
-      case 'PrintStatement':
-        return 'print';
       case 'ExpressionStatement':
         return 'expr';
       case 'IfStatement':
@@ -231,12 +229,6 @@ class ASTRenderer {
         children.push({ label: 'name', node: { type: 'Identifier', name: node.name } });
         if (node.value) {
           children.push({ label: 'value', node: node.value });
-        }
-        break;
-
-      case 'PrintStatement':
-        if (node.value) {
-          children.push({ node: node.value });
         }
         break;
 

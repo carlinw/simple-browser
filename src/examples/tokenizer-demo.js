@@ -18,10 +18,10 @@ let count = 42
 // - Strings: "hello"
 // - Operators: + - * / = == < >
 
-print message
-print count + 1
+print(message)
+print(count + 1)
 
 if (count > 0) {
-    print "positive"
+    print("positive")
 }`
 };

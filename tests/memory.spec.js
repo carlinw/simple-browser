@@ -177,7 +177,7 @@ test('variables from expression are in memory', async ({ page }) => {
 
 test('output pane shows program results', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 42\nprint x + 1');
+  await runFast(page, 'let x = 42\nprint(x + 1)');
 
   // Output should be in output pane, not memory tab
   const output = page.locator('#output');

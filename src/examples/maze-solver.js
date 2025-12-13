@@ -5,14 +5,14 @@ window.EXAMPLES = window.EXAMPLES || {};
 
 window.EXAMPLES['maze-solver'] = {
   name: 'Maze Solver',
-  description: 'Watch a mouse find its way through a maze',
-  code: `// Maze Solver
+  description: 'Watch a mouse find its way through a maze (fullscreen)',
+  code: `// Maze Solver (Fullscreen Demo)
 // Select size, then watch the mouse find the exit
 
-print "Select maze size:"
-print "1 = Small (10x8)"
-print "2 = Medium (15x12)"
-print "3 = Large (20x15)"
+print("Select maze size:")
+print("1 = Small (10x8)")
+print("2 = Medium (15x12)")
+print("3 = Large (20x15)")
 let choice = key()
 
 let cols = 10
@@ -26,12 +26,14 @@ if (choice == "3") {
   rows = 15
 }
 
-// Calculate cell size based on canvas
-let cellW = 400 / cols
-let cellH = 300 / rows
+// Enter fullscreen mode
+fullscreen()
+
+// Calculate cell size based on dynamic canvas size
+let cellW = width() / cols
+let cellH = height() / rows
 
 // Walls: bit 0=top, 1=right, 2=bottom, 3=left (15 = all walls)
-// Using a flat array for the grid
 let size = cols * rows
 let walls = []
 let visited = []
@@ -164,8 +166,6 @@ function drawMouse(mx, my) {
 }
 
 // Generate maze using recursive backtracking
-print "Generating maze..."
-
 let curX = 0
 let curY = 0
 markVisited(curX, curY)
@@ -228,9 +228,6 @@ while (i < size) {
 drawMaze()
 sleep(500)
 
-// Solve maze using recursive backtracking (depth-first search)
-print "Mouse is searching..."
-
 // Reset stack
 stackTop = 0
 
@@ -246,7 +243,7 @@ let found = false
 while (stackTop > 0 and not found) {
   drawMaze()
   drawMouse(mouseX, mouseY)
-  sleep(50)
+  sleep(30)
 
   // Check if we reached the goal
   if (mouseX == cols - 1 and mouseY == rows - 1) {
@@ -312,9 +309,9 @@ drawMouse(mouseX, mouseY)
 
 if (found) {
   color("yellow")
-  text(10, 20, "Mouse found the exit!")
+  text(20, 40, "Mouse found the exit! Press ESC to exit fullscreen.")
 } else {
   color("red")
-  text(10, 20, "No path found!")
+  text(20, 40, "No path found!")
 }`
 };

@@ -8,19 +8,19 @@ window.EXAMPLES['comparisons'] = {
   description: 'Compare values and see boolean results',
   code: `// Comparisons Demo
 // Greater than / less than
-print 5 > 3
-print 2 < 1
+print(5 > 3)
+print(2 < 1)
 
 // Greater/less than or equal
-print 5 >= 5
-print 3 <= 2
+print(5 >= 5)
+print(3 <= 2)
 
 // Equality
-print 10 == 10
-print 5 != 3
+print(10 == 10)
+print(5 != 3)
 
 // Compare variables
 let x = 10
 let y = 20
-print x < y`
+print(x < y)`)
 };

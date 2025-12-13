@@ -9,12 +9,12 @@ window.EXAMPLES['computer-guesses'] = {
   code: `// Computer Guesses Your Number
 // Think of a number, computer finds it!
 
-print "Think of a number between 1 and 100"
-print "Press 'h' if too high"
-print "Press 'l' if too low"
-print "Press 'c' if correct"
-print ""
-print "Press any key when ready..."
+print("Think of a number between 1 and 100")
+print("Press 'h' if too high")
+print("Press 'l' if too low")
+print("Press 'c' if correct")
+print("")
+print("Press any key when ready...")
 key()
 
 let low = 1
@@ -26,11 +26,11 @@ while (found == false) {
   // Round down to integer
   mid = mid - (mid % 1)
 
-  print "Is it " + mid + "? (h/l/c)"
+  print("Is it " + mid + "? (h/l/c)")
   let response = key()
 
   if (response == "c") {
-    print "I got it!"
+    print("I got it!")
     found = true
   } else {
     if (response == "h") {

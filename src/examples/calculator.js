@@ -9,13 +9,13 @@ window.EXAMPLES['calculator'] = {
   code: `// Simple Calculator
 // Enter two numbers and an operation
 
-print "Enter first number:"
+print("Enter first number:")
 let a = num(input())
 
-print "Operation (+, -, *, /):"
+print("Operation (+, -, *, /):")
 let op = key()
 
-print "Enter second number:"
+print("Enter second number:")
 let b = num(input())
 
 let result = 0
@@ -35,5 +35,5 @@ if (op == "+") {
   }
 }
 
-print a + " " + op + " " + b + " = " + result`
+print(a + " " + op + " " + b + " = " + result)`)
 };

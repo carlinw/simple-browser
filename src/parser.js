@@ -98,7 +98,6 @@ class Parser {
       if (this.check('KEYWORD', 'let')) return;
       if (this.check('KEYWORD', 'if')) return;
       if (this.check('KEYWORD', 'while')) return;
-      if (this.check('KEYWORD', 'print')) return;
       if (this.check('KEYWORD', 'function')) return;
       if (this.check('KEYWORD', 'return')) return;
       this.advance();
@@ -109,9 +108,6 @@ class Parser {
   parseStatement() {
     if (this.match('KEYWORD', 'let')) {
       return this.parseLetStatement();
-    }
-    if (this.match('KEYWORD', 'print')) {
-      return this.parsePrintStatement();
     }
     if (this.match('KEYWORD', 'if')) {
       return this.parseIfStatement();
@@ -200,19 +196,6 @@ class Parser {
       name: nameToken.value,
       value: value,
       token: nameToken,
-      endToken: endToken
-    };
-  }
-
-  parsePrintStatement() {
-    const printToken = this.previous(); // 'print' keyword we just matched
-    const value = this.parseExpression();
-    const endToken = this.previous(); // Last token of expression
-
-    return {
-      type: 'PrintStatement',
-      value: value,
-      token: printToken,
       endToken: endToken
     };
   }

@@ -80,7 +80,7 @@ test('AST shows BinaryExpression', async ({ page }) => {
 
 test('AST shows nested structure', async ({ page }) => {
   await page.goto('/');
-  await runCode(page, 'if (x > 0) { print x }');
+  await runCode(page, 'if (x > 0) { print(x) }');
 
   await page.click('.tab-btn:has-text("AST")');
   // IfStatement should exist
@@ -91,9 +91,9 @@ test('AST shows nested structure', async ({ page }) => {
   const blockNode = page.locator('.ast-block');
   await expect(blockNode).toBeVisible();
 
-  // PrintStatement should exist
-  const printNode = page.locator('.ast-printstatement');
-  await expect(printNode).toBeVisible();
+  // CallExpression for print() should exist
+  const callNode = page.locator('.ast-callexpression');
+  await expect(callNode).toBeVisible();
 });
 
 test('AST shows multiple statements', async ({ page }) => {

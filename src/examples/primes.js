@@ -25,16 +25,16 @@ function isPrime(n) {
 }
 
 // Test some numbers
-print "Is 7 prime? " + isPrime(7)
-print "Is 12 prime? " + isPrime(12)
-print "Is 29 prime? " + isPrime(29)
+print("Is 7 prime? " + isPrime(7))
+print("Is 12 prime? " + isPrime(12))
+print("Is 29 prime? " + isPrime(29))
 
 // Find all primes up to 50
-print "Primes up to 50:"
+print("Primes up to 50:")
 let n = 2
 while (n <= 50) {
   if (isPrime(n)) {
-    print n
+    print(n)
   }
   n = n + 1
 }
@@ -48,5 +48,5 @@ while (num <= 100) {
   }
   num = num + 1
 }
-print "There are " + count + " primes up to 100"`
+print("There are " + count + " primes up to 100")`)
 };

@@ -18,7 +18,7 @@ async function runCodeAndGetMemory(page, code) {
 
 test('global frame shown at start', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'let x = 1\nprint x');
+  const memory = await runCodeAndGetMemory(page, 'let x = 1\nprint(x)');
   // Should show global frame
   expect(memory).toContain('&lt;global&gt;');
   expect(memory).toContain('stack-frame-global');
@@ -28,7 +28,7 @@ test('global frame shown at start', async ({ page }) => {
 
 test('global frame shows variables', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'let x = 42\nlet y = "hello"\nprint x');
+  const memory = await runCodeAndGetMemory(page, 'let x = 42\nlet y = "hello"\nprint(x)');
   expect(memory).toContain('&lt;global&gt;');
   expect(memory).toContain('x');
   expect(memory).toContain('42');
@@ -38,7 +38,7 @@ test('global frame shows variables', async ({ page }) => {
 
 test('function declaration shows in global frame', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'function foo() { }\nprint "done"');
+  const memory = await runCodeAndGetMemory(page, 'function foo() { }\nprint("done")');
   expect(memory).toContain('&lt;global&gt;');
   expect(memory).toContain('foo');
   expect(memory).toContain('[function]');
@@ -46,7 +46,7 @@ test('function declaration shows in global frame', async ({ page }) => {
 
 test('stack shows only global after function returns', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'function add(a, b) { return a + b }\nprint add(1, 2)');
+  const memory = await runCodeAndGetMemory(page, 'function add(a, b) { return a + b }\nprint(add(1, 2))');
   // After execution, should only have global frame
   expect(memory).toContain('&lt;global&gt;');
   // Function frame should be gone - only one stack frame visible
@@ -57,7 +57,7 @@ test('stack shows only global after function returns', async ({ page }) => {
 
 test('recursive function shows in global frame', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'function fac(n) { if (n <= 1) { return 1 } return n * fac(n - 1) }\nprint fac(3)');
+  const memory = await runCodeAndGetMemory(page, 'function fac(n) { if (n <= 1) { return 1 } return n * fac(n - 1) }\nprint(fac(3))');
   // After execution, factorial should be in global
   expect(memory).toContain('fac');
   expect(memory).toContain('[function]');
@@ -65,7 +65,7 @@ test('recursive function shows in global frame', async ({ page }) => {
 
 test('multiple functions show in global frame', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'function a() { }\nfunction b() { }\nprint "done"');
+  const memory = await runCodeAndGetMemory(page, 'function a() { }\nfunction b() { }\nprint("done")');
   expect(memory).toContain('a');
   expect(memory).toContain('b');
   expect(memory).toContain('[function]');
@@ -73,6 +73,6 @@ test('multiple functions show in global frame', async ({ page }) => {
 
 test('call stack label is shown', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'let x = 1\nprint x');
+  const memory = await runCodeAndGetMemory(page, 'let x = 1\nprint(x)');
   expect(memory).toContain('Call Stack:');
 });

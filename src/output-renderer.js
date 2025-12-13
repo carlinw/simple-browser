@@ -172,12 +172,22 @@ class OutputRenderer {
   showCanvas() {
     if (this.canvas) return; // Already showing canvas
 
+    // Blur code editor to ensure keyboard events work for games
+    const codeEditor = document.getElementById('code-editor');
+    if (codeEditor) {
+      codeEditor.blur();
+    }
+
     this.canvas = document.createElement('canvas');
     this.canvas.width = this.canvasWidth;
     this.canvas.height = this.canvasHeight;
     this.canvas.className = 'output-canvas';
+    // Make canvas focusable so it can receive keyboard events
+    this.canvas.tabIndex = 0;
     this.container.innerHTML = '';
     this.container.appendChild(this.canvas);
+    // Focus canvas for keyboard input
+    this.canvas.focus();
     this.ctx = this.canvas.getContext('2d');
     // Default to black background
     this.ctx.fillStyle = COLORS.black;

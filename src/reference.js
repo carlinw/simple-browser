@@ -55,10 +55,12 @@ class ReferenceRenderer {
         { name: 'print(x)', desc: 'output a value' },
         { name: 'len(x)', desc: 'length of array or string' },
         { name: 'num(x)', desc: 'convert string to number' },
-        { name: 'input()', desc: 'read line of input' },
-        { name: 'key()', desc: 'read single keypress' },
         { name: 'random(min, max)', desc: 'random integer in range' },
         { name: 'sleep(ms)', desc: 'pause for milliseconds' },
+      ],
+      keyboard: [
+        { name: 'input()', desc: 'read line of input' },
+        { name: 'key()', desc: 'read single keypress' },
         { name: 'pressed(key)', desc: 'true if key is held down' },
       ],
       graphics: [
@@ -117,6 +119,12 @@ class ReferenceRenderer {
           <h3>Built-in Functions</h3>
           <dl class="ref-list">
             ${content.builtins.map(b => `<dt>${b.name}</dt><dd>${b.desc}</dd>`).join('')}
+          </dl>
+        </section>
+        <section>
+          <h3>Keyboard</h3>
+          <dl class="ref-list">
+            ${content.keyboard.map(k => `<dt>${k.name}</dt><dd>${k.desc}</dd>`).join('')}
           </dl>
         </section>
         <section>

@@ -5,7 +5,7 @@ const { runFast } = require('./helpers');
 
 test('true and true returns true', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print true and true');
+  await runFast(page, 'print(true and true)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -13,7 +13,7 @@ test('true and true returns true', async ({ page }) => {
 
 test('true and false returns false', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print true and false');
+  await runFast(page, 'print(true and false)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('false');
@@ -21,7 +21,7 @@ test('true and false returns false', async ({ page }) => {
 
 test('false and true returns false', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print false and true');
+  await runFast(page, 'print(false and true)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('false');
@@ -29,7 +29,7 @@ test('false and true returns false', async ({ page }) => {
 
 test('and with comparison expressions', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 5\nprint x > 0 and x < 10');
+  await runFast(page, 'let x = 5\nprint(x > 0 and x < 10)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -38,7 +38,7 @@ test('and with comparison expressions', async ({ page }) => {
 test('and short-circuits on false', async ({ page }) => {
   await page.goto('/');
   // If and doesn't short-circuit, this would cause division by zero error
-  await runFast(page, 'print false and (5 / 0)');
+  await runFast(page, 'print(false and (5 / 0))');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('false');
@@ -48,7 +48,7 @@ test('and short-circuits on false', async ({ page }) => {
 
 test('false or true returns true', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print false or true');
+  await runFast(page, 'print(false or true)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -56,7 +56,7 @@ test('false or true returns true', async ({ page }) => {
 
 test('false or false returns false', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print false or false');
+  await runFast(page, 'print(false or false)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('false');
@@ -64,7 +64,7 @@ test('false or false returns false', async ({ page }) => {
 
 test('or with comparison expressions', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 15\nprint x < 0 or x > 10');
+  await runFast(page, 'let x = 15\nprint(x < 0 or x > 10)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -73,7 +73,7 @@ test('or with comparison expressions', async ({ page }) => {
 test('or short-circuits on true', async ({ page }) => {
   await page.goto('/');
   // If or doesn't short-circuit, this would cause division by zero error
-  await runFast(page, 'print true or (5 / 0)');
+  await runFast(page, 'print(true or (5 / 0))');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -83,7 +83,7 @@ test('or short-circuits on true', async ({ page }) => {
 
 test('not true returns false', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print not true');
+  await runFast(page, 'print(not true)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('false');
@@ -91,7 +91,7 @@ test('not true returns false', async ({ page }) => {
 
 test('not false returns true', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print not false');
+  await runFast(page, 'print(not false)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -99,7 +99,7 @@ test('not false returns true', async ({ page }) => {
 
 test('not with comparison', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 5\nprint not (x > 10)');
+  await runFast(page, 'let x = 5\nprint(not (x > 10))');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -107,7 +107,7 @@ test('not with comparison', async ({ page }) => {
 
 test('double negation', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print not not true');
+  await runFast(page, 'print(not not true)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -117,7 +117,7 @@ test('double negation', async ({ page }) => {
 
 test('10 % 3 returns 1', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 10 % 3');
+  await runFast(page, 'print(10 % 3)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('1');
@@ -125,7 +125,7 @@ test('10 % 3 returns 1', async ({ page }) => {
 
 test('even number check', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let n = 4\nprint n % 2 == 0');
+  await runFast(page, 'let n = 4\nprint(n % 2 == 0)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -133,7 +133,7 @@ test('even number check', async ({ page }) => {
 
 test('odd number check', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let n = 7\nprint n % 2 == 1');
+  await runFast(page, 'let n = 7\nprint(n % 2 == 1)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -141,7 +141,7 @@ test('odd number check', async ({ page }) => {
 
 test('modulo by zero error', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 5 % 0');
+  await runFast(page, 'print(5 % 0)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('Modulo by zero');
@@ -151,7 +151,7 @@ test('modulo by zero error', async ({ page }) => {
 
 test('negative literal', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print -5');
+  await runFast(page, 'print(-5)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('-5');
@@ -159,7 +159,7 @@ test('negative literal', async ({ page }) => {
 
 test('negate variable', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 10\nprint -x');
+  await runFast(page, 'let x = 10\nprint(-x)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('-10');
@@ -167,7 +167,7 @@ test('negate variable', async ({ page }) => {
 
 test('negate expression', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print -(3 + 2)');
+  await runFast(page, 'print(-(3 + 2))');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('-5');
@@ -175,7 +175,7 @@ test('negate expression', async ({ page }) => {
 
 test('double negative', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 5\nprint --x');
+  await runFast(page, 'let x = 5\nprint(--x)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('5');
@@ -183,7 +183,7 @@ test('double negative', async ({ page }) => {
 
 test('unary minus on non-number error', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print -"hello"');
+  await runFast(page, 'print(-"hello")');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('requires a number');
@@ -193,7 +193,7 @@ test('unary minus on non-number error', async ({ page }) => {
 
 test('and has higher precedence than or', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print true or false and false');
+  await runFast(page, 'print(true or false and false)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -201,7 +201,7 @@ test('and has higher precedence than or', async ({ page }) => {
 
 test('not has highest precedence', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print not false and true');
+  await runFast(page, 'print(not false and true)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -209,7 +209,7 @@ test('not has highest precedence', async ({ page }) => {
 
 test('% same precedence as * /', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 10 + 6 % 4');
+  await runFast(page, 'print(10 + 6 % 4)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('12');

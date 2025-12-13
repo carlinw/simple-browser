@@ -11,12 +11,12 @@ window.EXAMPLES['fibonacci'] = {
 // 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...
 
 // Iterative approach - print first 15 numbers
-print "Fibonacci sequence:"
+print("Fibonacci sequence:")
 let a = 0
 let b = 1
 let count = 0
 while (count < 15) {
-  print a
+  print(a)
   let next = a + b
   a = b
   b = next
@@ -32,8 +32,8 @@ function fib(n) {
 }
 
 // Calculate specific Fibonacci numbers
-print "fib(10) = " + fib(10)
-print "fib(12) = " + fib(12)
+print("fib(10) = " + fib(10))
+print("fib(12) = " + fib(12))
 
 // Note: Watch the call stack in Memory tab
 // during animated run to see recursion!`

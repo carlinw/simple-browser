@@ -15,7 +15,7 @@ const TokenType = {
 
 const KEYWORDS = new Set([
   'let', 'if', 'else', 'while', 'function',
-  'return', 'true', 'false', 'print', 'stop',
+  'return', 'true', 'false', 'stop',
   'and', 'or', 'not'
 ]);
 

@@ -5,7 +5,7 @@ const { runFast } = require('./helpers');
 
 test('float literal prints correctly', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 3.14');
+  await runFast(page, 'print(3.14)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('3.14');
@@ -13,7 +13,7 @@ test('float literal prints correctly', async ({ page }) => {
 
 test('float arithmetic', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 1.5 + 2.5');
+  await runFast(page, 'print(1.5 + 2.5)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('4');
@@ -21,7 +21,7 @@ test('float arithmetic', async ({ page }) => {
 
 test('float multiplication', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 2.5 * 2');
+  await runFast(page, 'print(2.5 * 2)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('5');
@@ -29,7 +29,7 @@ test('float multiplication', async ({ page }) => {
 
 test('float in variable', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let pi = 3.14159\nprint pi');
+  await runFast(page, 'let pi = 3.14159\nprint(pi)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('3.14159');
@@ -37,7 +37,7 @@ test('float in variable', async ({ page }) => {
 
 test('float comparison', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 1.5 < 2.5');
+  await runFast(page, 'print(1.5 < 2.5)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -45,7 +45,7 @@ test('float comparison', async ({ page }) => {
 
 test('zero point five', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 0.5');
+  await runFast(page, 'print(0.5)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('0.5');

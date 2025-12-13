@@ -4,7 +4,7 @@ const { test, expect } = require('@playwright/test');
 
 test('input returns entered value', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'print "Name:"\nlet name = input()\nprint "Hello, " + name');
+  await page.fill('#code-editor', 'print("Name:")\nlet name = input()\nprint("Hello, " + name)');
   await page.click('#run-fast-btn');
 
   // Wait for input field to appear
@@ -28,7 +28,7 @@ test('input returns entered value', async ({ page }) => {
 
 test('input in expression', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'print "Say something: " + input()');
+  await page.fill('#code-editor', 'print("Say something: " + input())');
   await page.click('#run-fast-btn');
 
   // Wait for input field to appear
@@ -52,7 +52,7 @@ test('input in expression', async ({ page }) => {
 
 test('key returns single character', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'print "Press a key:"\nlet k = key()\nprint "You pressed: " + k');
+  await page.fill('#code-editor', 'print("Press a key:")\nlet k = key()\nprint("You pressed: " + k)');
   await page.click('#run-fast-btn');
 
   // Wait for key prompt to appear

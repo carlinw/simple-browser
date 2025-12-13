@@ -10,15 +10,15 @@ window.EXAMPLES['variables'] = {
 // Declare and use variables
 
 let x = 42
-print x + 1
+print(x + 1)
 
 // Reassign variables
 let count = 0
 count = count + 1
-print count
+print(count)
 
 // Dynamic typing - types can change
 let value = 10
 value = "hello"
-print value`
+print(value)`)
 };

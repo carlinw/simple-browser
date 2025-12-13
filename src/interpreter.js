@@ -54,11 +54,6 @@ class Interpreter {
         result = await this.evaluate(node.expression);
         break;
 
-      case 'PrintStatement':
-        result = await this.evaluate(node.value);
-        this.onPrint(result);
-        break;
-
       case 'LetStatement': {
         const value = await this.evaluate(node.value);
         this.environment.define(node.name, value);

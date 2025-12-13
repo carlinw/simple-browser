@@ -13,21 +13,21 @@ let secret = random(1, 100)
 let guess = 0
 let attempts = 0
 
-print "I'm thinking of a number between 1 and 100"
+print("I'm thinking of a number between 1 and 100")
 
 while (guess != secret) {
-  print "Your guess:"
+  print("Your guess:")
   guess = num(input())
   attempts = attempts + 1
 
   if (guess < secret) {
-    print "Too low!"
+    print("Too low!")
   } else {
     if (guess > secret) {
-      print "Too high!"
+      print("Too high!")
     }
   }
 }
 
-print "Correct! You got it in " + attempts + " attempts"`
+print("Correct! You got it in " + attempts + " attempts")`)
 };

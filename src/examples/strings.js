@@ -11,15 +11,15 @@ window.EXAMPLES['strings'] = {
 // String literals
 let greeting = "Hello"
 let name = "World"
-print greeting
+print(greeting)
 
 // String concatenation with +
 let message = greeting + ", " + name + "!"
-print message
+print(message)
 
 // Concatenate strings and numbers
 let age = 25
-print "Age: " + age
+print("Age: " + age)
 
 // Build a string in a loop
 let stars = ""
@@ -28,20 +28,20 @@ while (i < 5) {
   stars = stars + "*"
   i = i + 1
 }
-print stars
+print(stars)
 
 // String length
 let text = "Hello, World!"
-print "Length: " + len(text)
+print("Length: " + len(text))
 
 // Compare strings
 let a = "apple"
 let b = "banana"
 if (a == "apple") {
-  print "Found apple!"
+  print("Found apple!")
 }
 
 // Multi-word messages
-print "The quick brown fox"
-print "jumps over the lazy dog"`
+print("The quick brown fox")
+print("jumps over the lazy dog")`)
 };

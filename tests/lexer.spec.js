@@ -45,7 +45,7 @@ test('lexer tokenizes operators', async ({ page }) => {
 });
 
 test('lexer tokenizes keywords', async ({ page }) => {
-  const output = await runLexer(page, 'let if else while function return true false print stop');
+  const output = await runLexer(page, 'let if else while function return true false stop');
   expect(output).toContain('KEYWORD');
   expect(output).toContain('let');
   expect(output).toContain('if');
@@ -55,7 +55,6 @@ test('lexer tokenizes keywords', async ({ page }) => {
   expect(output).toContain('return');
   expect(output).toContain('true');
   expect(output).toContain('false');
-  expect(output).toContain('print');
   expect(output).toContain('stop');
 });
 
@@ -87,24 +86,25 @@ test('lexer tokenizes punctuation', async ({ page }) => {
 });
 
 test('lexer tracks line and column', async ({ page }) => {
-  const output = await runLexer(page, 'let x\nprint x');
+  const output = await runLexer(page, 'let x\nlet y');
   // First line tokens should have line 1
   expect(output).toMatch(/1\s+\d+\s+KEYWORD\s+let/);
   // Second line tokens should have line 2
-  expect(output).toMatch(/2\s+\d+\s+KEYWORD\s+print/);
+  expect(output).toMatch(/2\s+\d+\s+KEYWORD\s+let/);
 });
 
 test('lexer skips comments', async ({ page }) => {
-  const output = await runLexer(page, 'x = 5 // this is a comment\nprint x');
+  const output = await runLexer(page, 'x = 5 // this is a comment\nlet y');
   expect(output).not.toContain('comment');
   expect(output).not.toContain('this is');
   expect(output).toContain('IDENTIFIER');
   expect(output).toContain('x');
-  expect(output).toContain('print');
+  expect(output).toContain('KEYWORD');
+  expect(output).toContain('let');
 });
 
 test('lexer handles mixed input', async ({ page }) => {
-  const output = await runLexer(page, 'let count = 0\nwhile (count < 10) {\n  print count\n}');
+  const output = await runLexer(page, 'let count = 0\nwhile (count < 10) {\n  count = count + 1\n}');
   expect(output).toContain('KEYWORD');
   expect(output).toContain('IDENTIFIER');
   expect(output).toContain('OPERATOR');
@@ -113,7 +113,6 @@ test('lexer handles mixed input', async ({ page }) => {
   expect(output).toContain('let');
   expect(output).toContain('count');
   expect(output).toContain('while');
-  expect(output).toContain('print');
 });
 
 test('lexer tokenizes expression', async ({ page }) => {

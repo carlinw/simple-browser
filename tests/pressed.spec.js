@@ -5,7 +5,7 @@ const { runFast } = require('./helpers');
 
 test('pressed returns false when key not pressed', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print pressed("left")');
+  await runFast(page, 'print(pressed("left"))');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('false');
@@ -13,7 +13,7 @@ test('pressed returns false when key not pressed', async ({ page }) => {
 
 test('pressed returns true when key is held', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'print pressed("a")');
+  await page.fill('#code-editor', 'print(pressed("a"))');
 
   // Blur the editor so key presses don't type into it
   await page.evaluate(() => {
@@ -37,7 +37,7 @@ test('pressed returns true when key is held', async ({ page }) => {
 
 test('pressed requires string argument', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print pressed(123)');
+  await runFast(page, 'print(pressed(123))');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('requires a string');

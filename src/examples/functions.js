@@ -35,13 +35,13 @@ function factorial(n) {
 
 // Simple call
 result = add(3, 4)
-print "3 + 4 = " + result
+print("3 + 4 = " + result)
 
 // Nested calls
 result = multiply(3, 4)
-print "3 * 4 = " + result
+print("3 * 4 = " + result)
 
 // Recursive calls - watch the stack grow!
 result = factorial(4)
-print "4! = " + result`
+print("4! = " + result)`)
 };

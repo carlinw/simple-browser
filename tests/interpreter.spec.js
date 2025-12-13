@@ -40,7 +40,7 @@ test('parse button shows AST without execution', async ({ page }) => {
 
 test('run fast executes immediately', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 2 + 3');
+  await runFast(page, 'print(2 + 3)');
 
   const outputContent = await page.locator('#output').textContent();
   expect(outputContent).toContain('5');
@@ -50,7 +50,7 @@ test('run fast executes immediately', async ({ page }) => {
 
 test('interpreter evaluates number literal', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 42');
+  await runFast(page, 'print(42)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('42');
@@ -58,7 +58,7 @@ test('interpreter evaluates number literal', async ({ page }) => {
 
 test('interpreter evaluates addition', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 2 + 3');
+  await runFast(page, 'print(2 + 3)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('5');
@@ -66,7 +66,7 @@ test('interpreter evaluates addition', async ({ page }) => {
 
 test('interpreter evaluates subtraction', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 10 - 4');
+  await runFast(page, 'print(10 - 4)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('6');
@@ -74,7 +74,7 @@ test('interpreter evaluates subtraction', async ({ page }) => {
 
 test('interpreter evaluates multiplication', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 3 * 4');
+  await runFast(page, 'print(3 * 4)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('12');
@@ -82,7 +82,7 @@ test('interpreter evaluates multiplication', async ({ page }) => {
 
 test('interpreter evaluates division', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 20 / 4');
+  await runFast(page, 'print(20 / 4)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('5');
@@ -90,7 +90,7 @@ test('interpreter evaluates division', async ({ page }) => {
 
 test('interpreter respects operator precedence', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 2 + 3 * 4');
+  await runFast(page, 'print(2 + 3 * 4)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('14');
@@ -98,7 +98,7 @@ test('interpreter respects operator precedence', async ({ page }) => {
 
 test('interpreter respects parentheses', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print (2 + 3) * 4');
+  await runFast(page, 'print((2 + 3) * 4)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('20');
@@ -106,7 +106,7 @@ test('interpreter respects parentheses', async ({ page }) => {
 
 test('interpreter handles complex expressions', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 1 + 2 * 3 - 4 / 2');
+  await runFast(page, 'print(1 + 2 * 3 - 4 / 2)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('5');
@@ -114,7 +114,7 @@ test('interpreter handles complex expressions', async ({ page }) => {
 
 test('interpreter evaluates comparison to boolean', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 5 > 3');
+  await runFast(page, 'print(5 > 3)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -122,7 +122,7 @@ test('interpreter evaluates comparison to boolean', async ({ page }) => {
 
 test('interpreter evaluates equality to boolean', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 5 == 5');
+  await runFast(page, 'print(5 == 5)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('true');
@@ -130,7 +130,7 @@ test('interpreter evaluates equality to boolean', async ({ page }) => {
 
 test('print statement shows output', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 42');
+  await runFast(page, 'print(42)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('42');
@@ -138,7 +138,7 @@ test('print statement shows output', async ({ page }) => {
 
 test('multiple print statements show multiple outputs', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print 1 + 2\nprint 3 * 4');
+  await runFast(page, 'print(1 + 2)\nprint(3 * 4)');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('3');
@@ -147,7 +147,7 @@ test('multiple print statements show multiple outputs', async ({ page }) => {
 
 test('string concatenation works', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'print "hello" + " " + "world"');
+  await runFast(page, 'print("hello" + " " + "world")');
 
   const output = await page.locator('#output').textContent();
   expect(output).toContain('hello world');

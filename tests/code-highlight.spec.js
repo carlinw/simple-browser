@@ -39,7 +39,7 @@ test('code highlight moves through statements', async ({ page }) => {
 
 test('code highlight cleared after execution', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'print 1');
+  await page.fill('#code-editor', 'print(1)');
   await page.click('#run-btn');
 
   // Wait for execution to complete (output appears)
@@ -55,7 +55,7 @@ test('code highlight cleared after execution', async ({ page }) => {
 
 test('code highlight works with if statement', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'if (true) { print 1 }');
+  await page.fill('#code-editor', 'if (true) { print(1) }');
   await page.click('#run-btn');
 
   // Wait for execution to start
@@ -85,7 +85,7 @@ test('code highlight spans correct characters', async ({ page }) => {
 
 test('no code highlight during Run Fast', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42\nprint x');
+  await page.fill('#code-editor', 'let x = 42\nprint(x)');
   await page.click('#run-fast-btn');
 
   // Wait for output
@@ -117,7 +117,7 @@ test('code display shows source during animated execution', async ({ page }) => 
 
 test('code highlight syncs with AST node highlight', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'print 1');
+  await page.fill('#code-editor', 'print(1)');
   await page.click('#run-btn');
 
   // Wait for both highlights to appear

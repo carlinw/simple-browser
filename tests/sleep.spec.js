@@ -8,7 +8,7 @@ test('sleep pauses execution', async ({ page }) => {
 
   // Run code that prints before and after a short sleep
   const startTime = Date.now();
-  await runFast(page, 'print "start"\nsleep(100)\nprint "end"');
+  await runFast(page, 'print("start")\nsleep(100)\nprint("end")');
   const elapsed = Date.now() - startTime;
 
   const output = await page.locator('#output').textContent();

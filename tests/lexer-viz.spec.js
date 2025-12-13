@@ -304,9 +304,9 @@ test('clicking examples shows modal with options', async ({ page }) => {
   const count = await cards.count();
   expect(count).toBeGreaterThanOrEqual(2);
 
-  // Should have Tokenizer Demo and Variables
+  // Should have Tokenizer Demo and FizzBuzz
   await expect(page.locator('.example-name:has-text("Tokenizer Demo")')).toBeVisible();
-  await expect(page.locator('.example-name:has-text("Variables")')).toBeVisible();
+  await expect(page.locator('.example-name:has-text("FizzBuzz")')).toBeVisible();
 });
 
 test('selecting example loads code', async ({ page }) => {

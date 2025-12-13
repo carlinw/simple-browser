@@ -78,13 +78,14 @@ test('parser parses assignment', async ({ page }) => {
   expect(ast.statements[0].value.value).toBe(10);
 });
 
-test('parser parses print statement', async ({ page }) => {
+test('parser parses print function call', async ({ page }) => {
   await page.goto('/');
-  const ast = await getAST(page, 'print x');
+  const ast = await getAST(page, 'print(x)');
 
-  expect(ast.statements[0].type).toBe('PrintStatement');
-  expect(ast.statements[0].value.type).toBe('Identifier');
-  expect(ast.statements[0].value.name).toBe('x');
+  expect(ast.statements[0].type).toBe('ExpressionStatement');
+  expect(ast.statements[0].expression.type).toBe('CallExpression');
+  expect(ast.statements[0].expression.callee).toBe('print');
+  expect(ast.statements[0].expression.arguments[0].name).toBe('x');
 });
 
 test('parser parses arithmetic expressions', async ({ page }) => {
@@ -136,7 +137,7 @@ test('parser parses grouped expressions', async ({ page }) => {
 
 test('parser parses if statement', async ({ page }) => {
   await page.goto('/');
-  const ast = await getAST(page, 'if (x > 0) { print x }');
+  const ast = await getAST(page, 'if (x > 0) { print(x) }');
 
   expect(ast.statements[0].type).toBe('IfStatement');
   expect(ast.statements[0].condition.operator).toBe('>');
@@ -147,7 +148,7 @@ test('parser parses if statement', async ({ page }) => {
 
 test('parser parses if-else statement', async ({ page }) => {
   await page.goto('/');
-  const ast = await getAST(page, 'if (x > 0) { print "yes" } else { print "no" }');
+  const ast = await getAST(page, 'if (x > 0) { print("yes") } else { print("no") }');
 
   expect(ast.statements[0].type).toBe('IfStatement');
   expect(ast.statements[0].thenBranch.statements).toHaveLength(1);
@@ -167,12 +168,13 @@ test('parser parses while loop', async ({ page }) => {
 
 test('parser parses multiple statements', async ({ page }) => {
   await page.goto('/');
-  const ast = await getAST(page, 'let x = 1\nlet y = 2\nprint x + y');
+  const ast = await getAST(page, 'let x = 1\nlet y = 2\nprint(x + y)');
 
   expect(ast.statements).toHaveLength(3);
   expect(ast.statements[0].type).toBe('LetStatement');
   expect(ast.statements[1].type).toBe('LetStatement');
-  expect(ast.statements[2].type).toBe('PrintStatement');
+  expect(ast.statements[2].type).toBe('ExpressionStatement');
+  expect(ast.statements[2].expression.type).toBe('CallExpression');
 });
 
 test('parser handles operator precedence', async ({ page }) => {
@@ -234,7 +236,7 @@ test('parser reports missing closing paren', async ({ page }) => {
 
 test('parser reports missing block braces', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'if (x > 0) print x');
+  await page.fill('#code-editor', 'if (x > 0) print(x)');
   await page.click('#run-btn');
 
   await page.waitForFunction(() => {

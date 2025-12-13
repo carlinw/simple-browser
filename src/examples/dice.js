@@ -9,9 +9,9 @@ window.EXAMPLES['dice'] = {
   code: `// Dice Roller
 // Press any key to roll, 'q' to quit
 
-print "Press any key to roll the dice..."
-print "(Press 'q' to quit)"
-print ""
+print("Press any key to roll the dice...")
+print("(Press 'q' to quit)")
+print("")
 
 let total = 0
 let rolls = 0
@@ -24,11 +24,11 @@ while (k != "q") {
     let die2 = random(1, 6)
     rolls = rolls + 1
     total = total + die1 + die2
-    print "Roll " + rolls + ": " + die1 + " + " + die2 + " = " + (die1 + die2)
+    print("Roll " + rolls + ": " + die1 + " + " + die2 + " = " + (die1 + die2))
   }
 }
 
-print ""
-print "Total rolls: " + rolls
-print "Sum of all rolls: " + total`
+print("")
+print("Total rolls: " + rolls)
+print("Sum of all rolls: " + total)`)
 };
