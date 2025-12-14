@@ -28,6 +28,7 @@ import { example as pong } from './examples/pong.js';
 import { example as primes } from './examples/primes.js';
 import { example as rps } from './examples/rps.js';
 import { example as snake } from './examples/snake.js';
+import { example as pacman } from './examples/pacman.js';
 import { example as starfield } from './examples/starfield.js';
 import { example as strings } from './examples/strings.js';
 import { example as tetris } from './examples/tetris.js';
@@ -59,6 +60,7 @@ const EXAMPLES = {
   'bouncing-ball': bouncingBall,
   'pong': pong,
   'snake': snake,
+  'pacman': pacman,
   'drawing': drawing,
   'starfield': starfield,
   'breakout': breakout,

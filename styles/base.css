@@ -166,6 +166,12 @@ main {
   margin: 0;
 }
 
+#line-count {
+  font-size: 0.75rem;
+  color: #888;
+  font-family: 'Berkeley Mono', monospace;
+}
+
 .interpreter-tabs {
   display: flex;
   gap: 2px;

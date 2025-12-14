@@ -29,12 +29,26 @@ export class Interpreter {
     this.getCanvasHeight = options.getCanvasHeight || (() => CANVAS_HEIGHT);
     this.stepDelay = options.stepDelay || 0;
     this.environment = new Environment();
+    this.stopped = false;
+  }
+
+  // Stop the interpreter
+  stop() {
+    this.stopped = true;
+  }
+
+  // Check if stopped and throw if so
+  checkStopped() {
+    if (this.stopped) {
+      throw new RuntimeError('Program stopped');
+    }
   }
 
   // Main entry point - evaluate a program (async for animation support)
   async interpret(ast) {
     const results = [];
     for (const statement of ast.statements) {
+      this.checkStopped();
       const result = await this.execute(statement);
       if (result !== undefined && result !== null) {
         results.push(result);
@@ -48,6 +62,7 @@ export class Interpreter {
 
   // Execute a statement
   async execute(node) {
+    this.checkStopped();
     await this.enterNode(node);
 
     let result;
@@ -86,6 +101,7 @@ export class Interpreter {
         let iterations = 0;
 
         while (this.isTruthy(await this.evaluate(node.condition))) {
+          this.checkStopped();
           if (++iterations > MAX_LOOP_ITERATIONS) {
             throw new RuntimeError(`Infinite loop detected (exceeded ${MAX_LOOP_ITERATIONS} iterations)`);
           }

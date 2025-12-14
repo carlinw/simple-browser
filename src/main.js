@@ -47,6 +47,7 @@ function init() {
   const resetBtn = document.getElementById('reset-btn');
   const exampleBtn = document.getElementById('example-btn');
   const output = document.getElementById('output');
+  const lineCount = document.getElementById('line-count');
 
   // Tab Elements - now in interpreter-pane
   const tabBtns = document.querySelectorAll('.tab-btn');
@@ -64,6 +65,14 @@ function init() {
     tabTokens.classList.toggle('active', tabName === 'tokens');
     tabAst.classList.toggle('active', tabName === 'ast');
     tabMemory.classList.toggle('active', tabName === 'memory');
+  }
+
+  // Update line count display
+  function updateLineCount() {
+    const code = codeEditor.value;
+    const lines = code ? code.split('\n').length : 0;
+    const label = lines === 1 ? 'line' : 'lines';
+    lineCount.textContent = `${lines} ${label} of code`;
   }
 
   // Add click handlers to tabs
@@ -87,6 +96,7 @@ function init() {
   let lastScanResult = null;
   let currentParseResult = null;  // Store parse result for execution
   let currentLexResult = null;    // Store lex result for error display
+  let currentInterpreter = null;  // Store interpreter so we can stop it
 
   // Update UI based on state
   function updateUI() {
@@ -220,9 +230,11 @@ function init() {
 
     const printedOutput = [];
 
+    // Set running state for both animated and fast modes
+    state = 'running';
+    updateUI();
+
     if (animated) {
-      state = 'running';
-      updateUI();
       switchTab('ast');
       visualizer.setSource(source);
       visualizer.showInitial();
@@ -234,7 +246,7 @@ function init() {
     // Set global frame before execution
     memoryRenderer.setGlobalFrame();
 
-    const interpreter = new Interpreter({
+    currentInterpreter = new Interpreter({
       stepDelay: animated ? STEP_DELAY_MS : 0,
       onNodeEnter: animated ? (node) => {
         astRenderer.highlightNode(node);
@@ -244,7 +256,7 @@ function init() {
         }
       } : undefined,
       onVariableChange: (name, value, action) => {
-        memoryRenderer.updateFrame(interpreter.environment);
+        memoryRenderer.updateFrame(currentInterpreter.environment);
         if (animated) {
           memoryRenderer.highlightVariable(name);
         }
@@ -299,7 +311,7 @@ function init() {
     });
 
     try {
-      await interpreter.interpret(currentParseResult.ast);
+      await currentInterpreter.interpret(currentParseResult.ast);
       if (animated) {
         astRenderer.clearHighlights();
         visualizer.clearExecutingHighlight();
@@ -316,11 +328,17 @@ function init() {
         astRenderer.clearHighlights();
         visualizer.clearExecutingHighlight();
       }
-      outputRenderer.renderErrors([], [], [{ message: error.message }]);
+      // Don't show error if program was intentionally stopped
+      if (error.message !== 'Program stopped') {
+        outputRenderer.renderErrors([], [], [{ message: error.message }]);
+      }
     }
 
-    state = 'done';
-    updateUI();
+    // Only update state to done if not already reset
+    if (state === 'running') {
+      state = 'done';
+      updateUI();
+    }
   }
 
   // Run animated - parse + execute with 5 second delay per node
@@ -378,6 +396,11 @@ function init() {
 
   // Reset - clear and return to edit mode
   function reset() {
+    // Stop any running interpreter
+    if (currentInterpreter) {
+      currentInterpreter.stop();
+      currentInterpreter = null;
+    }
     state = 'edit';
     scanner = null;
     lastScanResult = null;
@@ -398,6 +421,7 @@ function init() {
   function showExamples() {
     examplesManager.showSelector((code) => {
       codeEditor.value = code;
+      updateLineCount();
       reset();
     });
   }
@@ -409,6 +433,7 @@ function init() {
   stepBtn.addEventListener('click', stepOne);
   resetBtn.addEventListener('click', reset);
   exampleBtn.addEventListener('click', showExamples);
+  codeEditor.addEventListener('input', updateLineCount);
 
   // Language Help toggle
   const helpTabBtn = document.getElementById('help-tab-btn');
