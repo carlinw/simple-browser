@@ -14,25 +14,28 @@ export class Environment {
   }
 
   // Get a variable's value (searches up scope chain)
+  // Optimized: iterative instead of recursive for performance
   get(name) {
-    if (this.values.has(name)) {
-      return this.values.get(name);
-    }
-    if (this.parent) {
-      return this.parent.get(name);
+    let env = this;
+    while (env) {
+      if (env.values.has(name)) {
+        return env.values.get(name);
+      }
+      env = env.parent;
     }
     throw new RuntimeError(`Undefined variable: ${name}`);
   }
 
   // Assign a new value to an existing variable (searches up scope chain)
+  // Optimized: iterative instead of recursive for performance
   assign(name, value) {
-    if (this.values.has(name)) {
-      this.values.set(name, value);
-      return;
-    }
-    if (this.parent) {
-      this.parent.assign(name, value);
-      return;
+    let env = this;
+    while (env) {
+      if (env.values.has(name)) {
+        env.values.set(name, value);
+        return;
+      }
+      env = env.parent;
     }
     throw new RuntimeError(`Undefined variable: ${name}`);
   }

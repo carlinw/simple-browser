@@ -6,12 +6,12 @@ import { Environment, TinyFunction, TinyClass, TinyInstance, ReturnValue, Runtim
 
 export class Interpreter {
   constructor(options = {}) {
-    this.onNodeEnter = options.onNodeEnter || (() => {});
-    this.onNodeExit = options.onNodeExit || (() => {});
-    this.onVariableChange = options.onVariableChange || (() => {});
+    this.onNodeEnter = options.onNodeEnter || null;
+    this.onNodeExit = options.onNodeExit || null;
+    this.onVariableChange = options.onVariableChange || null;
     this.onPrint = options.onPrint || (() => {});
-    this.onCallStart = options.onCallStart || (() => {});
-    this.onCallEnd = options.onCallEnd || (() => {});
+    this.onCallStart = options.onCallStart || null;
+    this.onCallEnd = options.onCallEnd || null;
     this.onInput = options.onInput || null;
     this.onKey = options.onKey || null;
     this.isKeyPressed = options.isKeyPressed || (() => false);
@@ -74,7 +74,7 @@ export class Interpreter {
       case 'LetStatement': {
         const value = await this.evaluate(node.value);
         this.environment.define(node.name, value);
-        this.onVariableChange(node.name, value, 'define');
+        if (this.onVariableChange) this.onVariableChange(node.name, value, 'define');
         result = value;
         break;
       }
@@ -82,7 +82,7 @@ export class Interpreter {
       case 'AssignStatement': {
         const value = await this.evaluate(node.value);
         this.environment.assign(node.name, value);
-        this.onVariableChange(node.name, value, 'assign');
+        if (this.onVariableChange) this.onVariableChange(node.name, value, 'assign');
         result = value;
         break;
       }
@@ -120,7 +120,7 @@ export class Interpreter {
       case 'FunctionDeclaration': {
         const func = new TinyFunction(node, this.environment);
         this.environment.define(node.name, func);
-        this.onVariableChange(node.name, '[function]', 'define');
+        if (this.onVariableChange) this.onVariableChange(node.name, '[function]', 'define');
         break;
       }
 
@@ -142,7 +142,7 @@ export class Interpreter {
           object.push(null);
         }
         object[index] = value;
-        this.onVariableChange(null, object, 'update');
+        if (this.onVariableChange) this.onVariableChange(null, object, 'update');
         break;
       }
 
@@ -156,7 +156,7 @@ export class Interpreter {
         const fieldNames = node.fields.map(f => f.name);
         const klass = new TinyClass(node.name, fieldNames, methods);
         this.environment.define(node.name, klass);
-        this.onVariableChange(node.name, '[class]', 'define');
+        if (this.onVariableChange) this.onVariableChange(node.name, '[class]', 'define');
         break;
       }
 
@@ -167,7 +167,7 @@ export class Interpreter {
         }
         const value = await this.evaluate(node.value);
         object.set(node.property, value);
-        this.onVariableChange(null, object, 'update');
+        if (this.onVariableChange) this.onVariableChange(null, object, 'update');
         break;
       }
 
@@ -264,7 +264,7 @@ export class Interpreter {
         this.environment = funcEnv;
 
         // Notify call start
-        this.onCallStart(node.callee, args, funcEnv);
+        if (this.onCallStart) this.onCallStart(node.callee, args, funcEnv);
 
         try {
           await this.execute(callee.declaration.body);
@@ -278,7 +278,7 @@ export class Interpreter {
         } finally {
           this.environment = previousEnv;
           // Notify call end
-          this.onCallEnd(node.callee, result);
+          if (this.onCallEnd) this.onCallEnd(node.callee, result);
         }
         break;
       }
@@ -405,7 +405,7 @@ export class Interpreter {
         this.environment = methodEnv;
 
         // Notify call start
-        this.onCallStart(node.method, args, methodEnv);
+        if (this.onCallStart) this.onCallStart(node.method, args, methodEnv);
 
         try {
           await this.execute(method.body);
@@ -419,7 +419,7 @@ export class Interpreter {
         } finally {
           this.environment = previousEnv;
           // Notify call end
-          this.onCallEnd(node.method, result);
+          if (this.onCallEnd) this.onCallEnd(node.method, result);
         }
         break;
       }
@@ -761,16 +761,18 @@ export class Interpreter {
     throw new RuntimeError('Key input not supported in this environment');
   }
 
-  // Visualization hooks
+  // Visualization hooks - only called when stepDelay > 0 (debug/step mode)
   async enterNode(node) {
-    this.onNodeEnter(node);
-    if (this.stepDelay > 0) {
+    if (this.stepDelay > 0 && this.onNodeEnter) {
+      this.onNodeEnter(node);
       await this.delay(this.stepDelay);
     }
   }
 
   async exitNode(node, result) {
-    this.onNodeExit(node, result);
+    if (this.stepDelay > 0 && this.onNodeExit) {
+      this.onNodeExit(node, result);
+    }
   }
 
   delay(ms) {

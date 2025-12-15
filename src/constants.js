@@ -10,6 +10,39 @@ export const STEP_DELAY_MS = 5000;
 // Safety limits
 export const MAX_LOOP_ITERATIONS = 10000;
 
+// Node type IDs for fast dispatch (instead of string comparison)
+export const NodeType = {
+  // Statements (0-19)
+  Program: 0,
+  LetStatement: 1,
+  AssignStatement: 2,
+  IfStatement: 3,
+  WhileStatement: 4,
+  Block: 5,
+  FunctionDeclaration: 6,
+  ReturnStatement: 7,
+  ExpressionStatement: 8,
+  IndexAssignStatement: 9,
+  ClassDeclaration: 10,
+  MemberAssignStatement: 11,
+
+  // Expressions (20+)
+  NumberLiteral: 20,
+  StringLiteral: 21,
+  BooleanLiteral: 22,
+  Identifier: 23,
+  BinaryExpression: 24,
+  UnaryExpression: 25,
+  CallExpression: 26,
+  ArrayLiteral: 27,
+  IndexExpression: 28,
+  ThisExpression: 29,
+  NewExpression: 30,
+  MemberExpression: 31,
+  MethodCall: 32,
+  BuiltinCall: 33,
+};
+
 // Color palette for graphics (organized by hue)
 export const COLORS = {
   // Neutrals
