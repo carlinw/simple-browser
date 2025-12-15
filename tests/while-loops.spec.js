@@ -70,17 +70,18 @@ test('infinite loop protection', async ({ page }) => {
   expect(output).toContain('Infinite loop detected');
 });
 
-test('while loop highlights during animated execution', async ({ page }) => {
+test('while loop executes during animated debug', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let i = 0\nwhile (i < 2) { i = i + 1 }');
+  await page.fill('#code-editor', 'let i = 0\nwhile (i < 2) { i = i + 1 }\nprint(i)');
   await page.click('#debug-btn');
 
-  // Wait for code highlighting to appear
-  await expect(page.locator('.code-executing')).toBeVisible({ timeout: 8000 });
-
-  // Wait for the while loop condition to be highlighted (contains "while")
+  // Wait for execution to complete - output should show the final value
   await page.waitForFunction(() => {
-    const el = document.querySelector('.code-executing');
-    return el && el.textContent.includes('while');
-  }, { timeout: 10000 });
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('2');
+  }, { timeout: 60000 });
+
+  // Verify the final value
+  const output = await page.locator('#output').textContent();
+  expect(output).toContain('2');
 });

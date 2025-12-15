@@ -2,14 +2,10 @@
 
 import { STEP_DELAY_MS } from './constants.js';
 import { Lexer } from './lexer.js';
-import { Scanner } from './scanner.js';
 import { Parser } from './parser.js';
 import { Interpreter } from './interpreter.js';
-import { ASTRenderer } from './ast-renderer.js';
-import { ParserRenderer } from './parser-renderer.js';
 import { OutputRenderer } from './output-renderer.js';
 import { MemoryRenderer } from './memory-renderer.js';
-import { CodeVisualizer } from './visualizer.js';
 
 // Keyboard state tracking for pressed() builtin
 const keysPressed = new Set();
@@ -46,24 +42,7 @@ function init() {
   const output = document.getElementById('output');
   const lineCount = document.getElementById('line-count');
   const interpreterPane = document.getElementById('interpreter-pane');
-
-  // Tab Elements - now in interpreter-pane
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabTokens = document.getElementById('tab-tokens');
-  const tabAst = document.getElementById('tab-ast');
   const tabMemory = document.getElementById('tab-memory');
-
-  // Tab switching
-  function switchTab(tabName) {
-    // Update buttons
-    tabBtns.forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.tab === tabName);
-    });
-    // Update panels
-    tabTokens.classList.toggle('active', tabName === 'tokens');
-    tabAst.classList.toggle('active', tabName === 'ast');
-    tabMemory.classList.toggle('active', tabName === 'memory');
-  }
 
   // Update line count display
   function updateLineCount() {
@@ -73,27 +52,16 @@ function init() {
     lineCount.textContent = `${lines} ${label} of code`;
   }
 
-  // Add click handlers to tabs
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-  });
-
   // Renderers
-  const parserRenderer = new ParserRenderer(tabTokens);
   const outputRenderer = new OutputRenderer(output);
-  const astRenderer = new ASTRenderer(tabAst);
   const memoryRenderer = new MemoryRenderer(tabMemory);
-
-  // Other Managers
-  const visualizer = new CodeVisualizer(codeDisplay);
 
   // State
   let state = 'edit';  // 'edit' | 'stepping' | 'done' | 'running'
-  let scanner = null;
-  let lastScanResult = null;
   let currentParseResult = null;  // Store parse result for execution
   let currentLexResult = null;    // Store lex result for error display
   let currentInterpreter = null;  // Store interpreter so we can stop it
+  let stepResolve = null;         // Resolve function for step-by-step execution
 
   // Show/hide interpreter pane
   function showInterpreterPane() {
@@ -119,8 +87,8 @@ function init() {
 
       case 'stepping':
         stepBtn.disabled = false;
-        debugBtn.disabled = false;
-        runBtn.disabled = false;
+        debugBtn.disabled = true;
+        runBtn.disabled = true;
         stopBtn.disabled = false;
         codeEditor.disabled = true;
         codeEditor.classList.add('hidden');
@@ -147,34 +115,10 @@ function init() {
     }
   }
 
-  // Helper to get source code (handles stepping mode)
-  function getSource() {
-    if (state === 'stepping' || state === 'done') {
-      return scanner ? scanner.source : codeEditor.value;
-    }
-    return codeEditor.value;
-  }
-
-  // Parse only - tokenize and parse, no execution
-  function parseOnly() {
-    // Reset state if needed
-    if (state === 'stepping' || state === 'done') {
-      state = 'edit';
-      scanner = null;
-      lastScanResult = null;
-      visualizer.clear();
-      visualizer.hide();
-      codeEditor.classList.remove('hidden');
-      codeDisplay.classList.add('hidden');
-      codeEditor.disabled = false;
-    }
-
-    const source = getSource();
-
+  // Parse source code, return success boolean
+  function parse(source) {
     // Handle empty input
     if (!source.trim()) {
-      parserRenderer.clear();
-      astRenderer.clear();
       memoryRenderer.clear();
       outputRenderer.renderMessage('Hello, Connor!');
       currentParseResult = null;
@@ -185,12 +129,13 @@ function init() {
     // Tokenize the source code
     const lex = new Lexer(source);
     currentLexResult = lex.tokenize();
-    parserRenderer.renderTokens(currentLexResult.tokens, source);
 
     // Parse the tokens
     const parser = new Parser(currentLexResult.tokens);
     currentParseResult = parser.parse();
-    astRenderer.render(currentParseResult.ast);
+
+    // Expose AST for testing (used by parser.spec.js)
+    window.__TEST_AST__ = currentParseResult.ast;
 
     // Clear memory for new parse
     memoryRenderer.showEmpty();
@@ -198,27 +143,16 @@ function init() {
     // Show errors if any
     if (currentLexResult.errors.length > 0 || currentParseResult.errors.length > 0) {
       outputRenderer.renderErrors(currentLexResult.errors, currentParseResult.errors, []);
-      switchTab('tokens');
       return false;
     }
 
-    // No errors - switch to AST tab
     outputRenderer.clear();
-    switchTab('ast');
     return true;
   }
 
-  // Helper to get source span from an AST node's token references
-  function getNodeSpan(node) {
-    if (!node || !node.token) return null;
-    const start = node.token.start;
-    const end = node.endToken ? node.endToken.end : node.token.end;
-    return { start, end };
-  }
-
-  // Shared execution logic for debug and run modes
+  // Shared execution logic for debug, run, and step modes
   async function executeCode(options = {}) {
-    const { animated = false, showInterpreter = true } = options;
+    const { animated = false, showInterpreter = true, stepping = false } = options;
     const source = codeEditor.value;
 
     // Check for empty program before parsing
@@ -227,27 +161,25 @@ function init() {
       return;
     }
 
-    // Parse (internally, without showing interpreter pane for Run mode)
-    const success = parseOnly();
+    // Parse
+    const success = parse(source);
     if (!success || !currentParseResult) return;
 
     const printedOutput = [];
 
-    // Set running state
-    state = 'running';
+    // Set state
+    state = stepping ? 'stepping' : 'running';
     updateUI();
 
     // Show/hide interpreter pane based on mode
     if (showInterpreter) {
       showInterpreterPane();
-      switchTab('ast');
     } else {
       hideInterpreterPane();
     }
 
     // Set up code display
-    visualizer.setSource(source);
-    visualizer.showInitial();
+    codeDisplay.textContent = source;
     codeEditor.classList.add('hidden');
     codeDisplay.classList.remove('hidden');
     outputRenderer.clear();
@@ -259,26 +191,22 @@ function init() {
 
     currentInterpreter = new Interpreter({
       stepDelay: animated ? STEP_DELAY_MS : 0,
-      onNodeEnter: (node) => {
-        // Always highlight source code
-        const span = getNodeSpan(node);
-        if (span) {
-          visualizer.highlightExecuting(span);
-        }
-        // Only update AST highlight in debug mode
-        if (showInterpreter && animated) {
-          astRenderer.highlightNode(node);
-        }
-      },
+      stepping: stepping,
+      onStep: stepping ? () => {
+        // Return a promise that resolves when user clicks Step
+        return new Promise(resolve => {
+          stepResolve = resolve;
+        });
+      } : undefined,
       onVariableChange: showInterpreter ? (name, value, action) => {
         memoryRenderer.updateFrame(currentInterpreter.environment);
-        if (animated) {
+        if (animated || stepping) {
           memoryRenderer.highlightVariable(name);
         }
       } : undefined,
       onPrint: (value) => {
         printedOutput.push(value);
-        if (animated) {
+        if (animated || stepping) {
           outputRenderer.renderOutput(printedOutput);
         }
         // In graphics mode, also print to the text area
@@ -327,21 +255,12 @@ function init() {
 
     try {
       await currentInterpreter.interpret(currentParseResult.ast);
-      // Clear highlights
-      if (showInterpreter) {
-        astRenderer.clearHighlights();
-      }
-      visualizer.clearExecutingHighlight();
 
       // Render final output if not canvas
       if (!outputRenderer.canvas) {
         outputRenderer.renderOutput(printedOutput);
       }
     } catch (error) {
-      if (showInterpreter) {
-        astRenderer.clearHighlights();
-      }
-      visualizer.clearExecutingHighlight();
       // Don't show error if program was intentionally stopped
       if (error.message !== 'Program stopped') {
         outputRenderer.renderErrors([], [], [{ message: error.message }]);
@@ -349,10 +268,11 @@ function init() {
     }
 
     // Only update state to done if not already reset
-    if (state === 'running') {
+    if (state === 'running' || state === 'stepping') {
       state = 'done';
+      stepResolve = null;
       updateUI();
-      // Only show interpreter pane after completion for debug mode
+      // Only show interpreter pane after completion for debug/step mode
       if (showInterpreter) {
         showInterpreterPane();
       }
@@ -369,49 +289,15 @@ function init() {
     await executeCode({ animated: false, showInterpreter: false });
   }
 
-  // Step - scan one character at a time
-  function stepOne() {
+  // Step - execute one statement at a time
+  function step() {
     if (state === 'edit') {
-      // Initialize stepping
-      const source = codeEditor.value;
-      if (!source.trim()) {
-        parserRenderer.clear();
-        astRenderer.clear();
-        memoryRenderer.clear();
-        outputRenderer.renderMessage('Hello, Connor!');
-        return;
-      }
-
-      state = 'stepping';
-      scanner = new Scanner(source);
-      lastScanResult = null;
-      visualizer.setSource(source);
-      visualizer.showInitial(); // Show source before any scanning
-      updateUI();
-
-      // Show interpreter pane for stepping
-      showInterpreterPane();
-
-      // Show initial state
-      parserRenderer.renderScanState(null, [], switchTab);
-      return;
-    }
-
-    // Step one character
-    const result = scanner.stepCharacter();
-    lastScanResult = result;
-
-    // Update visualization - highlight current position and buffer
-    const span = scanner.getCurrentSpan();
-    visualizer.highlightChar(span.currentChar, span.start, span.end);
-
-    // Render scan state and tokens
-    parserRenderer.renderScanState(result, scanner.getTokens(), switchTab);
-
-    // Check if done
-    if (result.done) {
-      state = 'done';
-      updateUI();
+      // Start stepping execution
+      executeCode({ animated: false, showInterpreter: true, stepping: true });
+    } else if (state === 'stepping' && stepResolve) {
+      // Continue to next step
+      stepResolve();
+      stepResolve = null;
     }
   }
 
@@ -422,24 +308,23 @@ function init() {
       currentInterpreter.stop();
       currentInterpreter = null;
     }
+    // Resolve any pending step
+    if (stepResolve) {
+      stepResolve();
+      stepResolve = null;
+    }
     state = 'edit';
-    scanner = null;
-    lastScanResult = null;
     currentParseResult = null;
     currentLexResult = null;
-    parserRenderer.clear();
-    astRenderer.clear();
     memoryRenderer.clear();
     outputRenderer.clear();
     outputRenderer.hideCanvas();
-    visualizer.clear();
-    visualizer.hide();
-    astRenderer.clearHighlights();
+    hideInterpreterPane();
     updateUI();
   }
 
   // Event listeners
-  stepBtn.addEventListener('click', stepOne);
+  stepBtn.addEventListener('click', step);
   debugBtn.addEventListener('click', debug);
   runBtn.addEventListener('click', run);
   stopBtn.addEventListener('click', reset);
@@ -480,30 +365,28 @@ function init() {
     }
   });
 
-  // Keyboard navigation for AST/Memory panels
+  // Keyboard navigation for Memory panel
   const SCROLL_AMOUNT = 50;
-  [tabAst, tabMemory].forEach(panel => {
-    panel.setAttribute('tabindex', '0');
-    panel.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case 'ArrowUp':
-          panel.scrollTop -= SCROLL_AMOUNT;
-          e.preventDefault();
-          break;
-        case 'ArrowDown':
-          panel.scrollTop += SCROLL_AMOUNT;
-          e.preventDefault();
-          break;
-        case 'ArrowLeft':
-          panel.scrollLeft -= SCROLL_AMOUNT;
-          e.preventDefault();
-          break;
-        case 'ArrowRight':
-          panel.scrollLeft += SCROLL_AMOUNT;
-          e.preventDefault();
-          break;
-      }
-    });
+  tabMemory.setAttribute('tabindex', '0');
+  tabMemory.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowUp':
+        tabMemory.scrollTop -= SCROLL_AMOUNT;
+        e.preventDefault();
+        break;
+      case 'ArrowDown':
+        tabMemory.scrollTop += SCROLL_AMOUNT;
+        e.preventDefault();
+        break;
+      case 'ArrowLeft':
+        tabMemory.scrollLeft -= SCROLL_AMOUNT;
+        e.preventDefault();
+        break;
+      case 'ArrowRight':
+        tabMemory.scrollLeft += SCROLL_AMOUNT;
+        e.preventDefault();
+        break;
+    }
   });
 
   // Initialize UI

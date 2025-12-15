@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-// Helper to run code and get memory tab content
+// Helper to run code in debug mode and get memory content
 async function runCodeAndGetMemory(page, code) {
   await page.fill('#code-editor', code);
   // Use debug-btn which shows the interpreter pane
@@ -12,8 +12,6 @@ async function runCodeAndGetMemory(page, code) {
     // In 'done' state, both buttons are enabled
     return runBtn && debugBtn && !runBtn.disabled && !debugBtn.disabled;
   }, { timeout: 120000 });  // 2 minutes for animated execution
-  // Click Memory tab
-  await page.click('.tab-btn[data-tab="memory"]');
   return await page.locator('#tab-memory').innerHTML();
 }
 

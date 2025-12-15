@@ -1,8 +1,8 @@
 const { test, expect } = require('@playwright/test');
 
-// Print Output Tests - verify output appears immediately during animated execution
+// Print Output Tests - verify output appears during execution
 
-test('print output appears immediately during animated execution', async ({ page }) => {
+test('print output appears during debug execution', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'print(1)\nprint(2)\nprint(3)');
   await page.click('#debug-btn');
@@ -11,33 +11,23 @@ test('print output appears immediately during animated execution', async ({ page
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
     return output && output.textContent.includes('1');
-  }, { timeout: 8000 });
+  }, { timeout: 30000 });
 
-  // At this point, "2" and "3" should NOT yet be in output (still executing)
+  // At this point, "1" should be in output
   const outputText = await page.locator('#output').textContent();
   expect(outputText).toContain('1');
-
-  // Verify we're still running (code-executing should still be visible)
-  const stillExecuting = await page.locator('.code-executing').count();
-  expect(stillExecuting).toBeGreaterThan(0);
 });
 
-test.skip('print output accumulates during execution', async ({ page }) => {
+test('print output accumulates during execution', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'print("first")\nprint("second")');
   await page.click('#debug-btn');
-
-  // Wait for first output
-  await page.waitForFunction(() => {
-    const output = document.getElementById('output');
-    return output && output.textContent.includes('first');
-  }, { timeout: 8000 });
 
   // Wait for second output to also appear
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
     return output && output.textContent.includes('second');
-  }, { timeout: 25000 });
+  }, { timeout: 60000 });
 
   // Both should be visible
   const outputText = await page.locator('#output').textContent();
@@ -45,7 +35,7 @@ test.skip('print output accumulates during execution', async ({ page }) => {
   expect(outputText).toContain('second');
 });
 
-test.skip('print in if statement shows output when branch executes', async ({ page }) => {
+test('print in if statement shows output when branch executes', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'if (true) { print("inside") }');
   await page.click('#debug-btn');
@@ -54,8 +44,23 @@ test.skip('print in if statement shows output when branch executes', async ({ pa
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
     return output && output.textContent.includes('inside');
-  }, { timeout: 25000 });
+  }, { timeout: 60000 });
 
   const outputText = await page.locator('#output').textContent();
   expect(outputText).toContain('inside');
+});
+
+test('print output appears with run mode', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'print("fast")');
+  await page.click('#run-btn');
+
+  // Wait for output
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('fast');
+  }, { timeout: 5000 });
+
+  const outputText = await page.locator('#output').textContent();
+  expect(outputText).toContain('fast');
 });

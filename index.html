@@ -6,7 +6,6 @@
   <title>Tiny Development Environment</title>
   <link rel="stylesheet" href="styles/base.css">
   <link rel="stylesheet" href="styles/interpreter.css">
-  <link rel="stylesheet" href="styles/ast.css">
   <link rel="stylesheet" href="styles/memory.css">
 </head>
 <body>
@@ -34,21 +33,12 @@
       <pre id="code-display" class="code-display hidden"></pre>
     </section>
 
-    <!-- Section 2: Interpreter (middle) -->
+    <!-- Section 2: Memory (middle) -->
     <section id="interpreter-pane" class="interpreter-hidden">
       <div class="pane-header">
-        <h2>Interpreter</h2>
-        <div class="interpreter-tabs">
-          <button class="tab-btn active" data-tab="tokens">Parser</button>
-          <button class="tab-btn" data-tab="ast">AST</button>
-          <button class="tab-btn" data-tab="memory">Memory</button>
-        </div>
+        <h2>Memory</h2>
       </div>
-      <div class="tab-content">
-        <div id="tab-tokens" class="tab-panel active"></div>
-        <div id="tab-ast" class="tab-panel"></div>
-        <div id="tab-memory" class="tab-panel"></div>
-      </div>
+      <div id="tab-memory" class="tab-panel active"></div>
     </section>
 
     <!-- Section 3: Output -->

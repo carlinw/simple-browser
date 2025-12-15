@@ -5,13 +5,15 @@ async function getAST(page, code) {
   await page.fill('#code-editor', code);
   await page.click('#run-btn');
 
-  // Get AST from data attribute on the AST tab
-  const astTab = page.locator('#tab-ast');
-  const astJson = await astTab.getAttribute('data-ast');
-  if (!astJson) {
+  // Wait for AST to be populated
+  await page.waitForFunction(() => window.__TEST_AST__ !== undefined, { timeout: 5000 });
+
+  // Get AST from window global (exposed by main.js for testing)
+  const ast = await page.evaluate(() => window.__TEST_AST__);
+  if (!ast) {
     throw new Error('No AST found in output');
   }
-  return JSON.parse(astJson);
+  return ast;
 }
 
 // Helper to check for parser errors

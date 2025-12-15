@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-// Stepping Tests
+// Step Button Tests (statement-by-statement execution)
 
 test('step button exists', async ({ page }) => {
   await page.goto('/');
@@ -16,61 +16,27 @@ test('stop button exists', async ({ page }) => {
   await expect(stopBtn).toHaveText('Stop');
 });
 
-test('stepping creates one token at a time', async ({ page }) => {
+test('stepping through statements shows memory updates', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x');
+  await page.fill('#code-editor', 'let x = 1\nlet y = 2');
 
-  // First click initializes stepping
-  await page.click('#step-btn');
-  let output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('Scanner State');
-  expect(output).toContain('(none yet)');
-
-  // Step through 'l', 'e', 't' (3 chars) then space triggers emit
-  await page.click('#step-btn'); // l
-  await page.click('#step-btn'); // e
-  await page.click('#step-btn'); // t
-  await page.click('#step-btn'); // space - emits KEYWORD
-
-  output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('KEYWORD');
-  expect(output).toContain('let');
-  expect(output).not.toContain('IDENTIFIER');
-
-  // Step through space (whitespace token) and then x
-  await page.click('#step-btn'); // x - emits WHITESPACE, starts identifier
-
-  output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('WHITESPACE');
-
-  // x is now in buffer, step to EOF to emit IDENTIFIER
-  await page.click('#step-btn'); // EOF - emits IDENTIFIER
-  await page.click('#step-btn'); // Process EOF token
-
-  output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('IDENTIFIER');
-});
-
-test('scanner state shows line and column on separate rows', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x');
-
-  // Initialize and step once
-  await page.click('#step-btn');
+  // First click starts stepping
   await page.click('#step-btn');
 
-  const output = await page.locator('#tab-tokens').textContent();
+  // Memory should show x after first statement
+  await page.click('#step-btn');
+  const memory1 = await page.locator('#tab-memory').textContent();
+  expect(memory1).toContain('x');
 
-  // Line and Column should be on separate rows
-  expect(output).toContain('Line:');
-  expect(output).toContain('Column:');
-  // Should NOT have them combined
-  expect(output).not.toContain('Line 1, Column');
+  // Memory should show y after second statement
+  await page.click('#step-btn');
+  const memory2 = await page.locator('#tab-memory').textContent();
+  expect(memory2).toContain('y');
 });
 
 test('first step shows source code in display', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x');
+  await page.fill('#code-editor', 'let x = 5');
 
   // First click initializes - code display should show the source
   await page.click('#step-btn');
@@ -80,67 +46,14 @@ test('first step shows source code in display', async ({ page }) => {
 
   // Code display should contain the source code (not be empty)
   const displayText = await codeDisplay.textContent();
-  expect(displayText).toContain('let x');
+  expect(displayText).toContain('let x = 5');
 });
 
-test('stepping highlights current character in source', async ({ page }) => {
+test('stop button resets to edit mode', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x');
-
-  // First click initializes
-  await page.click('#step-btn');
-
-  // Code display should be visible
-  const codeDisplay = page.locator('#code-display');
-  await expect(codeDisplay).toBeVisible();
-
-  // Second click processes first character
-  await page.click('#step-btn');
-
-  // Should have the cursor highlight on current character
-  const cursor = page.locator('.code-cursor');
-  await expect(cursor).toBeVisible();
-  await expect(cursor).toHaveText('l');
-});
-
-test('run button stays enabled during stepping', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x');
-  await page.click('#step-btn');
-
-  // Run should still be enabled so user can tokenize everything at once
-  const runBtn = page.locator('#run-btn');
-  await expect(runBtn).not.toBeDisabled();
-});
-
-test('clicking run during stepping shows all tokens', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x');
-
-  // Start stepping
-  await page.click('#step-btn');
-  await page.click('#step-btn');
-
-  // Now click Run to see all tokens at once
-  await page.click('#run-btn');
-
-  const output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('KEYWORD');
-  expect(output).toContain('let');
-  expect(output).toContain('IDENTIFIER');
-  expect(output).toContain('x');
-  expect(output).toContain('EOF');
-});
-
-test('reset clears tokens and returns to edit mode', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x');
+  await page.fill('#code-editor', 'let x = 1');
   await page.click('#step-btn');
   await page.click('#stop-btn');
-
-  // Output should be cleared
-  const output = page.locator('#tab-tokens');
-  await expect(output).toBeEmpty();
 
   // Textarea should be visible and editable
   const editor = page.locator('#code-editor');
@@ -148,79 +61,52 @@ test('reset clears tokens and returns to edit mode', async ({ page }) => {
   await expect(editor).not.toBeDisabled();
 });
 
-test('stepping through all tokens reaches EOF', async ({ page }) => {
+test('stepping completes when all statements done', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', '42');
+  await page.fill('#code-editor', 'let x = 1');
 
   // Initialize stepping
   await page.click('#step-btn');
 
-  // Step through '4', '2', then EOF emits NUMBER and then EOF
-  await page.click('#step-btn'); // 4
-  await page.click('#step-btn'); // 2
-  await page.click('#step-btn'); // EOF - emits NUMBER
-
-  let output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('NUMBER');
-
-  // Step again for EOF token
-  await page.click('#step-btn');
-  output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('EOF');
-
-  // Step button should be disabled after EOF
+  // Keep stepping until step button is disabled (completion)
   const stepBtn = page.locator('#step-btn');
+  for (let i = 0; i < 10; i++) {
+    if (await stepBtn.isDisabled()) break;
+    await page.click('#step-btn');
+    await page.waitForTimeout(50);
+  }
+
+  // Step button should be disabled after completion
   await expect(stepBtn).toBeDisabled();
 });
 
-test('run still works for full tokenization', async ({ page }) => {
+test('cannot edit while stepping', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.fill('#code-editor', 'let x = 5');
+  await page.click('#step-btn');
 
-  const output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('KEYWORD');
-  expect(output).toContain('let');
-  expect(output).toContain('IDENTIFIER');
-  expect(output).toContain('x');
-  expect(output).toContain('OPERATOR');
-  expect(output).toContain('NUMBER');
-  expect(output).toContain('42');
-  expect(output).toContain('EOF');
+  // Editor should be hidden
+  const editor = page.locator('#code-editor');
+  await expect(editor).toBeHidden();
+
+  // Code display should be visible instead
+  const codeDisplay = page.locator('#code-display');
+  await expect(codeDisplay).toBeVisible();
 });
 
-test('highlight moves with each step', async ({ page }) => {
+test('stepping shows interpreter pane', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'ab');
+  await page.fill('#code-editor', 'let x = 1');
 
-  // Initialize
+  // Before stepping, interpreter pane is hidden
+  const interpreterPane = page.locator('#interpreter-pane');
+  await expect(interpreterPane).toHaveClass(/interpreter-hidden/);
+
+  // Start stepping
   await page.click('#step-btn');
 
-  // Step 1 - 'a' highlighted
-  await page.click('#step-btn');
-  let cursor = await page.locator('.code-cursor').textContent();
-  expect(cursor).toBe('a');
-
-  // Step 2 - 'b' highlighted
-  await page.click('#step-btn');
-  cursor = await page.locator('.code-cursor').textContent();
-  expect(cursor).toBe('b');
-});
-
-test('arrow indicates newly emitted token', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x');
-
-  // Initialize and step through 'let' + space to emit first token
-  await page.click('#step-btn'); // init
-  await page.click('#step-btn'); // l
-  await page.click('#step-btn'); // e
-  await page.click('#step-btn'); // t
-  await page.click('#step-btn'); // space - emits KEYWORD
-
-  const output = await page.locator('#tab-tokens').textContent();
-  expect(output).toContain('→');
-  expect(output).toContain('KEYWORD');
+  // Interpreter pane should be visible
+  await expect(interpreterPane).not.toHaveClass(/interpreter-hidden/);
 });
 
 // Language Help Tests (language help shows fullscreen when tab is clicked)
@@ -304,20 +190,4 @@ test('language help shows types', async ({ page }) => {
   expect(text).toContain('Boolean');
   expect(text).toContain('Array');
   expect(text).toContain('Function');
-});
-
-// Negative Tests
-
-test('cannot edit while stepping', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x');
-  await page.click('#step-btn');
-
-  // Editor should be hidden
-  const editor = page.locator('#code-editor');
-  await expect(editor).toBeHidden();
-
-  // Code display should be visible instead
-  const codeDisplay = page.locator('#code-display');
-  await expect(codeDisplay).toBeVisible();
 });

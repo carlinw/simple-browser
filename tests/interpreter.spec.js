@@ -1,16 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { runFast } = require('./helpers');
 
-// Helper to parse code (uses debug mode briefly to get AST)
-async function parseCode(page, code) {
-  await page.fill('#code-editor', code);
-  await page.click('#debug-btn');
-  // Wait for AST to render
-  await page.waitForSelector('.ast-tree');
-  // Stop execution immediately
-  await page.click('#stop-btn');
-}
-
 // UI Tests (buttons)
 
 test('step button exists', async ({ page }) => {
@@ -34,13 +24,14 @@ test('run button exists', async ({ page }) => {
   await expect(runBtn).toHaveText('Run');
 });
 
-test('debug button shows AST', async ({ page }) => {
+test('debug button shows interpreter pane', async ({ page }) => {
   await page.goto('/');
-  await parseCode(page, '2 + 3');
+  await page.fill('#code-editor', '2 + 3');
+  await page.click('#debug-btn');
 
-  // AST tab should be active
-  const astTab = page.locator('.tab-btn:has-text("AST")');
-  await expect(astTab).toHaveClass(/active/);
+  // Interpreter pane should be visible
+  const interpreterPane = page.locator('#interpreter-pane');
+  await expect(interpreterPane).not.toHaveClass(/interpreter-hidden/);
 });
 
 test('run button executes immediately', async ({ page }) => {
@@ -167,32 +158,19 @@ test('string concatenation works', async ({ page }) => {
   expect(output).toContain('hello world');
 });
 
-// Visualization Tests
+// Debug mode Tests
 
-test('debug button highlights AST nodes', async ({ page }) => {
+test('debug button shows memory pane', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', '2 + 3');
+  await page.fill('#code-editor', 'let x = 42');
   await page.click('#debug-btn');
 
-  // Wait a moment for animation to start
+  // Wait for execution to start
   await page.waitForTimeout(500);
 
-  // Check for executing class on any node
-  const executingNode = page.locator('.ast-executing');
-  await expect(executingNode.first()).toBeVisible({ timeout: 2000 });
-});
-
-test('AST tab is active during debug run', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', '2 + 3');
-  await page.click('#debug-btn');
-
-  // Wait a moment for animation to start
-  await page.waitForTimeout(500);
-
-  // AST tab should be active during run
-  const astTab = page.locator('.tab-btn:has-text("AST")');
-  await expect(astTab).toHaveClass(/active/);
+  // Memory pane should be visible
+  const memoryPane = page.locator('#tab-memory');
+  await expect(memoryPane).toBeVisible();
 });
 
 // Negative Tests

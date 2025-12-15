@@ -28,6 +28,8 @@ export class Interpreter {
     this.getCanvasWidth = options.getCanvasWidth || (() => CANVAS_WIDTH);
     this.getCanvasHeight = options.getCanvasHeight || (() => CANVAS_HEIGHT);
     this.stepDelay = options.stepDelay || 0;
+    this.stepping = options.stepping || false;
+    this.onStep = options.onStep || null;
     this.environment = new Environment();
     this.stopped = false;
   }
@@ -63,6 +65,12 @@ export class Interpreter {
   // Execute a statement
   async execute(node) {
     this.checkStopped();
+
+    // Step mode: wait for user to click Step before each statement
+    if (this.stepping && this.onStep) {
+      await this.onStep();
+    }
+
     await this.enterNode(node);
 
     let result;
