@@ -1,49 +1,63 @@
 const { test, expect } = require('@playwright/test');
 const { runFast } = require('./helpers');
 
-// Helper to parse code
+// Helper to parse code (uses debug mode briefly to get AST)
 async function parseCode(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
   // Wait for AST to render
   await page.waitForSelector('.ast-tree');
+  // Stop execution immediately
+  await page.click('#stop-btn');
 }
 
-// UI Tests (new buttons)
+// UI Tests (buttons)
 
-test('parse button exists', async ({ page }) => {
+test('step button exists', async ({ page }) => {
   await page.goto('/');
-  const parseBtn = page.locator('#parse-btn');
-  await expect(parseBtn).toBeVisible();
-  await expect(parseBtn).toHaveText('Parse');
+  const stepBtn = page.locator('#step-btn');
+  await expect(stepBtn).toBeVisible();
+  await expect(stepBtn).toHaveText('Step');
 });
 
-test('run fast button exists', async ({ page }) => {
+test('debug button exists', async ({ page }) => {
   await page.goto('/');
-  const runFastBtn = page.locator('#run-fast-btn');
-  await expect(runFastBtn).toBeVisible();
-  await expect(runFastBtn).toHaveText('Run Fast');
+  const debugBtn = page.locator('#debug-btn');
+  await expect(debugBtn).toBeVisible();
+  await expect(debugBtn).toHaveText('Debug');
 });
 
-test('parse button shows AST without execution', async ({ page }) => {
+test('run button exists', async ({ page }) => {
+  await page.goto('/');
+  const runBtn = page.locator('#run-btn');
+  await expect(runBtn).toBeVisible();
+  await expect(runBtn).toHaveText('Run');
+});
+
+test('debug button shows AST', async ({ page }) => {
   await page.goto('/');
   await parseCode(page, '2 + 3');
 
   // AST tab should be active
   const astTab = page.locator('.tab-btn:has-text("AST")');
   await expect(astTab).toHaveClass(/active/);
-
-  // Check output pane does NOT contain the result
-  const outputContent = await page.locator('#output').textContent();
-  expect(outputContent).not.toContain('5');
 });
 
-test('run fast executes immediately', async ({ page }) => {
+test('run button executes immediately', async ({ page }) => {
   await page.goto('/');
   await runFast(page, 'print(2 + 3)');
 
   const outputContent = await page.locator('#output').textContent();
   expect(outputContent).toContain('5');
+});
+
+test('run button does not show interpreter pane', async ({ page }) => {
+  await page.goto('/');
+  await runFast(page, 'print(2 + 3)');
+
+  // Interpreter pane should remain hidden after Run completes
+  const interpreterPane = page.locator('#interpreter-pane');
+  await expect(interpreterPane).toHaveClass(/interpreter-hidden/);
 });
 
 // Interpreter Tests
@@ -155,10 +169,10 @@ test('string concatenation works', async ({ page }) => {
 
 // Visualization Tests
 
-test('run button highlights AST nodes', async ({ page }) => {
+test('debug button highlights AST nodes', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', '2 + 3');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait a moment for animation to start
   await page.waitForTimeout(500);
@@ -168,10 +182,10 @@ test('run button highlights AST nodes', async ({ page }) => {
   await expect(executingNode.first()).toBeVisible({ timeout: 2000 });
 });
 
-test('AST tab is active during animated run', async ({ page }) => {
+test('AST tab is active during debug run', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', '2 + 3');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait a moment for animation to start
   await page.waitForTimeout(500);
@@ -211,7 +225,7 @@ test('running empty program shows error', async ({ page }) => {
   await page.goto('/');
   // Clear any default content and run with empty editor
   await page.fill('#code-editor', '');
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
 
   // Wait for output
   await page.waitForFunction(() => {

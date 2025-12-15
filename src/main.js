@@ -10,7 +10,6 @@ import { ParserRenderer } from './parser-renderer.js';
 import { OutputRenderer } from './output-renderer.js';
 import { MemoryRenderer } from './memory-renderer.js';
 import { CodeVisualizer } from './visualizer.js';
-import { ExamplesManager } from './examples.js';
 
 // Keyboard state tracking for pressed() builtin
 const keysPressed = new Set();
@@ -40,14 +39,13 @@ function init() {
   // DOM Elements
   const codeEditor = document.getElementById('code-editor');
   const codeDisplay = document.getElementById('code-display');
-  const parseBtn = document.getElementById('parse-btn');
-  const runBtn = document.getElementById('run-btn');
-  const runFastBtn = document.getElementById('run-fast-btn');
   const stepBtn = document.getElementById('step-btn');
-  const resetBtn = document.getElementById('reset-btn');
-  const exampleBtn = document.getElementById('example-btn');
+  const debugBtn = document.getElementById('debug-btn');
+  const runBtn = document.getElementById('run-btn');
+  const stopBtn = document.getElementById('stop-btn');
   const output = document.getElementById('output');
   const lineCount = document.getElementById('line-count');
+  const interpreterPane = document.getElementById('interpreter-pane');
 
   // Tab Elements - now in interpreter-pane
   const tabBtns = document.querySelectorAll('.tab-btn');
@@ -88,7 +86,6 @@ function init() {
 
   // Other Managers
   const visualizer = new CodeVisualizer(codeDisplay);
-  const examplesManager = new ExamplesManager();
 
   // State
   let state = 'edit';  // 'edit' | 'stepping' | 'done' | 'running'
@@ -98,46 +95,51 @@ function init() {
   let currentLexResult = null;    // Store lex result for error display
   let currentInterpreter = null;  // Store interpreter so we can stop it
 
+  // Show/hide interpreter pane
+  function showInterpreterPane() {
+    interpreterPane.classList.remove('interpreter-hidden');
+  }
+
+  function hideInterpreterPane() {
+    interpreterPane.classList.add('interpreter-hidden');
+  }
+
   // Update UI based on state
   function updateUI() {
     switch (state) {
       case 'edit':
-        parseBtn.disabled = false;
-        runBtn.disabled = false;
-        runFastBtn.disabled = false;
         stepBtn.disabled = false;
-        resetBtn.disabled = true;
+        debugBtn.disabled = false;
+        runBtn.disabled = false;
+        stopBtn.disabled = true;
         codeEditor.disabled = false;
         codeEditor.classList.remove('hidden');
         codeDisplay.classList.add('hidden');
         break;
 
       case 'stepping':
-        parseBtn.disabled = false;
-        runBtn.disabled = false;
-        runFastBtn.disabled = false;
         stepBtn.disabled = false;
-        resetBtn.disabled = false;
+        debugBtn.disabled = false;
+        runBtn.disabled = false;
+        stopBtn.disabled = false;
         codeEditor.disabled = true;
         codeEditor.classList.add('hidden');
         codeDisplay.classList.remove('hidden');
         break;
 
       case 'running':
-        parseBtn.disabled = true;
-        runBtn.disabled = true;
-        runFastBtn.disabled = true;
         stepBtn.disabled = true;
-        resetBtn.disabled = false;
+        debugBtn.disabled = true;
+        runBtn.disabled = true;
+        stopBtn.disabled = false;
         codeEditor.disabled = true;
         break;
 
       case 'done':
-        parseBtn.disabled = false;
-        runBtn.disabled = false;
-        runFastBtn.disabled = false;
         stepBtn.disabled = true;
-        resetBtn.disabled = false;
+        debugBtn.disabled = false;
+        runBtn.disabled = false;
+        stopBtn.disabled = false;
         codeEditor.disabled = true;
         codeEditor.classList.add('hidden');
         codeDisplay.classList.remove('hidden');
@@ -214,9 +216,9 @@ function init() {
     return { start, end };
   }
 
-  // Shared execution logic - DRY refactor of runAnimated/runFast
+  // Shared execution logic for debug and run modes
   async function executeCode(options = {}) {
-    const { animated = false } = options;
+    const { animated = false, showInterpreter = true } = options;
     const source = codeEditor.value;
 
     // Check for empty program before parsing
@@ -225,42 +227,55 @@ function init() {
       return;
     }
 
+    // Parse (internally, without showing interpreter pane for Run mode)
     const success = parseOnly();
     if (!success || !currentParseResult) return;
 
     const printedOutput = [];
 
-    // Set running state for both animated and fast modes
+    // Set running state
     state = 'running';
     updateUI();
 
-    if (animated) {
+    // Show/hide interpreter pane based on mode
+    if (showInterpreter) {
+      showInterpreterPane();
       switchTab('ast');
-      visualizer.setSource(source);
-      visualizer.showInitial();
-      codeEditor.classList.add('hidden');
-      codeDisplay.classList.remove('hidden');
-      outputRenderer.clear();
+    } else {
+      hideInterpreterPane();
     }
 
+    // Set up code display
+    visualizer.setSource(source);
+    visualizer.showInitial();
+    codeEditor.classList.add('hidden');
+    codeDisplay.classList.remove('hidden');
+    outputRenderer.clear();
+
     // Set global frame before execution
-    memoryRenderer.setGlobalFrame();
+    if (showInterpreter) {
+      memoryRenderer.setGlobalFrame();
+    }
 
     currentInterpreter = new Interpreter({
       stepDelay: animated ? STEP_DELAY_MS : 0,
-      onNodeEnter: animated ? (node) => {
-        astRenderer.highlightNode(node);
+      onNodeEnter: (node) => {
+        // Always highlight source code
         const span = getNodeSpan(node);
         if (span) {
           visualizer.highlightExecuting(span);
         }
-      } : undefined,
-      onVariableChange: (name, value, action) => {
+        // Only update AST highlight in debug mode
+        if (showInterpreter && animated) {
+          astRenderer.highlightNode(node);
+        }
+      },
+      onVariableChange: showInterpreter ? (name, value, action) => {
         memoryRenderer.updateFrame(currentInterpreter.environment);
         if (animated) {
           memoryRenderer.highlightVariable(name);
         }
-      },
+      } : undefined,
       onPrint: (value) => {
         printedOutput.push(value);
         if (animated) {
@@ -271,12 +286,12 @@ function init() {
           outputRenderer.printText(value);
         }
       },
-      onCallStart: (funcName, args, env) => {
+      onCallStart: showInterpreter ? (funcName, args, env) => {
         memoryRenderer.pushFrame(funcName, args, env);
-      },
-      onCallEnd: (funcName, result) => {
+      } : undefined,
+      onCallEnd: showInterpreter ? (funcName, result) => {
         memoryRenderer.popFrame();
-      },
+      } : undefined,
       onInput: async () => {
         // Render current output before showing input field
         outputRenderer.renderOutput(printedOutput);
@@ -312,22 +327,21 @@ function init() {
 
     try {
       await currentInterpreter.interpret(currentParseResult.ast);
-      if (animated) {
+      // Clear highlights
+      if (showInterpreter) {
         astRenderer.clearHighlights();
-        visualizer.clearExecutingHighlight();
-      } else {
-        // Don't overwrite canvas with text output if graphics were used
-        if (!outputRenderer.canvas) {
-          outputRenderer.renderOutput(printedOutput);
-        }
-        visualizer.setSource(source);
-        visualizer.showInitial();
+      }
+      visualizer.clearExecutingHighlight();
+
+      // Render final output if not canvas
+      if (!outputRenderer.canvas) {
+        outputRenderer.renderOutput(printedOutput);
       }
     } catch (error) {
-      if (animated) {
+      if (showInterpreter) {
         astRenderer.clearHighlights();
-        visualizer.clearExecutingHighlight();
       }
+      visualizer.clearExecutingHighlight();
       // Don't show error if program was intentionally stopped
       if (error.message !== 'Program stopped') {
         outputRenderer.renderErrors([], [], [{ message: error.message }]);
@@ -338,17 +352,21 @@ function init() {
     if (state === 'running') {
       state = 'done';
       updateUI();
+      // Only show interpreter pane after completion for debug mode
+      if (showInterpreter) {
+        showInterpreterPane();
+      }
     }
   }
 
-  // Run animated - parse + execute with 5 second delay per node
-  async function runAnimated() {
-    await executeCode({ animated: true });
+  // Debug - parse + execute with animation delay, shows interpreter pane
+  async function debug() {
+    await executeCode({ animated: true, showInterpreter: true });
   }
 
-  // Run fast - parse + execute immediately
-  async function runFast() {
-    await executeCode({ animated: false });
+  // Run - parse + execute immediately, hides interpreter pane during execution
+  async function run() {
+    await executeCode({ animated: false, showInterpreter: false });
   }
 
   // Step - scan one character at a time
@@ -370,6 +388,9 @@ function init() {
       visualizer.setSource(source);
       visualizer.showInitial(); // Show source before any scanning
       updateUI();
+
+      // Show interpreter pane for stepping
+      showInterpreterPane();
 
       // Show initial state
       parserRenderer.renderScanState(null, [], switchTab);
@@ -417,22 +438,11 @@ function init() {
     updateUI();
   }
 
-  // Show example selector
-  function showExamples() {
-    examplesManager.showSelector((code) => {
-      codeEditor.value = code;
-      updateLineCount();
-      reset();
-    });
-  }
-
   // Event listeners
-  parseBtn.addEventListener('click', parseOnly);
-  runBtn.addEventListener('click', runAnimated);
-  runFastBtn.addEventListener('click', runFast);
   stepBtn.addEventListener('click', stepOne);
-  resetBtn.addEventListener('click', reset);
-  exampleBtn.addEventListener('click', showExamples);
+  debugBtn.addEventListener('click', debug);
+  runBtn.addEventListener('click', run);
+  stopBtn.addEventListener('click', reset);
   codeEditor.addEventListener('input', updateLineCount);
 
   // Language Help toggle

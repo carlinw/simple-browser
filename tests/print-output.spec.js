@@ -5,7 +5,7 @@ const { test, expect } = require('@playwright/test');
 test('print output appears immediately during animated execution', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'print(1)\nprint(2)\nprint(3)');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for first print to execute - output should show "1" before program completes
   await page.waitForFunction(() => {
@@ -25,7 +25,7 @@ test('print output appears immediately during animated execution', async ({ page
 test.skip('print output accumulates during execution', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'print("first")\nprint("second")');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for first output
   await page.waitForFunction(() => {
@@ -48,7 +48,7 @@ test.skip('print output accumulates during execution', async ({ page }) => {
 test.skip('print in if statement shows output when branch executes', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'if (true) { print("inside") }');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Output should appear when the print inside the if executes
   await page.waitForFunction(() => {

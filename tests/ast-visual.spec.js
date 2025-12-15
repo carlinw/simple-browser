@@ -1,14 +1,16 @@
 // Tests for AST visual structure - connectors and node layout
 const { test, expect } = require('@playwright/test');
 
-// Helper to run code and wait for output
+// Helper to run code in debug mode and wait for AST to be visible
 async function runCode(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete (run button becomes enabled)
   await page.waitForFunction(() => {
-    const tab = document.getElementById('tab-tokens');
-    return tab && tab.textContent.trim().length > 0;
-  });
+    const runBtn = document.getElementById('run-btn');
+    const debugBtn = document.getElementById('debug-btn');
+    return runBtn && debugBtn && !runBtn.disabled && !debugBtn.disabled;
+  }, { timeout: 120000 });
 }
 
 test.describe('AST visual structure', () => {

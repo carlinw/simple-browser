@@ -1,18 +1,21 @@
 const { test, expect } = require('@playwright/test');
-const { runFast } = require('./helpers');
+const { runDebug } = require('./helpers');
 
 // UI Tests
 
 test('memory tab exists', async ({ page }) => {
   await page.goto('/');
+  // Need to start debug to show interpreter pane
+  await page.fill('#code-editor', 'print(1)');
+  await page.click('#debug-btn');
+  await page.click('#stop-btn');
   const memoryTab = page.locator('.tab-btn:has-text("Memory")');
   await expect(memoryTab).toBeVisible();
 });
 
-test('memory tab shows legend after parse', async ({ page }) => {
+test('memory tab shows legend after debug', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await runDebug(page, 'let x = 42\nprint("done")');
   await page.click('.tab-btn:has-text("Memory")');
 
   // Memory tab should show the legend with type colors
@@ -20,23 +23,23 @@ test('memory tab shows legend after parse', async ({ page }) => {
   await expect(legend).toBeVisible();
 });
 
-test('memory shows empty state after parse', async ({ page }) => {
+test('memory shows variables after execution', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await runDebug(page, 'let x = 42\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
-  // Should show "(no variables)" before execution
+  // After execution, should show variables
   const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('(no variables)');
+  await expect(memoryContent).toContainText('x');
+  await expect(memoryContent).toContainText('42');
 });
 
 // Variable Display Tests
 
 test('variables appear after let statement', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 42');
+  await runDebug(page, 'let x = 42\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -47,7 +50,7 @@ test('variables appear after let statement', async ({ page }) => {
 
 test('multiple variables displayed', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let a = 1\nlet b = 2\nlet c = 3');
+  await runDebug(page, 'let a = 1\nlet b = 2\nlet c = 3\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -62,7 +65,7 @@ test('multiple variables displayed', async ({ page }) => {
 
 test('variable values update on assignment', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 1\nx = 2');
+  await runDebug(page, 'let x = 1\nx = 2\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -80,7 +83,7 @@ test('variable values update on assignment', async ({ page }) => {
 
 test('integer type displayed', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let n = 42');
+  await runDebug(page, 'let n = 42\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -90,7 +93,7 @@ test('integer type displayed', async ({ page }) => {
 
 test('float type displayed', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let f = 3.14');
+  await runDebug(page, 'let f = 3.14\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -100,7 +103,7 @@ test('float type displayed', async ({ page }) => {
 
 test('string type displayed', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let s = "hello"');
+  await runDebug(page, 'let s = "hello"\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -111,7 +114,7 @@ test('string type displayed', async ({ page }) => {
 
 test('boolean type displayed', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let b = true');
+  await runDebug(page, 'let b = true\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -122,7 +125,7 @@ test('boolean type displayed', async ({ page }) => {
 
 test('type changes when variable reassigned', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 42\nx = "hello"');
+  await runDebug(page, 'let x = 42\nx = "hello"\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -136,12 +139,12 @@ test('type changes when variable reassigned', async ({ page }) => {
 
 test('memory cleared on reset', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 42');
+  await runDebug(page, 'let x = 42\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
   await expect(page.locator('#tab-memory')).toContainText('x');
 
-  await page.click('#reset-btn');
+  await page.click('#stop-btn');
 
   // Memory should be cleared
   const memoryContent = page.locator('#tab-memory');
@@ -150,7 +153,7 @@ test('memory cleared on reset', async ({ page }) => {
 
 test('memory legend shows type colors', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 42');
+  await runDebug(page, 'let x = 42\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -164,7 +167,7 @@ test('memory legend shows type colors', async ({ page }) => {
 
 test('variables from expression are in memory', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 10\nlet y = 20\nlet sum = x + y');
+  await runDebug(page, 'let x = 10\nlet y = 20\nlet sum = x + y\nprint("done")');
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -177,7 +180,7 @@ test('variables from expression are in memory', async ({ page }) => {
 
 test('output pane shows program results', async ({ page }) => {
   await page.goto('/');
-  await runFast(page, 'let x = 42\nprint(x + 1)');
+  await runDebug(page, 'let x = 42\nprint(x + 1)');
 
   // Output should be in output pane, not memory tab
   const output = page.locator('#output');

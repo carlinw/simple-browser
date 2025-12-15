@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 // Helper to run code and get output
 async function runCode(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   // Wait for output to have content or be processed
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
@@ -26,7 +26,7 @@ test('while loop executes body while condition is true', async ({ page }) => {
 test('while loop with false condition never executes', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'while (false) { print("never") }');
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   // Wait a moment for execution
   await page.waitForTimeout(100);
   const output = await page.locator('#output').textContent();
@@ -60,7 +60,7 @@ test('while loop with variable condition', async ({ page }) => {
 test('infinite loop protection', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'while (true) { }');
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   // Wait for error to appear
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
@@ -73,7 +73,7 @@ test('infinite loop protection', async ({ page }) => {
 test('while loop highlights during animated execution', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let i = 0\nwhile (i < 2) { i = i + 1 }');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for code highlighting to appear
   await expect(page.locator('.code-executing')).toBeVisible({ timeout: 8000 });

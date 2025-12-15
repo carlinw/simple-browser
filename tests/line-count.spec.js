@@ -39,20 +39,6 @@ test('line count updates when typing', async ({ page }) => {
   await expect(page.locator('#line-count')).toHaveText('2 lines of code');
 });
 
-test('line count updates when loading example', async ({ page }) => {
-  await page.goto('/');
-
-  // Load an example
-  await page.click('#example-btn');
-  await page.click('.example-card[data-id="variables"]');
-
-  // Should have more than 0 lines
-  const label = page.locator('#line-count');
-  const text = await label.textContent();
-  expect(text).toMatch(/\d+ lines? of code/);
-  expect(text).not.toBe('0 lines of code');
-});
-
 test('line count is positioned in upper right of code pane', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 1');

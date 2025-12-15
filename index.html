@@ -8,18 +8,15 @@
   <link rel="stylesheet" href="styles/interpreter.css">
   <link rel="stylesheet" href="styles/ast.css">
   <link rel="stylesheet" href="styles/memory.css">
-  <link rel="stylesheet" href="styles/modals.css">
 </head>
 <body>
   <header>
     <h1>Tiny Development Environment</h1>
     <nav id="toolbar">
-      <button id="example-btn">Examples</button>
-      <button id="parse-btn">Parse</button>
-      <button id="run-btn">Run</button>
-      <button id="run-fast-btn">Run Fast</button>
       <button id="step-btn">Step</button>
-      <button id="reset-btn" disabled>Reset</button>
+      <button id="debug-btn">Debug</button>
+      <button id="run-btn">Run</button>
+      <button id="stop-btn" disabled>Stop</button>
     </nav>
   </header>
 
@@ -38,7 +35,7 @@
     </section>
 
     <!-- Section 2: Interpreter (middle) -->
-    <section id="interpreter-pane">
+    <section id="interpreter-pane" class="interpreter-hidden">
       <div class="pane-header">
         <h2>Interpreter</h2>
         <div class="interpreter-tabs">

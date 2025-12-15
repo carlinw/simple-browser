@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 // Helper to run code and get output
 async function runCode(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   // Wait for output to have content or be processed
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
@@ -78,7 +78,7 @@ test('function can access outer variables', async ({ page }) => {
 test('calling non-function shows error', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 5\nx()');
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
     return output && output.textContent.includes('not a function');
@@ -90,7 +90,7 @@ test('calling non-function shows error', async ({ page }) => {
 test('wrong argument count shows error', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'function f(a) { }\nf(1, 2)');
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
     return output && output.textContent.includes('Expected');

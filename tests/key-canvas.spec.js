@@ -6,7 +6,7 @@ test('key() preserves canvas that was created before it', async ({ page }) => {
 
   // Program that draws, then waits for key
   await page.fill('#code-editor', 'clear()\nrect(10, 10, 50, 50)\nkey()');
-  await page.click('button:has-text("Run Fast")');
+  await page.click('#run-btn');
 
   // Wait a moment for execution to start
   await page.waitForTimeout(200);

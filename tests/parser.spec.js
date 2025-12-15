@@ -51,7 +51,7 @@ test('parser parses boolean literals', async ({ page }) => {
   expect(ast.statements[0].expression.value).toBe(true);
 
   // Reset before second getAST call
-  await page.click('#reset-btn');
+  await page.click('#stop-btn');
 
   ast = await getAST(page, 'false');
   expect(ast.statements[0].expression.type).toBe('BooleanLiteral');

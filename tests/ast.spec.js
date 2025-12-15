@@ -1,14 +1,15 @@
 const { test, expect } = require('@playwright/test');
 
-// Helper to run code and wait for output
+// Helper to run code in debug mode and wait for AST to be visible
 async function runCode(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#run-btn');
-  // Wait for tokens tab to have content
+  await page.click('#debug-btn');
+  // Wait for execution to complete (run button becomes enabled)
   await page.waitForFunction(() => {
-    const tab = document.getElementById('tab-tokens');
-    return tab && tab.textContent.trim().length > 0;
-  });
+    const runBtn = document.getElementById('run-btn');
+    const debugBtn = document.getElementById('debug-btn');
+    return runBtn && debugBtn && !runBtn.disabled && !debugBtn.disabled;
+  }, { timeout: 120000 });
 }
 
 // Positive Tests
@@ -196,7 +197,7 @@ test('AST shows error for invalid syntax', async ({ page }) => {
 test('empty input shows greeting on parse', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', '');
-  await page.click('#parse-btn');
+  await page.click('#step-btn');
 
   // Empty input shows greeting in output pane (parse, not run)
   const output = page.locator('#output');

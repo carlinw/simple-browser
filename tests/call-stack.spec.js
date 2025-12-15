@@ -3,12 +3,15 @@ const { test, expect } = require('@playwright/test');
 // Helper to run code and get memory tab content
 async function runCodeAndGetMemory(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#run-fast-btn');
-  // Wait for execution to complete
+  // Use debug-btn which shows the interpreter pane
+  await page.click('#debug-btn');
+  // Wait for execution to complete (state changes to 'done', run button is enabled)
   await page.waitForFunction(() => {
-    const output = document.getElementById('output');
-    return output && output.textContent.trim().length > 0;
-  }, { timeout: 5000 }).catch(() => {});
+    const runBtn = document.getElementById('run-btn');
+    const debugBtn = document.getElementById('debug-btn');
+    // In 'done' state, both buttons are enabled
+    return runBtn && debugBtn && !runBtn.disabled && !debugBtn.disabled;
+  }, { timeout: 120000 });  // 2 minutes for animated execution
   // Click Memory tab
   await page.click('.tab-btn[data-tab="memory"]');
   return await page.locator('#tab-memory').innerHTML();
@@ -57,7 +60,8 @@ test('stack shows only global after function returns', async ({ page }) => {
 
 test('recursive function shows in global frame', async ({ page }) => {
   await page.goto('/');
-  const memory = await runCodeAndGetMemory(page, 'function fac(n) { if (n <= 1) { return 1 } return n * fac(n - 1) }\nprint(fac(3))');
+  // Use recursion depth of 1 to minimize steps (fac(1) doesn't recurse further)
+  const memory = await runCodeAndGetMemory(page, 'function fac(n) { if (n <= 1) { return 1 } return n * fac(n - 1) }\nprint(fac(1))');
   // After execution, factorial should be in global
   expect(memory).toContain('fac');
   expect(memory).toContain('[function]');

@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 // Helper to run code and get output
 async function runCode(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   // Wait for output to have content
   await page.waitForFunction(() => {
     const output = document.getElementById('output');

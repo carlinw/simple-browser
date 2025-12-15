@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 // Helper to run code and get output
 async function runCode(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   // Wait for output to have content or be processed
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
@@ -23,7 +23,7 @@ test('if true executes then branch', async ({ page }) => {
 test('if false skips then branch', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'if (false) { print("skipped") }');
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   // Wait a moment for execution
   await page.waitForTimeout(100);
   const output = await page.locator('#output').textContent();

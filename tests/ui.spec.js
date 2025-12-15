@@ -54,7 +54,12 @@ test('interpreter pane has three tabs', async ({ page }) => {
 test('parser tab shows character and line count', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete (output would show if there was print)
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
   await page.click('.tab-btn:has-text("Parser")');
   const parserContent = page.locator('#tab-tokens');
@@ -69,7 +74,12 @@ test('parser tab shows character and line count', async ({ page }) => {
 test('parser tab shows token count', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
   await page.click('.tab-btn:has-text("Parser")');
   const parserContent = page.locator('#tab-tokens');
@@ -82,7 +92,12 @@ test('parser tab shows token count', async ({ page }) => {
 test('parser tab shows column labels', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
   await page.click('.tab-btn:has-text("Parser")');
   const parserContent = page.locator('#tab-tokens');
@@ -99,7 +114,12 @@ test('parser tab shows column labels', async ({ page }) => {
 test('parser tab shows token numbers starting from 1', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
   await page.click('.tab-btn:has-text("Parser")');
   const parserContent = page.locator('#tab-tokens');
@@ -110,10 +130,15 @@ test('parser tab shows token numbers starting from 1', async ({ page }) => {
   expect(text).toMatch(/1\s+1\s+1\s+KEYWORD/);  // Token 1 at line 1, col 1
 });
 
-test('AST tab is active after parse', async ({ page }) => {
+test('AST tab is active after debug', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
   const astTab = page.locator('.tab-btn:has-text("AST")');
   await expect(astTab).toHaveClass(/active/);
@@ -122,9 +147,14 @@ test('AST tab is active after parse', async ({ page }) => {
 test('clicking AST tab shows AST content', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
-  // Parse already shows AST tab, verify it's there
+  // Debug already shows AST tab, verify it's there
   const astTab = page.locator('.tab-btn:has-text("AST")');
   await expect(astTab).toHaveClass(/active/);
 
@@ -136,7 +166,12 @@ test('clicking AST tab shows AST content', async ({ page }) => {
 test('clicking Memory tab shows memory content', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
   await page.click('.tab-btn:has-text("Memory")');
 
@@ -150,7 +185,12 @@ test('clicking Memory tab shows memory content', async ({ page }) => {
 test('tokens tab shows token list', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
   // Click tokens tab to see tokens
   await page.click('.tab-btn:has-text("Parser")');
@@ -165,9 +205,14 @@ test('tokens tab shows token list', async ({ page }) => {
 test('tabs switch content visibility', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#parse-btn');
+  await page.click('#debug-btn');
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const stopBtn = document.getElementById('stop-btn');
+    return stopBtn && !stopBtn.disabled;
+  }, { timeout: 30000 });
 
-  // AST visible by default after parse
+  // AST visible by default after debug
   await expect(page.locator('#tab-tokens')).not.toBeVisible();
   await expect(page.locator('#tab-ast')).toBeVisible();
   await expect(page.locator('#tab-memory')).not.toBeVisible();

@@ -9,11 +9,11 @@ test('step button exists', async ({ page }) => {
   await expect(stepBtn).toHaveText('Step');
 });
 
-test('reset button exists', async ({ page }) => {
+test('stop button exists', async ({ page }) => {
   await page.goto('/');
-  const resetBtn = page.locator('#reset-btn');
-  await expect(resetBtn).toBeVisible();
-  await expect(resetBtn).toHaveText('Reset');
+  const stopBtn = page.locator('#stop-btn');
+  await expect(stopBtn).toBeVisible();
+  await expect(stopBtn).toHaveText('Stop');
 });
 
 test('stepping creates one token at a time', async ({ page }) => {
@@ -136,7 +136,7 @@ test('reset clears tokens and returns to edit mode', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x');
   await page.click('#step-btn');
-  await page.click('#reset-btn');
+  await page.click('#stop-btn');
 
   // Output should be cleared
   const output = page.locator('#tab-tokens');
@@ -304,64 +304,6 @@ test('language help shows types', async ({ page }) => {
   expect(text).toContain('Boolean');
   expect(text).toContain('Array');
   expect(text).toContain('Function');
-});
-
-// Example Program Tests
-
-test('examples button exists', async ({ page }) => {
-  await page.goto('/');
-  const exampleBtn = page.locator('#example-btn');
-  await expect(exampleBtn).toBeVisible();
-  await expect(exampleBtn).toHaveText('Examples');
-});
-
-test('clicking examples shows modal with options', async ({ page }) => {
-  await page.goto('/');
-  await page.click('#example-btn');
-
-  // Modal should appear with example cards
-  const modal = page.locator('.modal-panel');
-  await expect(modal).toBeVisible();
-
-  // Should have multiple example cards
-  const cards = page.locator('.example-card');
-  const count = await cards.count();
-  expect(count).toBeGreaterThanOrEqual(2);
-
-  // Should have Tokenizer Demo and FizzBuzz
-  await expect(page.locator('.example-name:has-text("Tokenizer Demo")')).toBeVisible();
-  await expect(page.locator('.example-name:has-text("FizzBuzz")')).toBeVisible();
-});
-
-test('selecting example loads code', async ({ page }) => {
-  await page.goto('/');
-  await page.click('#example-btn');
-
-  // Click the Tokenizer Demo card
-  await page.click('.example-card[data-id="tokenizer-demo"]');
-
-  const editor = page.locator('#code-editor');
-  const value = await editor.inputValue();
-  expect(value).toContain('Tokenizer Demo');
-  expect(value).toContain('let message');
-  expect(value).toContain('Hello, Connor!');
-});
-
-test('can step through example program', async ({ page }) => {
-  await page.goto('/');
-  await page.click('#example-btn');
-  await page.click('.example-card[data-id="tokenizer-demo"]');
-
-  // Step through character by character
-  // Example starts with "// Tokenizer Demo" (comment)
-  // Need many steps to get through comment and see tokens
-  for (let i = 0; i < 30; i++) {
-    await page.click('#step-btn');
-  }
-
-  const output = await page.locator('#tab-tokens').textContent();
-  // Should have processed at least the first comment
-  expect(output).toContain('COMMENT');
 });
 
 // Negative Tests

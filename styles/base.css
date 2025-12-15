@@ -65,12 +65,12 @@ button:disabled {
 }
 
 #run-btn {
-  background: var(--color-primary);
+  background: #fd7e14;
   color: white;
 }
 
 #run-btn:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+  background: #e96b02;
 }
 
 #step-btn {
@@ -82,43 +82,32 @@ button:disabled {
   background: #218838;
 }
 
-#reset-btn {
+#debug-btn {
+  background: var(--color-primary);
+  color: white;
+}
+
+#debug-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+#stop-btn {
   background: #6c757d;
   color: white;
 }
 
-#reset-btn:hover:not(:disabled) {
+#stop-btn:hover:not(:disabled) {
   background: #5a6268;
 }
 
-#example-btn,
 #help-btn {
   background: transparent;
   color: var(--color-text);
   border: 1px solid var(--color-border);
 }
 
-#example-btn:hover:not(:disabled),
 #help-btn:hover:not(:disabled) {
   background: var(--color-bg);
-}
-
-#parse-btn {
-  background: #17a2b8;
-  color: white;
-}
-
-#parse-btn:hover:not(:disabled) {
-  background: #138496;
-}
-
-#run-fast-btn {
-  background: #fd7e14;
-  color: white;
-}
-
-#run-fast-btn:hover:not(:disabled) {
-  background: #e96b02;
 }
 
 /* Main Content - 3 Column Layout */
@@ -149,6 +138,16 @@ main {
   font-weight: 500;
   color: #666;
   margin-bottom: 0.5rem;
+}
+
+/* Interpreter pane hidden state */
+#interpreter-pane.interpreter-hidden {
+  display: none;
+}
+
+/* Adjust grid when interpreter is hidden */
+main:has(#interpreter-pane.interpreter-hidden) {
+  grid-template-columns: 1fr 1fr;
 }
 
 /* Interpreter Pane Header */

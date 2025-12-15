@@ -23,7 +23,7 @@ test('pressed returns true when key is held', async ({ page }) => {
   // Hold the 'a' key down before running
   await page.keyboard.down('a');
 
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
     return output && output.textContent.trim().length > 0;

@@ -5,7 +5,7 @@ const { test, expect } = require('@playwright/test');
 test('code highlights during animated run', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for execution to start and code-executing class to appear
   await expect(page.locator('.code-executing')).toBeVisible({ timeout: 3000 });
@@ -14,7 +14,7 @@ test('code highlights during animated run', async ({ page }) => {
 test('code highlight moves through statements', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 1\nlet y = 2');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for first highlight
   await expect(page.locator('.code-executing')).toBeVisible({ timeout: 3000 });
@@ -40,7 +40,7 @@ test('code highlight moves through statements', async ({ page }) => {
 test('code highlight cleared after execution', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'print(1)');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for execution to complete (output appears)
   await page.waitForFunction(() => {
@@ -56,7 +56,7 @@ test('code highlight cleared after execution', async ({ page }) => {
 test('code highlight works with if statement', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'if (true) { print(1) }');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for execution to start
   await expect(page.locator('.code-executing')).toBeVisible({ timeout: 3000 });
@@ -71,7 +71,7 @@ test('code highlight works with if statement', async ({ page }) => {
 test('code highlight spans correct characters', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let longVariableName = 12345');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for highlight to appear
   await expect(page.locator('.code-executing')).toBeVisible({ timeout: 3000 });
@@ -86,7 +86,7 @@ test('code highlight spans correct characters', async ({ page }) => {
 test('no code highlight during Run Fast', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42\nprint(x)');
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
 
   // Wait for output
   await page.waitForFunction(() => {
@@ -102,7 +102,7 @@ test('no code highlight during Run Fast', async ({ page }) => {
 test('code display shows source during animated execution', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Code display should be visible during execution
   await expect(page.locator('#code-display')).toBeVisible({ timeout: 3000 });
@@ -118,7 +118,7 @@ test('code display shows source during animated execution', async ({ page }) => 
 test('code highlight syncs with AST node highlight', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'print(1)');
-  await page.click('#run-btn');
+  await page.click('#debug-btn');
 
   // Wait for both highlights to appear
   await expect(page.locator('.code-executing')).toBeVisible({ timeout: 3000 });

@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 async function runFast(page, code) {
   await page.goto('/');
   await page.fill('#code-editor', code);
-  await page.click('#run-fast-btn');
+  await page.click('#run-btn');
   await page.waitForFunction(() => {
     const output = document.querySelector('#output');
     return output && output.textContent.trim().length > 0;
