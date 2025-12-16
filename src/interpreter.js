@@ -120,12 +120,21 @@ export class Interpreter {
         break;
       }
 
-      case 'Block':
-        // Execute all statements in block
-        for (const stmt of node.statements) {
-          result = await this.execute(stmt);
+      case 'Block': {
+        // Create new scope for block (Java-style block scoping)
+        const previousEnv = this.environment;
+        this.environment = new Environment(previousEnv);
+        try {
+          // Execute all statements in block
+          for (const stmt of node.statements) {
+            result = await this.execute(stmt);
+          }
+        } finally {
+          // Restore previous scope
+          this.environment = previousEnv;
         }
         break;
+      }
 
       case 'FunctionDeclaration': {
         const func = new TinyFunction(node, this.environment);

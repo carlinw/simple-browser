@@ -56,6 +56,7 @@
             <li><a href="#declaration">Declaration</a></li>
             <li><a href="#assignment">Assignment</a></li>
             <li><a href="#scoping">Scoping</a></li>
+            <li><a href="#block-scope">Block Scope</a></li>
           </ul>
         </li>
         <li>
@@ -256,7 +257,7 @@ x = "hello"     // dynamic typing - can change type</code></pre>
       <section id="scoping" class="subsection">
         <h3>Scoping</h3>
 
-        <p>Tiny uses <strong>lexical scoping</strong> with a scope chain. Variables are looked up starting from the innermost scope and moving outward to the global scope.</p>
+        <p>Tiny uses <strong>lexical scoping</strong> with <strong>block-level scope</strong> (like Java). Variables are looked up starting from the innermost scope and moving outward to the global scope. Each block (<code>if</code>, <code>while</code>, function body) creates a new scope.</p>
 
         <h4>Global Scope</h4>
         <p>Variables declared at the top level are in the global scope and accessible everywhere:</p>
@@ -268,7 +269,7 @@ function foo() {
 
 foo()  // prints: 100</code></pre>
 
-        <h4>Local Scope</h4>
+        <h4>Function Scope</h4>
         <p>Variables declared inside a function are local to that function:</p>
         <pre class="code-block"><code>function foo() {
   let localVar = 42
@@ -277,6 +278,30 @@ foo()  // prints: 100</code></pre>
 
 foo()
 print(localVar)  // ERROR: Undefined variable</code></pre>
+
+        <h4>Block Scope</h4>
+        <p>Tiny uses <strong>block-level scoping</strong> (like Java). Variables declared inside <code>if</code> or <code>while</code> blocks are only accessible within that block:</p>
+        <pre class="code-block"><code>if (true) {
+  let x = 42
+  print(x)  // works: 42
+}
+print(x)  // ERROR: Undefined variable</code></pre>
+
+        <p>The same applies to <code>while</code> loops:</p>
+        <pre class="code-block"><code>let i = 0
+while (i < 3) {
+  let temp = i * 2
+  print(temp)
+  i = i + 1
+}
+print(temp)  // ERROR: Undefined variable</code></pre>
+
+        <p>Variables from outer scopes can still be accessed and modified inside blocks:</p>
+        <pre class="code-block"><code>let result = 0
+if (true) {
+  result = 42  // modifies outer variable
+}
+print(result)  // 42</code></pre>
 
         <h4>Scope Chain (Multiple Layers)</h4>
         <p>The scope chain goes up <strong>multiple layers</strong>, not just one. Inner functions can access variables from all enclosing scopes:</p>
