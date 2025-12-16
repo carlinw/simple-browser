@@ -275,3 +275,13 @@
   font-size: 0.9rem;
   color: #aaa;
 }
+
+/* Line-level code highlighting */
+.code-line {
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.code-line.line-executing {
+  background: var(--color-highlight);
+}

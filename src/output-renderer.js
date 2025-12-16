@@ -62,6 +62,13 @@ export class OutputRenderer {
     }
   }
 
+  // Append an error message to existing output
+  appendError(message) {
+    const existing = this.container.textContent;
+    const separator = existing && existing !== '(no output)' ? '\n\n' : '';
+    this.container.textContent = existing + separator + 'Runtime Error:\n  ' + message;
+  }
+
   // Render a simple message
   renderMessage(message) {
     this.container.textContent = message;

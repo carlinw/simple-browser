@@ -80,6 +80,7 @@
           <a href="#functions">Functions</a>
           <ul class="toc-subsections">
             <li><a href="#builtins">Built-in</a></li>
+            <li><a href="#speed-control">Speed Control</a></li>
             <li><a href="#keyboard">Keyboard</a></li>
             <li><a href="#graphics">Graphics</a></li>
             <li><a href="#colors">Colors</a></li>
@@ -224,7 +225,7 @@ print(matrix[0][1])  // 2</code></pre>
 
         <h4>Built-in Functions</h4>
         <p class="keyword-list">
-          <code>circle</code> <code>clear</code> <code>color</code> <code>fill</code> <code>fullscreen</code> <code>height</code> <code>input</code> <code>key</code> <code>line</code> <code>num</code> <code>pressed</code> <code>print</code> <code>random</code> <code>rect</code> <code>sleep</code> <code>stroke</code> <code>text</code> <code>triangle</code> <code>width</code>
+          <code>circle</code> <code>clear</code> <code>color</code> <code>fast</code> <code>fill</code> <code>fullscreen</code> <code>height</code> <code>input</code> <code>key</code> <code>line</code> <code>num</code> <code>pause</code> <code>pressed</code> <code>print</code> <code>random</code> <code>rect</code> <code>sleep</code> <code>slow</code> <code>slower</code> <code>stroke</code> <code>text</code> <code>triangle</code> <code>width</code>
         </p>
 
         <h4>Built-in Methods</h4>
@@ -541,6 +542,59 @@ while (i < 5) {
             </tr>
           </tbody>
         </table>
+      </section>
+
+      <!-- Speed Control (subsection of Functions) -->
+      <section id="speed-control" class="subsection">
+        <h3>Speed Control</h3>
+        <p>These functions control execution speed during Debug mode. They're useful for slowing down to see what's happening, or speeding up past uninteresting parts.</p>
+
+        <table class="ref-table">
+          <thead>
+            <tr><th>Function</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pause()</code></td>
+              <td>Pause execution until Resume button is clicked</td>
+            </tr>
+            <tr>
+              <td><code>slow()</code></td>
+              <td>Set step delay to 1 second</td>
+            </tr>
+            <tr>
+              <td><code>slower()</code></td>
+              <td>Set step delay to 2 seconds</td>
+            </tr>
+            <tr>
+              <td><code>fast()</code></td>
+              <td>Remove step delay (instant, like Run mode)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Example: Pause to Inspect</h4>
+        <pre class="code-block"><code>let total = 0
+let i = 0
+while (i < 10) {
+  total = total + i
+  i = i + 1
+}
+pause()  // stop here to check the result
+print(total)</code></pre>
+
+        <h4>Example: Speed Up Boring Parts</h4>
+        <pre class="code-block"><code>// Slow initialization
+slow()
+let x = 100
+let y = 100
+
+// Fast game loop
+fast()
+while (true) {
+  // game runs at full speed
+  sleep(16)
+}</code></pre>
       </section>
 
       <!-- Keyboard (subsection of Functions) -->

@@ -70,6 +70,23 @@ test('infinite loop protection', async ({ page }) => {
   expect(output).toContain('Infinite loop detected');
 });
 
+test('infinite loop shows output before error', async ({ page }) => {
+  await page.goto('/');
+  // Loop that prints before hitting the limit
+  await page.fill('#code-editor', 'let i = 0\nwhile (true) {\n  print(i)\n  i = i + 1\n}');
+  await page.click('#run-btn');
+  // Wait for error to appear
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Infinite loop');
+  }, { timeout: 15000 });
+  const output = await page.locator('#output').textContent();
+  // Should have both the printed output AND the error
+  expect(output).toContain('0');
+  expect(output).toContain('100');
+  expect(output).toContain('Infinite loop detected');
+});
+
 test('while loop executes during animated debug', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let i = 0\nwhile (i < 2) { i = i + 1 }\nprint(i)');

@@ -61,10 +61,10 @@ test('memory shows variables after debug', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let x = 42');
   await page.click('#debug-btn');
-  // Wait for execution to complete
+  // Wait for execution to complete (done state: run button enabled)
   await page.waitForFunction(() => {
-    const stopBtn = document.getElementById('stop-btn');
-    return stopBtn && !stopBtn.disabled;
+    const runBtn = document.getElementById('run-btn');
+    return runBtn && !runBtn.disabled;
   }, { timeout: 30000 });
 
   const memoryContent = page.locator('#tab-memory');
@@ -107,6 +107,71 @@ test('interpreter pane hidden during run', async ({ page }) => {
   // Interpreter pane should remain hidden
   const interpreterPane = page.locator('#interpreter-pane');
   await expect(interpreterPane).toHaveClass(/interpreter-hidden/);
+});
+
+// Auto-stop Tests
+
+test('program completes and enters done state', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 1');
+  await page.click('#run-btn');
+
+  // Wait for execution to complete (run button enabled means done or edit state)
+  await page.waitForFunction(() => {
+    const runBtn = document.getElementById('run-btn');
+    return runBtn && !runBtn.disabled;
+  }, { timeout: 5000 });
+
+  // In done state, stop button should be enabled to return to edit
+  const stopBtn = page.locator('#stop-btn');
+  await expect(stopBtn).not.toBeDisabled();
+});
+
+test('clicking stop after completion returns to edit mode', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 1');
+  await page.click('#run-btn');
+
+  // Wait for execution to complete
+  await page.waitForFunction(() => {
+    const runBtn = document.getElementById('run-btn');
+    return runBtn && !runBtn.disabled;
+  }, { timeout: 5000 });
+
+  // Click stop to return to edit mode
+  await page.click('#stop-btn');
+
+  // Now editor should be visible and enabled
+  const editor = page.locator('#code-editor');
+  await expect(editor).not.toBeDisabled();
+  await expect(editor).toBeVisible();
+});
+
+// Tab Key Tests
+
+test('tab key inserts spaces in code editor', async ({ page }) => {
+  await page.goto('/');
+  const editor = page.locator('#code-editor');
+  await editor.focus();
+  await editor.fill('if (true) {');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Tab');
+  await page.keyboard.type('print(1)');
+
+  const value = await editor.inputValue();
+  // Should have indentation (spaces or tab character)
+  expect(value).toContain('  print(1)');
+});
+
+test('tab key does not leave textarea', async ({ page }) => {
+  await page.goto('/');
+  const editor = page.locator('#code-editor');
+  await editor.focus();
+  await page.keyboard.press('Tab');
+
+  // Editor should still be focused
+  const focused = await page.evaluate(() => document.activeElement.id);
+  expect(focused).toBe('code-editor');
 });
 
 // Negative Tests

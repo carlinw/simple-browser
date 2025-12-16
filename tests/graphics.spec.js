@@ -109,3 +109,27 @@ test('invalid color throws error', async ({ page }) => {
   const output = await page.locator('#output').textContent();
   expect(output).toContain('Unknown color');
 });
+
+test('canvas persists after program completes', async ({ page }) => {
+  await page.goto('/');
+  await runFastGraphics(page, 'color("red")\nrect(10, 10, 50, 50)');
+
+  // Wait for program to complete and return to edit mode
+  await page.waitForFunction(() => {
+    const runBtn = document.getElementById('run-btn');
+    return runBtn && !runBtn.disabled;
+  }, { timeout: 5000 });
+
+  // Canvas should still be visible with same content
+  const canvas = await page.locator('#output canvas');
+  await expect(canvas).toBeVisible();
+
+  const hasRed = await page.evaluate(() => {
+    const canvas = document.querySelector('#output canvas');
+    if (!canvas) return false;
+    const ctx = canvas.getContext('2d');
+    const pixel = ctx.getImageData(30, 30, 1, 1).data;
+    return pixel[0] === 255 && pixel[1] === 0 && pixel[2] === 0;
+  });
+  expect(hasRed).toBe(true);
+});

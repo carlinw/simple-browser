@@ -39,6 +39,7 @@ function init() {
   const debugBtn = document.getElementById('debug-btn');
   const runBtn = document.getElementById('run-btn');
   const stopBtn = document.getElementById('stop-btn');
+  const resumeBtn = document.getElementById('resume-btn');
   const output = document.getElementById('output');
   const lineCount = document.getElementById('line-count');
   const interpreterPane = document.getElementById('interpreter-pane');
@@ -62,6 +63,7 @@ function init() {
   let currentLexResult = null;    // Store lex result for error display
   let currentInterpreter = null;  // Store interpreter so we can stop it
   let stepResolve = null;         // Resolve function for step-by-step execution
+  let pauseResolve = null;        // Resolve function for pause() statement
 
   // Show/hide interpreter pane
   function showInterpreterPane() {
@@ -178,11 +180,29 @@ function init() {
       hideInterpreterPane();
     }
 
-    // Set up code display
-    codeDisplay.textContent = source;
+    // Set up code display with line elements for highlighting
+    codeDisplay.innerHTML = '';
+    const lines = source.split('\n');
+    lines.forEach((line, index) => {
+      const lineEl = document.createElement('div');
+      lineEl.className = 'code-line';
+      lineEl.dataset.line = index + 1;  // 1-indexed
+      lineEl.textContent = line || ' ';  // Empty lines need content for height
+      codeDisplay.appendChild(lineEl);
+    });
     codeEditor.classList.add('hidden');
     codeDisplay.classList.remove('hidden');
     outputRenderer.clear();
+
+    // Helper to highlight a line
+    function highlightLine(lineNumber) {
+      // Remove previous highlight
+      const prev = codeDisplay.querySelector('.line-executing');
+      if (prev) prev.classList.remove('line-executing');
+      // Add new highlight
+      const lineEl = codeDisplay.querySelector(`[data-line="${lineNumber}"]`);
+      if (lineEl) lineEl.classList.add('line-executing');
+    }
 
     // Set global frame before execution
     if (showInterpreter) {
@@ -192,6 +212,12 @@ function init() {
     currentInterpreter = new Interpreter({
       stepDelay: animated ? STEP_DELAY_MS : 0,
       stepping: stepping,
+      onNodeEnter: (animated || stepping) ? (node) => {
+        const line = node.line || node.token?.line;
+        if (line) {
+          highlightLine(line);
+        }
+      } : undefined,
       onStep: stepping ? () => {
         // Return a promise that resolves when user clicks Step
         return new Promise(resolve => {
@@ -239,6 +265,16 @@ function init() {
         return value;
       },
       isKeyPressed: (key) => keysPressed.has(key),
+      onPause: async () => {
+        // Render any pending output before pausing
+        outputRenderer.renderOutput(printedOutput);
+        // Show resume button and wait for click
+        resumeBtn.classList.remove('hidden');
+        await new Promise(resolve => {
+          pauseResolve = resolve;
+        });
+        resumeBtn.classList.add('hidden');
+      },
       onClear: () => outputRenderer.clearCanvas(),
       onColor: (hex) => outputRenderer.setColor(hex),
       onRect: (x, y, w, h) => outputRenderer.drawRect(x, y, w, h),
@@ -263,16 +299,20 @@ function init() {
     } catch (error) {
       // Don't show error if program was intentionally stopped
       if (error.message !== 'Program stopped') {
-        outputRenderer.renderErrors([], [], [{ message: error.message }]);
+        // Render any output that was produced before the error
+        outputRenderer.renderOutput(printedOutput);
+        // Append the error message
+        outputRenderer.appendError(error.message);
       }
     }
 
-    // Only update state to done if not already reset
+    // Update state when program completes
     if (state === 'running' || state === 'stepping') {
       state = 'done';
       stepResolve = null;
+      currentInterpreter = null;
       updateUI();
-      // Only show interpreter pane after completion for debug/step mode
+      // Show interpreter pane if it was shown during execution
       if (showInterpreter) {
         showInterpreterPane();
       }
@@ -301,7 +341,7 @@ function init() {
     }
   }
 
-  // Reset - clear and return to edit mode
+  // Reset - clear and return to edit mode (preserves canvas output)
   function reset() {
     // Stop any running interpreter
     if (currentInterpreter) {
@@ -313,14 +353,28 @@ function init() {
       stepResolve();
       stepResolve = null;
     }
+    // Resolve any pending pause
+    if (pauseResolve) {
+      pauseResolve();
+      pauseResolve = null;
+    }
+    // Hide resume button
+    resumeBtn.classList.add('hidden');
     state = 'edit';
     currentParseResult = null;
     currentLexResult = null;
     memoryRenderer.clear();
-    outputRenderer.clear();
-    outputRenderer.hideCanvas();
+    // Don't clear output or hide canvas - preserve what was drawn
     hideInterpreterPane();
     updateUI();
+  }
+
+  // Resume function - called when resume button is clicked
+  function resume() {
+    if (pauseResolve) {
+      pauseResolve();
+      pauseResolve = null;
+    }
   }
 
   // Event listeners
@@ -328,7 +382,21 @@ function init() {
   debugBtn.addEventListener('click', debug);
   runBtn.addEventListener('click', run);
   stopBtn.addEventListener('click', reset);
+  resumeBtn.addEventListener('click', resume);
   codeEditor.addEventListener('input', updateLineCount);
+
+  // Handle Tab key in code editor - insert spaces instead of changing focus
+  codeEditor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = codeEditor.selectionStart;
+      const end = codeEditor.selectionEnd;
+      const spaces = '  '; // 2 spaces for indent
+      codeEditor.value = codeEditor.value.substring(0, start) + spaces + codeEditor.value.substring(end);
+      codeEditor.selectionStart = codeEditor.selectionEnd = start + spaces.length;
+      updateLineCount();
+    }
+  });
 
   // Language Help toggle
   const helpTabBtn = document.getElementById('help-tab-btn');

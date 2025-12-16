@@ -1,7 +1,7 @@
 // Tiny - Expression Evaluator
 // Walks the AST and computes values
 
-import { CANVAS_WIDTH, CANVAS_HEIGHT, MAX_LOOP_ITERATIONS, COLORS } from './constants.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, MAX_LOOP_ITERATIONS, COLORS, SLOW_DELAY_MS, SLOWER_DELAY_MS } from './constants.js';
 import { Environment, TinyFunction, TinyClass, TinyInstance, ReturnValue, RuntimeError } from './runtime.js';
 
 export class Interpreter {
@@ -30,6 +30,7 @@ export class Interpreter {
     this.stepDelay = options.stepDelay || 0;
     this.stepping = options.stepping || false;
     this.onStep = options.onStep || null;
+    this.onPause = options.onPause || null;  // Called when pause() is executed
     this.environment = new Environment();
     this.stopped = false;
   }
@@ -66,12 +67,13 @@ export class Interpreter {
   async execute(node) {
     this.checkStopped();
 
+    // Highlight the current line before waiting for step
+    await this.enterNode(node, true);  // true = this is a statement, apply delay
+
     // Step mode: wait for user to click Step before each statement
     if (this.stepping && this.onStep) {
       await this.onStep();
     }
-
-    await this.enterNode(node);
 
     let result;
     switch (node.type) {
@@ -748,6 +750,41 @@ export class Interpreter {
         return this.getCanvasHeight();
       }
 
+      case 'pause': {
+        if (args.length !== 0) {
+          throw new RuntimeError('pause() takes no arguments');
+        }
+        // Wait for keypress before continuing (if callback provided)
+        if (this.onPause) {
+          await this.onPause();
+        }
+        return null;
+      }
+
+      case 'slow': {
+        if (args.length !== 0) {
+          throw new RuntimeError('slow() takes no arguments');
+        }
+        this.stepDelay = SLOW_DELAY_MS;
+        return null;
+      }
+
+      case 'slower': {
+        if (args.length !== 0) {
+          throw new RuntimeError('slower() takes no arguments');
+        }
+        this.stepDelay = SLOWER_DELAY_MS;
+        return null;
+      }
+
+      case 'fast': {
+        if (args.length !== 0) {
+          throw new RuntimeError('fast() takes no arguments');
+        }
+        this.stepDelay = 0;  // No delay, same as run mode
+        return null;
+      }
+
       default:
         return undefined;  // Not a builtin
     }
@@ -769,10 +806,13 @@ export class Interpreter {
     throw new RuntimeError('Key input not supported in this environment');
   }
 
-  // Visualization hooks - only called when stepDelay > 0 (debug/step mode)
-  async enterNode(node) {
-    if (this.stepDelay > 0 && this.onNodeEnter) {
+  // Visualization hooks - called in debug mode (stepDelay > 0) or stepping mode
+  async enterNode(node, isStatement = false) {
+    if (this.onNodeEnter && (this.stepDelay > 0 || this.stepping)) {
       this.onNodeEnter(node);
+    }
+    // Only delay for statements, not expressions
+    if (isStatement && this.stepDelay > 0) {
       await this.delay(this.stepDelay);
     }
   }

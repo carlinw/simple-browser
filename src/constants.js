@@ -6,6 +6,8 @@ export const CANVAS_HEIGHT = 300;
 
 // Animation timing
 export const STEP_DELAY_MS = 5000;
+export const SLOW_DELAY_MS = 1000;
+export const SLOWER_DELAY_MS = 2000;
 
 // Safety limits
 export const MAX_LOOP_ITERATIONS = 10000;
