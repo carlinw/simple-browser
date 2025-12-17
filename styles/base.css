@@ -100,6 +100,15 @@ button:disabled {
   background: #5a6268;
 }
 
+#load-btn {
+  background: #17a2b8;
+  color: white;
+}
+
+#load-btn:hover:not(:disabled) {
+  background: #138496;
+}
+
 #help-btn {
   background: transparent;
   color: var(--color-text);

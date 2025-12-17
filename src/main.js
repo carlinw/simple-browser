@@ -40,6 +40,7 @@ function init() {
   const runBtn = document.getElementById('run-btn');
   const stopBtn = document.getElementById('stop-btn');
   const resumeBtn = document.getElementById('resume-btn');
+  const loadBtn = document.getElementById('load-btn');
   const output = document.getElementById('output');
   const lineCount = document.getElementById('line-count');
   const interpreterPane = document.getElementById('interpreter-pane');
@@ -82,6 +83,7 @@ function init() {
         debugBtn.disabled = false;
         runBtn.disabled = false;
         stopBtn.disabled = true;
+        loadBtn.disabled = false;
         codeEditor.disabled = false;
         codeEditor.classList.remove('hidden');
         codeDisplay.classList.add('hidden');
@@ -92,6 +94,7 @@ function init() {
         debugBtn.disabled = true;
         runBtn.disabled = true;
         stopBtn.disabled = false;
+        loadBtn.disabled = true;
         codeEditor.disabled = true;
         codeEditor.classList.add('hidden');
         codeDisplay.classList.remove('hidden');
@@ -102,6 +105,7 @@ function init() {
         debugBtn.disabled = true;
         runBtn.disabled = true;
         stopBtn.disabled = false;
+        loadBtn.disabled = true;
         codeEditor.disabled = true;
         break;
 
@@ -110,6 +114,7 @@ function init() {
         debugBtn.disabled = false;
         runBtn.disabled = false;
         stopBtn.disabled = false;
+        loadBtn.disabled = false;
         codeEditor.disabled = true;
         codeEditor.classList.add('hidden');
         codeDisplay.classList.remove('hidden');
@@ -377,12 +382,51 @@ function init() {
     }
   }
 
+  // Load - fetch a .tpl file from URL
+  async function load() {
+    const url = prompt('Enter URL to a .tpl file:');
+
+    // User cancelled
+    if (url === null) {
+      return;
+    }
+
+    // Empty input
+    if (!url.trim()) {
+      outputRenderer.renderErrors([], [], [{ message: 'No URL provided.' }]);
+      return;
+    }
+
+    // Validate .tpl extension
+    if (!url.toLowerCase().endsWith('.tpl')) {
+      outputRenderer.renderErrors([], [], [{ message: 'URL must end with .tpl' }]);
+      return;
+    }
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const content = await response.text();
+      codeEditor.value = content;
+      updateLineCount();
+      outputRenderer.clear();
+      outputRenderer.renderMessage(`Loaded: ${url}`);
+    } catch (error) {
+      outputRenderer.renderErrors([], [], [{ message: `Failed to load: ${error.message}` }]);
+    }
+  }
+
   // Event listeners
   stepBtn.addEventListener('click', step);
   debugBtn.addEventListener('click', debug);
   runBtn.addEventListener('click', run);
   stopBtn.addEventListener('click', reset);
   resumeBtn.addEventListener('click', resume);
+  loadBtn.addEventListener('click', load);
   codeEditor.addEventListener('input', updateLineCount);
 
   // Handle Tab key in code editor - insert spaces instead of changing focus
