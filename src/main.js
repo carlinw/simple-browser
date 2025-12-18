@@ -382,6 +382,17 @@ function init() {
     }
   }
 
+  // Check if a URL is same-origin
+  function isSameOrigin(url) {
+    try {
+      const targetUrl = new URL(url);
+      const currentUrl = new URL(window.location.href);
+      return targetUrl.origin === currentUrl.origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Load - fetch a .tpl file from URL
   async function load() {
     const url = prompt('Enter URL to a .tpl file:');
@@ -404,7 +415,9 @@ function init() {
     }
 
     try {
-      const response = await fetch(url);
+      // Use proxy for cross-origin requests to bypass CORS
+      const fetchUrl = isSameOrigin(url) ? url : `/fetch?url=${encodeURIComponent(url)}`;
+      const response = await fetch(fetchUrl);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);

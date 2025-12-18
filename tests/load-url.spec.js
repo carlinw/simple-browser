@@ -221,3 +221,104 @@ test('.TPL extension is accepted (case insensitive)', async ({ page }) => {
   const editor = page.locator('#code-editor');
   await expect(editor).toHaveValue('print("uppercase")');
 });
+
+// === Proxy Tests (Cloudflare Pages Function) ===
+
+test('cross-origin URL uses proxy endpoint', async ({ page }) => {
+  await page.goto('/');
+
+  let proxyWasCalled = false;
+  const crossOriginUrl = 'http://example.com/program.tpl';
+
+  // Route the proxy endpoint
+  await page.route('**/fetch?url=**', route => {
+    proxyWasCalled = true;
+    const url = new URL(route.request().url());
+    const targetUrl = url.searchParams.get('url');
+
+    // Verify the proxy was called with the correct URL
+    if (targetUrl === crossOriginUrl) {
+      route.fulfill({
+        status: 200,
+        contentType: 'text/plain',
+        body: 'let proxy = "works"'
+      });
+    } else {
+      route.fulfill({ status: 400 });
+    }
+  });
+
+  await page.evaluate((url) => {
+    window.prompt = () => url;
+  }, crossOriginUrl);
+
+  await page.click('#load-btn');
+
+  await page.waitForFunction(() => {
+    const editor = document.getElementById('code-editor');
+    return editor && editor.value.includes('proxy');
+  }, { timeout: 5000 });
+
+  const editor = page.locator('#code-editor');
+  await expect(editor).toHaveValue('let proxy = "works"');
+});
+
+test('proxy error shows error message', async ({ page }) => {
+  await page.goto('/');
+
+  // Route the proxy endpoint to return an error
+  await page.route('**/fetch?url=**', route => {
+    route.fulfill({
+      status: 500,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'Failed to fetch remote URL' })
+    });
+  });
+
+  await page.evaluate(() => {
+    window.prompt = () => 'http://example.com/broken.tpl';
+  });
+
+  await page.click('#load-btn');
+
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('500');
+  }, { timeout: 5000 });
+
+  const output = await getOutput(page);
+  expect(output).toContain('500');
+});
+
+test('same-origin URL does not use proxy', async ({ page }) => {
+  await page.goto('/');
+
+  let directFetchCalled = false;
+
+  // Route direct fetch (same origin)
+  await page.route('**/local.tpl', route => {
+    // Only match if NOT going through proxy
+    if (!route.request().url().includes('/fetch?url=')) {
+      directFetchCalled = true;
+      route.fulfill({
+        status: 200,
+        contentType: 'text/plain',
+        body: 'let direct = "fetch"'
+      });
+    }
+  });
+
+  await page.evaluate(() => {
+    window.prompt = () => 'http://localhost:8080/local.tpl';
+  });
+
+  await page.click('#load-btn');
+
+  await page.waitForFunction(() => {
+    const editor = document.getElementById('code-editor');
+    return editor && editor.value.includes('direct');
+  }, { timeout: 5000 });
+
+  const editor = page.locator('#code-editor');
+  await expect(editor).toHaveValue('let direct = "fetch"');
+});

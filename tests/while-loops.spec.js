@@ -102,3 +102,61 @@ test('while loop executes during animated debug', async ({ page }) => {
   const output = await page.locator('#output').textContent();
   expect(output).toContain('2');
 });
+
+// Loop Limit Tests
+
+test('looplimit sets custom iteration limit', async ({ page }) => {
+  await page.goto('/');
+  // Set limit to 5, then run a loop that would hit it
+  await page.fill('#code-editor', 'looplimit(5)\nlet i = 0\nwhile (true) { i = i + 1 }');
+  await page.click('#run-btn');
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Infinite loop');
+  }, { timeout: 5000 });
+  const output = await page.locator('#output').textContent();
+  expect(output).toContain('exceeded 5 iterations');
+});
+
+test('looplimit allows more iterations than default', async ({ page }) => {
+  await page.goto('/');
+  // Set limit to 15000, run loop 12000 times (would fail with default 10000)
+  const output = await runCode(page, 'looplimit(15000)\nlet i = 0\nwhile (i < 12000) { i = i + 1 }\nprint(i)');
+  expect(output).toContain('12000');
+});
+
+test('looplimit requires integer argument', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'looplimit("hello")');
+  await page.click('#run-btn');
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Error');
+  }, { timeout: 5000 });
+  const output = await page.locator('#output').textContent();
+  expect(output).toContain('integer');
+});
+
+test('looplimit requires positive number', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'looplimit(-5)');
+  await page.click('#run-btn');
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Error');
+  }, { timeout: 5000 });
+  const output = await page.locator('#output').textContent();
+  expect(output).toContain('positive');
+});
+
+test('looplimit requires exactly one argument', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'looplimit()');
+  await page.click('#run-btn');
+  await page.waitForFunction(() => {
+    const output = document.getElementById('output');
+    return output && output.textContent.includes('Error');
+  }, { timeout: 5000 });
+  const output = await page.locator('#output').textContent();
+  expect(output).toContain('1 argument');
+});

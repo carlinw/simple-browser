@@ -39,6 +39,7 @@
     <aside id="toc">
       <h2>Contents</h2>
       <ul>
+        <li><a href="#hello-world">Hello World</a></li>
         <li>
           <a href="#literals">Literals</a>
           <ul class="toc-subsections">
@@ -48,7 +49,6 @@
             <li><a href="#arrays">Arrays</a></li>
           </ul>
         </li>
-        <li><a href="#hello-world">Hello World</a></li>
         <li>
           <a href="#variables">Variables</a>
           <ul class="toc-subsections">
@@ -100,6 +100,14 @@
     </aside>
 
     <article id="content">
+      <!-- Hello World -->
+      <section id="hello-world">
+        <h2>Hello World</h2>
+        <p>The classic first program - print a message to the output:</p>
+        <pre class="code-block"><code>print("Hello, World!")</code></pre>
+        <p>Click <strong>Run</strong> to see the output. Click <strong>Step</strong> to execute one step at a time and watch the interpreter work.</p>
+      </section>
+
       <!-- Literals -->
       <section id="literals">
         <h2>Literals</h2>
@@ -195,14 +203,6 @@ print(squares)  // [0, 1, 4, 9, 16]</code></pre>
 print(matrix[0][1])  // 2</code></pre>
       </section>
 
-      <!-- Hello World -->
-      <section id="hello-world">
-        <h2>Hello World</h2>
-        <p>The classic first program - print a message to the output:</p>
-        <pre class="code-block"><code>print("Hello, World!")</code></pre>
-        <p>Click <strong>Run</strong> to see the output. Click <strong>Step</strong> to execute one step at a time and watch the interpreter work.</p>
-      </section>
-
       <!-- Variables (main section) -->
       <section id="variables">
         <h2>Variables</h2>
@@ -226,7 +226,7 @@ print(matrix[0][1])  // 2</code></pre>
 
         <h4>Built-in Functions</h4>
         <p class="keyword-list">
-          <code>circle</code> <code>clear</code> <code>color</code> <code>fast</code> <code>fill</code> <code>fullscreen</code> <code>height</code> <code>input</code> <code>key</code> <code>line</code> <code>num</code> <code>pause</code> <code>pressed</code> <code>print</code> <code>random</code> <code>rect</code> <code>sleep</code> <code>slow</code> <code>slower</code> <code>stroke</code> <code>text</code> <code>triangle</code> <code>width</code>
+          <code>circle</code> <code>clear</code> <code>color</code> <code>fast</code> <code>fill</code> <code>fullscreen</code> <code>height</code> <code>input</code> <code>key</code> <code>line</code> <code>looplimit</code> <code>num</code> <code>pause</code> <code>pressed</code> <code>print</code> <code>random</code> <code>rect</code> <code>sleep</code> <code>slow</code> <code>slower</code> <code>stroke</code> <code>text</code> <code>triangle</code> <code>width</code>
         </p>
 
         <h4>Built-in Methods</h4>
@@ -509,7 +509,7 @@ while (i < 5) {
 
         <div class="info-box">
           <h4>Loop Limit</h4>
-          <p>To prevent infinite loops from freezing your browser, loops are limited to <strong>10,000 iterations</strong>. If exceeded, the program stops with an error.</p>
+          <p>To prevent infinite loops from freezing your browser, loops are limited to <strong>10,000 iterations</strong> by default. If exceeded, the program stops with an error. Use <code>looplimit(n)</code> to change the limit.</p>
         </div>
       </section>
 
@@ -560,11 +560,6 @@ while (i < 5) {
               <td>Random integer in range [min, max]</td>
               <td><code>random(1, 6)</code></td>
             </tr>
-            <tr>
-              <td><code>sleep(ms)</code></td>
-              <td>Pause execution for milliseconds</td>
-              <td><code>sleep(1000)</code></td>
-            </tr>
           </tbody>
         </table>
       </section>
@@ -594,6 +589,14 @@ while (i < 5) {
             <tr>
               <td><code>fast()</code></td>
               <td>Remove step delay (instant, like Run mode)</td>
+            </tr>
+            <tr>
+              <td><code>sleep(ms)</code></td>
+              <td>Pause execution for specified milliseconds</td>
+            </tr>
+            <tr>
+              <td><code>looplimit(n)</code></td>
+              <td>Set max loop iterations (default: 10000)</td>
             </tr>
           </tbody>
         </table>

@@ -33,6 +33,7 @@ export class Interpreter {
     this.onPause = options.onPause || null;  // Called when pause() is executed
     this.environment = new Environment();
     this.stopped = false;
+    this.maxLoopIterations = MAX_LOOP_ITERATIONS;
   }
 
   // Stop the interpreter
@@ -112,8 +113,8 @@ export class Interpreter {
 
         while (this.isTruthy(await this.evaluate(node.condition))) {
           this.checkStopped();
-          if (++iterations > MAX_LOOP_ITERATIONS) {
-            throw new RuntimeError(`Infinite loop detected (exceeded ${MAX_LOOP_ITERATIONS} iterations)`);
+          if (++iterations > this.maxLoopIterations) {
+            throw new RuntimeError(`Infinite loop detected (exceeded ${this.maxLoopIterations} iterations)`);
           }
           result = await this.execute(node.body);
         }
@@ -791,6 +792,21 @@ export class Interpreter {
           throw new RuntimeError('fast() takes no arguments');
         }
         this.stepDelay = 0;  // No delay, same as run mode
+        return null;
+      }
+
+      case 'looplimit': {
+        if (args.length !== 1) {
+          throw new RuntimeError('looplimit() takes 1 argument');
+        }
+        const limit = args[0];
+        if (typeof limit !== 'number' || !Number.isInteger(limit)) {
+          throw new RuntimeError('looplimit() requires an integer');
+        }
+        if (limit <= 0) {
+          throw new RuntimeError('looplimit() requires a positive number');
+        }
+        this.maxLoopIterations = limit;
         return null;
       }
 
