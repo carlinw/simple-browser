@@ -6,7 +6,8 @@
   line-height: 1.5;
   padding: 0.75rem;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
   resize: none;
   outline: none;
 }
@@ -27,7 +28,8 @@
   line-height: 1.5;
   padding: 0.75rem;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
   background: white;
   overflow: auto;
   white-space: pre-wrap;

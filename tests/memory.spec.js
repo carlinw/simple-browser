@@ -1,77 +1,69 @@
 const { test, expect } = require('@playwright/test');
-const { runDebug } = require('./helpers');
+const { runUntilPause } = require('./helpers');
 
-// UI Tests - Memory pane is now the only section in the interpreter pane (no tabs)
+// Memory Display Tests - stack frames visible when paused
 
-test('memory pane is visible after debug', async ({ page }) => {
+test('debug panel is visible after pause', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42\nprint("done")');
-  await page.click('#debug-btn');
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  // Wait for execution to complete
-  await page.waitForFunction(() => {
-    const runBtn = document.getElementById('run-btn');
-    const debugBtn = document.getElementById('debug-btn');
-    return runBtn && debugBtn && !runBtn.disabled && !debugBtn.disabled;
-  }, { timeout: 60000 });
-
-  // Memory pane (tab-memory) should be visible
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toBeVisible();
+  // Debug stack frames should be visible
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toBeVisible();
 });
 
-test('memory shows legend after debug', async ({ page }) => {
+test('memory shows legend after pause', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 42\nprint("done")');
+  await runUntilPause(page, 'let x = 42\npause()');
 
   // Memory should show the legend with type colors
   const legend = page.locator('.memory-legend');
   await expect(legend).toBeVisible();
 });
 
-test('memory shows variables after execution', async ({ page }) => {
+test('memory shows variables when paused', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 42\nprint("done")');
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  // After execution, should show variables
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('x');
-  await expect(memoryContent).toContainText('42');
+  // Should show variables
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('x');
+  await expect(stackFrames).toContainText('42');
 });
 
 // Variable Display Tests
 
 test('variables appear after let statement', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 42\nprint("done")');
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('x');
-  await expect(memoryContent).toContainText('42');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('x');
+  await expect(stackFrames).toContainText('42');
 });
 
 test('multiple variables displayed', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let a = 1\nlet b = 2\nlet c = 3\nprint("done")');
+  await runUntilPause(page, 'let a = 1\nlet b = 2\nlet c = 3\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('a');
-  await expect(memoryContent).toContainText('b');
-  await expect(memoryContent).toContainText('c');
-  await expect(memoryContent).toContainText('1');
-  await expect(memoryContent).toContainText('2');
-  await expect(memoryContent).toContainText('3');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('a');
+  await expect(stackFrames).toContainText('b');
+  await expect(stackFrames).toContainText('c');
+  await expect(stackFrames).toContainText('1');
+  await expect(stackFrames).toContainText('2');
+  await expect(stackFrames).toContainText('3');
 });
 
 test('variable values update on assignment', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 1\nx = 2\nprint("done")');
+  await runUntilPause(page, 'let x = 1\nx = 2\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('x');
-  await expect(memoryContent).toContainText('2');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('x');
+  await expect(stackFrames).toContainText('2');
   // Should not show old value
-  const text = await memoryContent.textContent();
+  const text = await stackFrames.textContent();
   // x should show 2, not 1 (there's only one x)
   const xCount = (text.match(/\bx\b/g) || []).length;
   expect(xCount).toBe(1);
@@ -81,66 +73,66 @@ test('variable values update on assignment', async ({ page }) => {
 
 test('integer type displayed', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let n = 42\nprint("done")');
+  await runUntilPause(page, 'let n = 42\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('int');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('int');
 });
 
 test('float type displayed', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let f = 3.14\nprint("done")');
+  await runUntilPause(page, 'let f = 3.14\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('float');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('float');
 });
 
 test('string type displayed', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let s = "hello"\nprint("done")');
+  await runUntilPause(page, 'let s = "hello"\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('str');
-  await expect(memoryContent).toContainText('"hello"');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('str');
+  await expect(stackFrames).toContainText('"hello"');
 });
 
 test('boolean type displayed', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let b = true\nprint("done")');
+  await runUntilPause(page, 'let b = true\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('bool');
-  await expect(memoryContent).toContainText('true');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('bool');
+  await expect(stackFrames).toContainText('true');
 });
 
 test('type changes when variable reassigned', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 42\nx = "hello"\nprint("done")');
+  await runUntilPause(page, 'let x = 42\nx = "hello"\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
+  const stackFrames = page.locator('#debug-stack-frames');
   // After reassignment, type should be str
-  await expect(memoryContent).toContainText('str');
-  await expect(memoryContent).toContainText('"hello"');
+  await expect(stackFrames).toContainText('str');
+  await expect(stackFrames).toContainText('"hello"');
 });
 
 // Integration Tests
 
 test('memory cleared on reset', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 42\nprint("done")');
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  await expect(page.locator('#tab-memory')).toContainText('x');
+  await expect(page.locator('#debug-stack-frames')).toContainText('x');
 
   await page.click('#stop-btn');
 
-  // Memory should be cleared
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).not.toContainText('x');
+  // Debug panel should be hidden
+  const debugPanel = page.locator('#debug-panel');
+  await expect(debugPanel).toHaveClass(/hidden/);
 });
 
 test('memory legend shows type colors', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 42\nprint("done")');
+  await runUntilPause(page, 'let x = 42\npause()');
 
   // Legend should have Integer, Float, String, Boolean
   const legend = page.locator('.memory-legend');
@@ -152,25 +144,25 @@ test('memory legend shows type colors', async ({ page }) => {
 
 test('variables from expression are in memory', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 10\nlet y = 20\nlet sum = x + y\nprint("done")');
+  await runUntilPause(page, 'let x = 10\nlet y = 20\nlet sum = x + y\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('x');
-  await expect(memoryContent).toContainText('y');
-  await expect(memoryContent).toContainText('sum');
-  await expect(memoryContent).toContainText('30');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('x');
+  await expect(stackFrames).toContainText('y');
+  await expect(stackFrames).toContainText('sum');
+  await expect(stackFrames).toContainText('30');
 });
 
 test('output pane shows program results', async ({ page }) => {
   await page.goto('/');
-  await runDebug(page, 'let x = 42\nprint(x + 1)');
+  await runUntilPause(page, 'let x = 42\nprint(x + 1)\npause()');
 
-  // Output should be in output pane, not memory
+  // Output should be in output pane
   const output = page.locator('#output');
   await expect(output).toContainText('43');
 
   // Memory should show x
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('x');
-  await expect(memoryContent).toContainText('42');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('x');
+  await expect(stackFrames).toContainText('42');
 });

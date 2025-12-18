@@ -87,16 +87,16 @@ test('infinite loop shows output before error', async ({ page }) => {
   expect(output).toContain('Infinite loop detected');
 });
 
-test('while loop executes during animated debug', async ({ page }) => {
+test('while loop executes and prints result', async ({ page }) => {
   await page.goto('/');
   await page.fill('#code-editor', 'let i = 0\nwhile (i < 2) { i = i + 1 }\nprint(i)');
-  await page.click('#debug-btn');
+  await page.click('#run-btn');
 
   // Wait for execution to complete - output should show the final value
   await page.waitForFunction(() => {
     const output = document.getElementById('output');
     return output && output.textContent.includes('2');
-  }, { timeout: 60000 });
+  }, { timeout: 5000 });
 
   // Verify the final value
   const output = await page.locator('#output').textContent();

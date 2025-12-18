@@ -105,7 +105,7 @@
         <h2>Hello World</h2>
         <p>The classic first program - print a message to the output:</p>
         <pre class="code-block"><code>print("Hello, World!")</code></pre>
-        <p>Click <strong>Run</strong> to see the output. Click <strong>Step</strong> to execute one step at a time and watch the interpreter work.</p>
+        <p>Click <strong>Run</strong> to see the output. Add <code>pause()</code> to your code to enter debug mode and inspect variables.</p>
       </section>
 
       <!-- Literals -->
@@ -567,7 +567,7 @@ while (i < 5) {
       <!-- Speed Control (subsection of Functions) -->
       <section id="speed-control" class="subsection">
         <h3>Speed Control</h3>
-        <p>These functions control execution speed during Debug mode. They're useful for slowing down to see what's happening, or speeding up past uninteresting parts.</p>
+        <p>These functions control execution and enable debugging. Use <code>pause()</code> to enter debug mode where you can inspect variables and step through code.</p>
 
         <table class="ref-table">
           <thead>
@@ -576,19 +576,7 @@ while (i < 5) {
           <tbody>
             <tr>
               <td><code>pause()</code></td>
-              <td>Pause execution until Resume button is clicked</td>
-            </tr>
-            <tr>
-              <td><code>slow()</code></td>
-              <td>Set step delay to 1 second</td>
-            </tr>
-            <tr>
-              <td><code>slower()</code></td>
-              <td>Set step delay to 2 seconds</td>
-            </tr>
-            <tr>
-              <td><code>fast()</code></td>
-              <td>Remove step delay (instant, like Run mode)</td>
+              <td>Enter debug mode - shows variables and step buttons</td>
             </tr>
             <tr>
               <td><code>sleep(ms)</code></td>
@@ -598,31 +586,49 @@ while (i < 5) {
               <td><code>looplimit(n)</code></td>
               <td>Set max loop iterations (default: 10000)</td>
             </tr>
+            <tr>
+              <td><code>slow()</code></td>
+              <td>Set step delay to 1 second (for animation)</td>
+            </tr>
+            <tr>
+              <td><code>slower()</code></td>
+              <td>Set step delay to 2 seconds (for animation)</td>
+            </tr>
+            <tr>
+              <td><code>fast()</code></td>
+              <td>Remove step delay (instant execution)</td>
+            </tr>
           </tbody>
         </table>
 
-        <h4>Example: Pause to Inspect</h4>
+        <h4>Debug Mode</h4>
+        <p>When <code>pause()</code> is called, the code pane splits to show the call stack with all variables. Three buttons appear:</p>
+        <ul>
+          <li><strong>Step Into</strong> - Execute ONE statement, entering function calls to step through them line by line</li>
+          <li><strong>Step Over</strong> - Execute ONE statement, running entire functions without stopping inside them</li>
+          <li><strong>Resume</strong> - Continue running until the next <code>pause()</code> or end of program</li>
+        </ul>
+        <p>Stack frames show the function name, parameters, local variables, and which line called the function.</p>
+
+        <h4>Example: Debugging a Loop</h4>
         <pre class="code-block"><code>let total = 0
 let i = 0
-while (i < 10) {
+while (i < 5) {
   total = total + i
   i = i + 1
+  pause()  // inspect variables each iteration
 }
-pause()  // stop here to check the result
 print(total)</code></pre>
 
-        <h4>Example: Speed Up Boring Parts</h4>
-        <pre class="code-block"><code>// Slow initialization
-slow()
-let x = 100
-let y = 100
+        <h4>Example: Debugging a Function</h4>
+        <pre class="code-block"><code>function add(a, b) {
+  let sum = a + b
+  pause()  // see function's local variables
+  return sum
+}
 
-// Fast game loop
-fast()
-while (true) {
-  // game runs at full speed
-  sleep(16)
-}</code></pre>
+let result = add(3, 4)
+print(result)</code></pre>
       </section>
 
       <!-- Keyboard (subsection of Functions) -->

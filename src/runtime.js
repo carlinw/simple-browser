@@ -45,9 +45,22 @@ export class Environment {
     return this.values.has(name);
   }
 
-  // Get all variable names (for visualization - current scope only)
+  // Get all variable names (for visualization - includes parent scopes)
   getAll() {
-    return Array.from(this.values.entries());
+    const variables = new Map();
+    // Walk up the scope chain, collecting all variables
+    // Parent scope variables can be shadowed by child scope variables
+    let env = this;
+    while (env) {
+      for (const [name, value] of env.values.entries()) {
+        // Only add if not already shadowed by a closer scope
+        if (!variables.has(name)) {
+          variables.set(name, value);
+        }
+      }
+      env = env.parent;
+    }
+    return Array.from(variables.entries());
   }
 }
 

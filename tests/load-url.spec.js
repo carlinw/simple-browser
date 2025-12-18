@@ -20,19 +20,16 @@ test('load button is enabled in edit mode', async ({ page }) => {
   await expect(loadBtn).not.toBeDisabled();
 });
 
-test('load button is disabled during debug', async ({ page }) => {
+test('load button is disabled during running', async ({ page }) => {
   await page.goto('/');
 
-  // Use debug mode which runs slower
-  await page.fill('#code-editor', `
-    let i = 0
-    while (i < 5) {
-      i = i + 1
-    }
-  `);
+  // Use pause to keep program running
+  await page.fill('#code-editor', 'pause()');
 
-  // Click debug and check load button
-  await page.click('#debug-btn');
+  // Click run and check load button while paused
+  await page.click('#run-btn');
+  await page.waitForSelector('#resume-btn:not(.hidden)', { timeout: 5000 });
+
   const loadBtn = page.locator('#load-btn');
   await expect(loadBtn).toBeDisabled();
 });

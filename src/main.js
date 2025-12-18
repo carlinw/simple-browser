@@ -35,28 +35,48 @@ function init() {
   // DOM Elements
   const codeEditor = document.getElementById('code-editor');
   const codeDisplay = document.getElementById('code-display');
-  const stepBtn = document.getElementById('step-btn');
-  const debugBtn = document.getElementById('debug-btn');
+  const lineNumbers = document.getElementById('line-numbers');
+  const codeDisplayLineNumbers = document.getElementById('code-display-line-numbers');
   const runBtn = document.getElementById('run-btn');
   const stopBtn = document.getElementById('stop-btn');
-  const resumeBtn = document.getElementById('resume-btn');
   const loadBtn = document.getElementById('load-btn');
+  const stepIntoBtn = document.getElementById('step-into-btn');
+  const stepOverBtn = document.getElementById('step-over-btn');
+  const resumeBtn = document.getElementById('resume-btn');
   const output = document.getElementById('output');
   const lineCount = document.getElementById('line-count');
-  const interpreterPane = document.getElementById('interpreter-pane');
-  const tabMemory = document.getElementById('tab-memory');
+  const codePaneEl = document.getElementById('code-pane');
+  const debugPanel = document.getElementById('debug-panel');
+  const debugStackFrames = document.getElementById('debug-stack-frames');
 
-  // Update line count display
+  // Update line count display and line numbers
   function updateLineCount() {
     const code = codeEditor.value;
     const lines = code ? code.split('\n').length : 0;
     const label = lines === 1 ? 'line' : 'lines';
     lineCount.textContent = `${lines} ${label} of code`;
+
+    // Update line numbers gutter
+    updateLineNumbers(lineNumbers, lines);
+  }
+
+  // Generate line numbers HTML
+  function updateLineNumbers(container, numLines) {
+    const html = [];
+    for (let i = 1; i <= Math.max(1, numLines); i++) {
+      html.push(`<div>${i}</div>`);
+    }
+    container.innerHTML = html.join('');
+  }
+
+  // Sync scroll between editor and line numbers
+  function syncScroll() {
+    lineNumbers.scrollTop = codeEditor.scrollTop;
   }
 
   // Renderers
   const outputRenderer = new OutputRenderer(output);
-  const memoryRenderer = new MemoryRenderer(tabMemory);
+  const memoryRenderer = new MemoryRenderer(debugStackFrames);
 
   // State
   let state = 'edit';  // 'edit' | 'stepping' | 'done' | 'running'
@@ -65,59 +85,70 @@ function init() {
   let currentInterpreter = null;  // Store interpreter so we can stop it
   let stepResolve = null;         // Resolve function for step-by-step execution
   let pauseResolve = null;        // Resolve function for pause() statement
+  let debugStepResolve = null;    // Resolve function for debug stepping (Step Into/Over)
+  let debugMode = false;          // Whether we're in debug mode (paused)
 
-  // Show/hide interpreter pane
-  function showInterpreterPane() {
-    interpreterPane.classList.remove('interpreter-hidden');
+  // Enter debug mode - show stack frames and step buttons
+  function enterDebugMode() {
+    debugMode = true;
+    codePaneEl.classList.add('debug-mode');
+    debugPanel.classList.remove('hidden');
+    stepIntoBtn.classList.remove('hidden');
+    stepOverBtn.classList.remove('hidden');
+    resumeBtn.classList.remove('hidden');
+    // Render current stack frames
+    memoryRenderer.render();
   }
 
-  function hideInterpreterPane() {
-    interpreterPane.classList.add('interpreter-hidden');
+  // Exit debug mode - hide stack frames and step buttons
+  function exitDebugMode() {
+    debugMode = false;
+    codePaneEl.classList.remove('debug-mode');
+    debugPanel.classList.add('hidden');
+    stepIntoBtn.classList.add('hidden');
+    stepOverBtn.classList.add('hidden');
+    resumeBtn.classList.add('hidden');
   }
 
   // Update UI based on state
   function updateUI() {
     switch (state) {
       case 'edit':
-        stepBtn.disabled = false;
-        debugBtn.disabled = false;
         runBtn.disabled = false;
         stopBtn.disabled = true;
+        stopBtn.classList.add('hidden');
         loadBtn.disabled = false;
         codeEditor.disabled = false;
         codeEditor.classList.remove('hidden');
+        lineNumbers.classList.remove('hidden');
         codeDisplay.classList.add('hidden');
-        break;
-
-      case 'stepping':
-        stepBtn.disabled = false;
-        debugBtn.disabled = true;
-        runBtn.disabled = true;
-        stopBtn.disabled = false;
-        loadBtn.disabled = true;
-        codeEditor.disabled = true;
-        codeEditor.classList.add('hidden');
-        codeDisplay.classList.remove('hidden');
+        codeDisplayLineNumbers.classList.add('hidden');
+        exitDebugMode();
         break;
 
       case 'running':
-        stepBtn.disabled = true;
-        debugBtn.disabled = true;
         runBtn.disabled = true;
         stopBtn.disabled = false;
+        stopBtn.classList.remove('hidden');
         loadBtn.disabled = true;
         codeEditor.disabled = true;
+        codeEditor.classList.add('hidden');
+        lineNumbers.classList.add('hidden');
+        codeDisplay.classList.remove('hidden');
+        codeDisplayLineNumbers.classList.remove('hidden');
         break;
 
       case 'done':
-        stepBtn.disabled = true;
-        debugBtn.disabled = false;
         runBtn.disabled = false;
         stopBtn.disabled = false;
+        stopBtn.classList.remove('hidden');
         loadBtn.disabled = false;
         codeEditor.disabled = true;
         codeEditor.classList.add('hidden');
+        lineNumbers.classList.add('hidden');
         codeDisplay.classList.remove('hidden');
+        codeDisplayLineNumbers.classList.remove('hidden');
+        exitDebugMode();
         break;
     }
   }
@@ -157,9 +188,8 @@ function init() {
     return true;
   }
 
-  // Shared execution logic for debug, run, and step modes
-  async function executeCode(options = {}) {
-    const { animated = false, showInterpreter = true, stepping = false } = options;
+  // Shared execution logic for run mode
+  async function executeCode() {
     const source = codeEditor.value;
 
     // Check for empty program before parsing
@@ -175,15 +205,8 @@ function init() {
     const printedOutput = [];
 
     // Set state
-    state = stepping ? 'stepping' : 'running';
+    state = 'running';
     updateUI();
-
-    // Show/hide interpreter pane based on mode
-    if (showInterpreter) {
-      showInterpreterPane();
-    } else {
-      hideInterpreterPane();
-    }
 
     // Set up code display with line elements for highlighting
     codeDisplay.innerHTML = '';
@@ -195,8 +218,15 @@ function init() {
       lineEl.textContent = line || ' ';  // Empty lines need content for height
       codeDisplay.appendChild(lineEl);
     });
+
+    // Update line numbers for code display
+    updateLineNumbers(codeDisplayLineNumbers, lines.length);
+
+    // Switch from editor to display
     codeEditor.classList.add('hidden');
+    lineNumbers.classList.add('hidden');
     codeDisplay.classList.remove('hidden');
+    codeDisplayLineNumbers.classList.remove('hidden');
     outputRenderer.clear();
 
     // Helper to highlight a line
@@ -209,48 +239,41 @@ function init() {
       if (lineEl) lineEl.classList.add('line-executing');
     }
 
-    // Set global frame before execution
-    if (showInterpreter) {
-      memoryRenderer.setGlobalFrame();
-    }
+    // Set global frame before execution (for debug mode when pause is called)
+    memoryRenderer.setGlobalFrame();
 
     currentInterpreter = new Interpreter({
-      stepDelay: animated ? STEP_DELAY_MS : 0,
-      stepping: stepping,
-      onNodeEnter: (animated || stepping) ? (node) => {
-        const line = node.line || node.token?.line;
-        if (line) {
-          highlightLine(line);
+      stepDelay: 0,
+      stepping: false,
+      onNodeEnter: (node) => {
+        // Highlight current line when in debug mode
+        if (debugMode) {
+          const line = node.line || node.token?.line;
+          if (line) {
+            highlightLine(line);
+          }
         }
-      } : undefined,
-      onStep: stepping ? () => {
-        // Return a promise that resolves when user clicks Step
-        return new Promise(resolve => {
-          stepResolve = resolve;
-        });
-      } : undefined,
-      onVariableChange: showInterpreter ? (name, value, action) => {
+      },
+      onVariableChange: (name, value, action) => {
+        // Track variables for debug mode
         memoryRenderer.updateFrame(currentInterpreter.environment);
-        if (animated || stepping) {
+        if (debugMode) {
           memoryRenderer.highlightVariable(name);
         }
-      } : undefined,
+      },
       onPrint: (value) => {
         printedOutput.push(value);
-        if (animated || stepping) {
-          outputRenderer.renderOutput(printedOutput);
-        }
         // In graphics mode, also print to the text area
         if (outputRenderer.hasCanvas()) {
           outputRenderer.printText(value);
         }
       },
-      onCallStart: showInterpreter ? (funcName, args, env) => {
-        memoryRenderer.pushFrame(funcName, args, env);
-      } : undefined,
-      onCallEnd: showInterpreter ? (funcName, result) => {
+      onCallStart: (funcName, args, env, callLine) => {
+        memoryRenderer.pushFrame(funcName, args, env, callLine);
+      },
+      onCallEnd: (funcName, result) => {
         memoryRenderer.popFrame();
-      } : undefined,
+      },
       onInput: async () => {
         // Render current output before showing input field
         outputRenderer.renderOutput(printedOutput);
@@ -273,12 +296,28 @@ function init() {
       onPause: async () => {
         // Render any pending output before pausing
         outputRenderer.renderOutput(printedOutput);
-        // Show resume button and wait for click
-        resumeBtn.classList.remove('hidden');
+        // Enter debug mode - show stack frames and step buttons
+        enterDebugMode();
+        // Highlight current line
+        const line = currentInterpreter.currentLine;
+        if (line) highlightLine(line);
+        // Wait for user to click Step Into, Step Over, or Resume
         await new Promise(resolve => {
           pauseResolve = resolve;
         });
-        resumeBtn.classList.add('hidden');
+      },
+      onDebugStep: async () => {
+        // Render any pending output
+        outputRenderer.renderOutput(printedOutput);
+        // Enter debug mode - show stack frames and step buttons
+        enterDebugMode();
+        // Highlight current line
+        const line = currentInterpreter.currentLine;
+        if (line) highlightLine(line);
+        // Wait for user to click Step Into, Step Over, or Resume
+        await new Promise(resolve => {
+          debugStepResolve = resolve;
+        });
       },
       onClear: () => outputRenderer.clearCanvas(),
       onColor: (hex) => outputRenderer.setColor(hex),
@@ -312,37 +351,50 @@ function init() {
     }
 
     // Update state when program completes
-    if (state === 'running' || state === 'stepping') {
+    if (state === 'running') {
       state = 'done';
-      stepResolve = null;
       currentInterpreter = null;
       updateUI();
-      // Show interpreter pane if it was shown during execution
-      if (showInterpreter) {
-        showInterpreterPane();
-      }
     }
   }
 
-  // Debug - parse + execute with animation delay, shows interpreter pane
-  async function debug() {
-    await executeCode({ animated: true, showInterpreter: true });
-  }
-
-  // Run - parse + execute immediately, hides interpreter pane during execution
+  // Run - parse + execute immediately
   async function run() {
-    await executeCode({ animated: false, showInterpreter: false });
+    await executeCode();
   }
 
-  // Step - execute one statement at a time
-  function step() {
-    if (state === 'edit') {
-      // Start stepping execution
-      executeCode({ animated: false, showInterpreter: true, stepping: true });
-    } else if (state === 'stepping' && stepResolve) {
-      // Continue to next step
-      stepResolve();
-      stepResolve = null;
+  // Step Into - advance one statement, entering function calls
+  function stepInto() {
+    if (currentInterpreter) {
+      currentInterpreter.debugStepping = true;
+      currentInterpreter.stepMode = 'into';
+    }
+    // Resolve pause() or debug step promise
+    if (pauseResolve) {
+      pauseResolve();
+      pauseResolve = null;
+    }
+    if (debugStepResolve) {
+      debugStepResolve();
+      debugStepResolve = null;
+    }
+  }
+
+  // Step Over - advance one statement, executing functions without entering
+  function stepOver() {
+    if (currentInterpreter) {
+      currentInterpreter.debugStepping = true;
+      currentInterpreter.stepMode = 'over';
+      currentInterpreter.stepOverDepth = currentInterpreter.callDepth;
+    }
+    // Resolve pause() or debug step promise
+    if (pauseResolve) {
+      pauseResolve();
+      pauseResolve = null;
+    }
+    if (debugStepResolve) {
+      debugStepResolve();
+      debugStepResolve = null;
     }
   }
 
@@ -353,32 +405,40 @@ function init() {
       currentInterpreter.stop();
       currentInterpreter = null;
     }
-    // Resolve any pending step
-    if (stepResolve) {
-      stepResolve();
-      stepResolve = null;
-    }
-    // Resolve any pending pause
+    // Resolve any pending pause or debug step
     if (pauseResolve) {
       pauseResolve();
       pauseResolve = null;
     }
-    // Hide resume button
-    resumeBtn.classList.add('hidden');
+    if (debugStepResolve) {
+      debugStepResolve();
+      debugStepResolve = null;
+    }
+    // Exit debug mode
+    exitDebugMode();
     state = 'edit';
     currentParseResult = null;
     currentLexResult = null;
     memoryRenderer.clear();
     // Don't clear output or hide canvas - preserve what was drawn
-    hideInterpreterPane();
     updateUI();
   }
 
   // Resume function - called when resume button is clicked
   function resume() {
+    // Disable debug stepping - run until next pause() or end
+    if (currentInterpreter) {
+      currentInterpreter.debugStepping = false;
+    }
+    exitDebugMode();
+    // Resolve pause() or debug step promise
     if (pauseResolve) {
       pauseResolve();
       pauseResolve = null;
+    }
+    if (debugStepResolve) {
+      debugStepResolve();
+      debugStepResolve = null;
     }
   }
 
@@ -434,12 +494,12 @@ function init() {
   }
 
   // Event listeners
-  stepBtn.addEventListener('click', step);
-  debugBtn.addEventListener('click', debug);
   runBtn.addEventListener('click', run);
   stopBtn.addEventListener('click', reset);
-  resumeBtn.addEventListener('click', resume);
   loadBtn.addEventListener('click', load);
+  stepIntoBtn.addEventListener('click', stepInto);
+  stepOverBtn.addEventListener('click', stepOver);
+  resumeBtn.addEventListener('click', resume);
   codeEditor.addEventListener('input', updateLineCount);
 
   // Handle Tab key in code editor - insert spaces instead of changing focus
@@ -490,31 +550,11 @@ function init() {
     }
   });
 
-  // Keyboard navigation for Memory panel
-  const SCROLL_AMOUNT = 50;
-  tabMemory.setAttribute('tabindex', '0');
-  tabMemory.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'ArrowUp':
-        tabMemory.scrollTop -= SCROLL_AMOUNT;
-        e.preventDefault();
-        break;
-      case 'ArrowDown':
-        tabMemory.scrollTop += SCROLL_AMOUNT;
-        e.preventDefault();
-        break;
-      case 'ArrowLeft':
-        tabMemory.scrollLeft -= SCROLL_AMOUNT;
-        e.preventDefault();
-        break;
-      case 'ArrowRight':
-        tabMemory.scrollLeft += SCROLL_AMOUNT;
-        e.preventDefault();
-        break;
-    }
-  });
+  // Sync scroll between editor and line numbers
+  codeEditor.addEventListener('scroll', syncScroll);
 
-  // Initialize UI
+  // Initialize line numbers and UI
+  updateLineCount();
   updateUI();
 }
 

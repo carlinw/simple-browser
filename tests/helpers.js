@@ -13,18 +13,13 @@ async function runFast(page, code) {
 }
 
 /**
- * Run code with Debug button (animated, tracks memory) and wait for completion
+ * Run code that contains pause() and wait for debug mode to be entered
  */
-async function runDebug(page, code) {
+async function runUntilPause(page, code) {
   await page.fill('#code-editor', code);
-  await page.click('#debug-btn');
-  // Wait for execution to complete (state changes to 'done', run button is enabled)
-  await page.waitForFunction(() => {
-    const runBtn = document.getElementById('run-btn');
-    const debugBtn = document.getElementById('debug-btn');
-    // In 'done' state, both buttons are enabled
-    return runBtn && debugBtn && !runBtn.disabled && !debugBtn.disabled;
-  }, { timeout: 120000 });  // 2 minutes for animated execution
+  await page.click('#run-btn');
+  // Wait for debug panel to appear (pause() was hit)
+  await page.waitForSelector('#debug-panel:not(.hidden)', { timeout: 5000 });
 }
 
 /**
@@ -55,7 +50,7 @@ async function getOutput(page) {
 
 module.exports = {
   runFast,
-  runDebug,
+  runUntilPause,
   runFastGraphics,
   runFastMixed,
   getOutput

@@ -197,6 +197,13 @@
   font-style: italic;
 }
 
+.frame-line {
+  color: #888;
+  font-weight: 400;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
 .frame-variables {
   padding: 0.4rem;
 }

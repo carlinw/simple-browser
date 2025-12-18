@@ -1,58 +1,31 @@
 const { test, expect } = require('@playwright/test');
+const { runUntilPause } = require('./helpers');
 
-// Step Button Tests (statement-by-statement execution)
+// Basic UI Tests
 
-test('step button exists', async ({ page }) => {
-  await page.goto('/');
-  const stepBtn = page.locator('#step-btn');
-  await expect(stepBtn).toBeVisible();
-  await expect(stepBtn).toHaveText('Step');
-});
-
-test('stop button exists', async ({ page }) => {
+test('stop button exists but hidden initially', async ({ page }) => {
   await page.goto('/');
   const stopBtn = page.locator('#stop-btn');
-  await expect(stopBtn).toBeVisible();
+  await expect(stopBtn).toHaveCount(1);  // Exists in DOM
+  await expect(stopBtn).toHaveClass(/hidden/);  // But hidden in edit mode
   await expect(stopBtn).toHaveText('Stop');
 });
 
-test('stepping through statements shows memory updates', async ({ page }) => {
+test('code display shows source when paused', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1\nlet y = 2');
-
-  // First click starts stepping
-  await page.click('#step-btn');
-
-  // Memory should show x after first statement
-  await page.click('#step-btn');
-  const memory1 = await page.locator('#tab-memory').textContent();
-  expect(memory1).toContain('x');
-
-  // Memory should show y after second statement
-  await page.click('#step-btn');
-  const memory2 = await page.locator('#tab-memory').textContent();
-  expect(memory2).toContain('y');
-});
-
-test('first step shows source code in display', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x = 5');
-
-  // First click initializes - code display should show the source
-  await page.click('#step-btn');
+  await runUntilPause(page, 'let x = 5\npause()');
 
   const codeDisplay = page.locator('#code-display');
   await expect(codeDisplay).toBeVisible();
 
-  // Code display should contain the source code (not be empty)
+  // Code display should contain the source code
   const displayText = await codeDisplay.textContent();
   expect(displayText).toContain('let x = 5');
 });
 
-test('stop button resets to edit mode', async ({ page }) => {
+test('stop button resets to edit mode from debug mode', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1');
-  await page.click('#step-btn');
+  await runUntilPause(page, 'pause()\nlet x = 1');
   await page.click('#stop-btn');
 
   // Textarea should be visible and editable
@@ -61,29 +34,9 @@ test('stop button resets to edit mode', async ({ page }) => {
   await expect(editor).not.toBeDisabled();
 });
 
-test('stepping completes when all statements done', async ({ page }) => {
+test('cannot edit while running/paused', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1');
-
-  // Initialize stepping
-  await page.click('#step-btn');
-
-  // Keep stepping until step button is disabled (completion)
-  const stepBtn = page.locator('#step-btn');
-  for (let i = 0; i < 10; i++) {
-    if (await stepBtn.isDisabled()) break;
-    await page.click('#step-btn');
-    await page.waitForTimeout(50);
-  }
-
-  // Step button should be disabled after completion
-  await expect(stepBtn).toBeDisabled();
-});
-
-test('cannot edit while stepping', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x = 5');
-  await page.click('#step-btn');
+  await runUntilPause(page, 'pause()\nlet x = 5');
 
   // Editor should be hidden
   const editor = page.locator('#code-editor');
@@ -92,21 +45,6 @@ test('cannot edit while stepping', async ({ page }) => {
   // Code display should be visible instead
   const codeDisplay = page.locator('#code-display');
   await expect(codeDisplay).toBeVisible();
-});
-
-test('stepping shows interpreter pane', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1');
-
-  // Before stepping, interpreter pane is hidden
-  const interpreterPane = page.locator('#interpreter-pane');
-  await expect(interpreterPane).toHaveClass(/interpreter-hidden/);
-
-  // Start stepping
-  await page.click('#step-btn');
-
-  // Interpreter pane should be visible
-  await expect(interpreterPane).not.toHaveClass(/interpreter-hidden/);
 });
 
 // Language Help Tests (language help shows fullscreen when tab is clicked)

@@ -1,21 +1,7 @@
 const { test, expect } = require('@playwright/test');
-const { runFast } = require('./helpers');
+const { runFast, runUntilPause } = require('./helpers');
 
 // UI Tests (buttons)
-
-test('step button exists', async ({ page }) => {
-  await page.goto('/');
-  const stepBtn = page.locator('#step-btn');
-  await expect(stepBtn).toBeVisible();
-  await expect(stepBtn).toHaveText('Step');
-});
-
-test('debug button exists', async ({ page }) => {
-  await page.goto('/');
-  const debugBtn = page.locator('#debug-btn');
-  await expect(debugBtn).toBeVisible();
-  await expect(debugBtn).toHaveText('Debug');
-});
 
 test('run button exists', async ({ page }) => {
   await page.goto('/');
@@ -24,31 +10,12 @@ test('run button exists', async ({ page }) => {
   await expect(runBtn).toHaveText('Run');
 });
 
-test('debug button shows interpreter pane', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', '2 + 3');
-  await page.click('#debug-btn');
-
-  // Interpreter pane should be visible
-  const interpreterPane = page.locator('#interpreter-pane');
-  await expect(interpreterPane).not.toHaveClass(/interpreter-hidden/);
-});
-
 test('run button executes immediately', async ({ page }) => {
   await page.goto('/');
   await runFast(page, 'print(2 + 3)');
 
   const outputContent = await page.locator('#output').textContent();
   expect(outputContent).toContain('5');
-});
-
-test('run button does not show interpreter pane', async ({ page }) => {
-  await page.goto('/');
-  await runFast(page, 'print(2 + 3)');
-
-  // Interpreter pane should remain hidden after Run completes
-  const interpreterPane = page.locator('#interpreter-pane');
-  await expect(interpreterPane).toHaveClass(/interpreter-hidden/);
 });
 
 // Interpreter Tests
@@ -160,17 +127,15 @@ test('string concatenation works', async ({ page }) => {
 
 // Debug mode Tests
 
-test('debug button shows memory pane', async ({ page }) => {
+test('pause() shows debug panel with variables', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#debug-btn');
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  // Wait for execution to start
-  await page.waitForTimeout(500);
-
-  // Memory pane should be visible
-  const memoryPane = page.locator('#tab-memory');
-  await expect(memoryPane).toBeVisible();
+  // Debug panel should be visible with variable
+  const debugPanel = page.locator('#debug-stack-frames');
+  await expect(debugPanel).toBeVisible();
+  await expect(debugPanel).toContainText('x');
+  await expect(debugPanel).toContainText('42');
 });
 
 // Negative Tests

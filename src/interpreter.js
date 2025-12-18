@@ -31,9 +31,17 @@ export class Interpreter {
     this.stepping = options.stepping || false;
     this.onStep = options.onStep || null;
     this.onPause = options.onPause || null;  // Called when pause() is executed
+    this.onDebugStep = options.onDebugStep || null;  // Called after each statement when debug stepping
     this.environment = new Environment();
     this.stopped = false;
     this.maxLoopIterations = MAX_LOOP_ITERATIONS;
+    // Debug stepping mode
+    this.debugStepping = false;  // Whether we're in single-step debug mode
+    this.stepMode = 'into';  // 'into' | 'over'
+    this.stepOverDepth = 0;  // Call depth when step over was triggered
+    this.callDepth = 0;      // Current call stack depth
+    this.currentLine = null; // Current line being executed (for debug highlighting)
+    this.skipNextDebugStep = false;  // Skip the next onDebugStep (after pause() returns)
   }
 
   // Stop the interpreter
@@ -71,7 +79,7 @@ export class Interpreter {
     // Highlight the current line before waiting for step
     await this.enterNode(node, true);  // true = this is a statement, apply delay
 
-    // Step mode: wait for user to click Step before each statement
+    // Old step mode (for Step button, deprecated)
     if (this.stepping && this.onStep) {
       await this.onStep();
     }
@@ -196,6 +204,21 @@ export class Interpreter {
     }
 
     await this.exitNode(node, result);
+
+    // Debug stepping: pause AFTER each statement if stepping
+    // Skip Block nodes (they're containers, not actual statements)
+    if (this.debugStepping && this.onDebugStep && node.type !== 'Block') {
+      // Skip if we just returned from pause() - we already paused on this statement
+      if (this.skipNextDebugStep) {
+        this.skipNextDebugStep = false;
+      } else {
+        // For step over: only pause at original depth or shallower
+        if (this.stepMode === 'into' || this.callDepth <= this.stepOverDepth) {
+          await this.onDebugStep();
+        }
+      }
+    }
+
     return result;
   }
 
@@ -283,8 +306,12 @@ export class Interpreter {
         const previousEnv = this.environment;
         this.environment = funcEnv;
 
-        // Notify call start
-        if (this.onCallStart) this.onCallStart(node.callee, args, funcEnv);
+        // Notify call start with call site line
+        const callLine = node.line || node.token?.line;
+        if (this.onCallStart) this.onCallStart(node.callee, args, funcEnv, callLine);
+
+        // Track call depth for step over
+        this.callDepth++;
 
         try {
           await this.execute(callee.declaration.body);
@@ -296,6 +323,7 @@ export class Interpreter {
             throw e;
           }
         } finally {
+          this.callDepth--;
           this.environment = previousEnv;
           // Notify call end
           if (this.onCallEnd) this.onCallEnd(node.callee, result);
@@ -424,8 +452,12 @@ export class Interpreter {
         const previousEnv = this.environment;
         this.environment = methodEnv;
 
-        // Notify call start
-        if (this.onCallStart) this.onCallStart(node.method, args, methodEnv);
+        // Notify call start with call site line
+        const methodCallLine = node.line || node.token?.line;
+        if (this.onCallStart) this.onCallStart(node.method, args, methodEnv, methodCallLine);
+
+        // Track call depth for step over
+        this.callDepth++;
 
         try {
           await this.execute(method.body);
@@ -437,6 +469,7 @@ export class Interpreter {
             throw e;
           }
         } finally {
+          this.callDepth--;
           this.environment = previousEnv;
           // Notify call end
           if (this.onCallEnd) this.onCallEnd(node.method, result);
@@ -764,9 +797,18 @@ export class Interpreter {
         if (args.length !== 0) {
           throw new RuntimeError('pause() takes no arguments');
         }
-        // Wait for keypress before continuing (if callback provided)
+        // Skip pause if stepping over and we're deeper than the step over depth
+        if (this.stepMode === 'over' && this.callDepth > this.stepOverDepth) {
+          return null;
+        }
+        // Reset step mode after pausing (user must click step again)
+        this.stepMode = 'into';
+        // Wait for user interaction before continuing (if callback provided)
         if (this.onPause) {
           await this.onPause();
+          // Skip the next onDebugStep since we just paused on this statement
+          // User wants to step to the NEXT statement, not pause on this one again
+          this.skipNextDebugStep = true;
         }
         return null;
       }
@@ -833,6 +875,11 @@ export class Interpreter {
 
   // Visualization hooks - called in debug mode (stepDelay > 0) or stepping mode
   async enterNode(node, isStatement = false) {
+    // Track current line for debug highlighting
+    const line = node.line || node.token?.line;
+    if (line) {
+      this.currentLine = line;
+    }
     if (this.onNodeEnter && (this.stepDelay > 0 || this.stepping)) {
       this.onNodeEnter(node);
     }

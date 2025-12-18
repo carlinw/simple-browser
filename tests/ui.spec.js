@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { runFast, runUntilPause } = require('./helpers');
 
 // Positive Tests
 
@@ -11,6 +12,36 @@ test('page has code editor', async ({ page }) => {
   await page.goto('/');
   const editor = page.locator('#code-editor');
   await expect(editor).toBeVisible();
+});
+
+test('code editor shows line numbers', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 1\nlet y = 2\nlet z = 3');
+
+  // Line numbers should be visible
+  const lineNumbers = page.locator('#line-numbers');
+  await expect(lineNumbers).toBeVisible();
+
+  // Should show 3 line numbers
+  await expect(lineNumbers).toContainText('1');
+  await expect(lineNumbers).toContainText('2');
+  await expect(lineNumbers).toContainText('3');
+});
+
+test('code display shows line numbers when running', async ({ page }) => {
+  await page.goto('/');
+  await page.fill('#code-editor', 'let x = 1\npause()\nlet y = 2');
+  await page.click('#run-btn');
+
+  // Wait for pause
+  await expect(page.locator('#debug-panel')).toBeVisible({ timeout: 5000 });
+
+  // Line numbers should be visible in code display
+  const lineNumbers = page.locator('#code-display-line-numbers');
+  await expect(lineNumbers).toBeVisible();
+  await expect(lineNumbers).toContainText('1');
+  await expect(lineNumbers).toContainText('2');
+  await expect(lineNumbers).toContainText('3');
 });
 
 test('page has output pane', async ({ page }) => {
@@ -40,73 +71,32 @@ test('can type in code editor', async ({ page }) => {
   await expect(editor).toHaveValue('print hello');
 });
 
-// Memory Pane Tests (no more tabs - just Memory)
+// Debug Panel Tests (shows during pause)
 
-test('interpreter pane shows memory after debug', async ({ page }) => {
+test('debug panel shows stack frames after pause', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#debug-btn');
-  // Wait for execution to complete
-  await page.waitForFunction(() => {
-    const stopBtn = document.getElementById('stop-btn');
-    return stopBtn && !stopBtn.disabled;
-  }, { timeout: 30000 });
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  // Memory pane should be visible
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toBeVisible();
+  // Debug stack frames should be visible
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toBeVisible();
 });
 
-test('memory shows variables after debug', async ({ page }) => {
+test('debug panel shows variables after pause', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#debug-btn');
-  // Wait for execution to complete (done state: run button enabled)
-  await page.waitForFunction(() => {
-    const runBtn = document.getElementById('run-btn');
-    return runBtn && !runBtn.disabled;
-  }, { timeout: 30000 });
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  const memoryContent = page.locator('#tab-memory');
-  await expect(memoryContent).toContainText('x');
-  await expect(memoryContent).toContainText('42');
+  const stackFrames = page.locator('#debug-stack-frames');
+  await expect(stackFrames).toContainText('x');
+  await expect(stackFrames).toContainText('42');
 });
 
-test('interpreter pane hidden initially', async ({ page }) => {
+test('debug panel hidden initially', async ({ page }) => {
   await page.goto('/');
 
-  // Interpreter pane should be hidden before any execution
-  const interpreterPane = page.locator('#interpreter-pane');
-  await expect(interpreterPane).toHaveClass(/interpreter-hidden/);
-});
-
-test('interpreter pane visible during debug', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#debug-btn');
-
-  // Wait a moment for execution to start
-  await page.waitForTimeout(500);
-
-  // Interpreter pane should be visible during execution
-  const interpreterPane = page.locator('#interpreter-pane');
-  await expect(interpreterPane).not.toHaveClass(/interpreter-hidden/);
-});
-
-test('interpreter pane hidden during run', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'print(42)');
-  await page.click('#run-btn');
-
-  // Wait for completion
-  await page.waitForFunction(() => {
-    const output = document.getElementById('output');
-    return output && output.textContent.includes('42');
-  }, { timeout: 5000 });
-
-  // Interpreter pane should remain hidden
-  const interpreterPane = page.locator('#interpreter-pane');
-  await expect(interpreterPane).toHaveClass(/interpreter-hidden/);
+  // Debug panel should be hidden before any execution
+  const debugPanel = page.locator('#debug-panel');
+  await expect(debugPanel).toHaveClass(/hidden/);
 });
 
 // Auto-stop Tests

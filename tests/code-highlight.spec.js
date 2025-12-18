@@ -1,13 +1,13 @@
 const { test, expect } = require('@playwright/test');
+const { runFast, runUntilPause } = require('./helpers');
 
 // Code Display Tests - verify source code display during execution
 
-test('code display shows source during debug execution', async ({ page }) => {
+test('code display shows source during pause', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 42');
-  await page.click('#debug-btn');
+  await runUntilPause(page, 'let x = 42\npause()');
 
-  // Code display should be visible during execution
+  // Code display should be visible during pause
   await expect(page.locator('#code-display')).toBeVisible({ timeout: 3000 });
 
   // Code editor should be hidden
@@ -38,28 +38,11 @@ test('code display shows source during run execution', async ({ page }) => {
   expect(displayText).toContain('print(42)');
 });
 
-test('code display shows source during step execution', async ({ page }) => {
-  await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1');
-  await page.click('#step-btn');
-
-  // Code display should be visible during stepping
-  await expect(page.locator('#code-display')).toBeVisible({ timeout: 3000 });
-
-  // Code editor should be hidden
-  await expect(page.locator('#code-editor')).toBeHidden();
-
-  // Code display should contain the source
-  const displayText = await page.locator('#code-display').textContent();
-  expect(displayText).toContain('let x = 1');
-});
-
 test('code editor returns after stop', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1');
-  await page.click('#step-btn');
+  await runUntilPause(page, 'pause()\nlet x = 1');
 
-  // Code display should be visible during stepping
+  // Code display should be visible during pause
   await expect(page.locator('#code-display')).toBeVisible();
 
   // Click stop to reset
@@ -93,8 +76,7 @@ test('code editor returns after execution completes', async ({ page }) => {
 
 test('current line is highlighted during debug', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1\nlet y = 2\nlet z = 3');
-  await page.click('#debug-btn');
+  await runUntilPause(page, 'let x = 1\nlet y = 2\npause()\nlet z = 3');
 
   // Wait for execution to start and a line to be highlighted
   await page.waitForSelector('.line-executing', { timeout: 10000 });
@@ -106,23 +88,25 @@ test('current line is highlighted during debug', async ({ page }) => {
 
 test('line highlight moves during step execution', async ({ page }) => {
   await page.goto('/');
-  await page.fill('#code-editor', 'let x = 1\nlet y = 2');
-  await page.click('#step-btn');
+  await runUntilPause(page, 'pause()\nlet x = 1\nlet y = 2\npause()');
 
-  // First step - should highlight first line
+  // First pause on line 1 - get initial line number
   await page.waitForSelector('.line-executing', { timeout: 5000 });
-  let highlighted = await page.locator('.line-executing').textContent();
-  expect(highlighted).toContain('let x = 1');
+  const firstLine = await page.locator('.line-executing').getAttribute('data-line');
+  expect(firstLine).toBe('1');
 
-  // Click step again
-  await page.click('#step-btn');
+  // Click step into to advance one statement (to line 2)
+  await page.click('#step-into-btn');
+  await page.waitForTimeout(100);
 
-  // Wait for the highlight to move to the second line
-  await page.waitForFunction(() => {
-    const line = document.querySelector('.line-executing');
-    return line && line.textContent.includes('let y = 2');
-  }, { timeout: 5000 });
+  // The highlight should now be on line 2 (let x = 1)
+  const secondLine = await page.locator('.line-executing').getAttribute('data-line');
+  expect(secondLine).toBe('2');
 
-  highlighted = await page.locator('.line-executing').textContent();
-  expect(highlighted).toContain('let y = 2');
+  // Click step into again to advance to line 3
+  await page.click('#step-into-btn');
+  await page.waitForTimeout(100);
+
+  const thirdLine = await page.locator('.line-executing').getAttribute('data-line');
+  expect(thirdLine).toBe('3');
 });

@@ -12,11 +12,11 @@
   <header>
     <h1>Tiny Development Environment</h1>
     <nav id="toolbar">
-      <button id="step-btn">Step</button>
-      <button id="debug-btn">Debug</button>
       <button id="run-btn">Run</button>
       <button id="load-btn">Load</button>
-      <button id="stop-btn" disabled>Stop</button>
+      <button id="stop-btn" class="hidden" disabled>Stop</button>
+      <button id="step-into-btn" class="hidden">Step Into</button>
+      <button id="step-over-btn" class="hidden">Step Over</button>
       <button id="resume-btn" class="hidden">Resume</button>
     </nav>
   </header>
@@ -31,16 +31,16 @@
         </div>
         <span id="line-count">0 lines of code</span>
       </div>
-      <textarea id="code-editor" placeholder="Write your code here..."></textarea>
-      <pre id="code-display" class="code-display hidden"></pre>
-    </section>
-
-    <!-- Section 2: Memory (middle) -->
-    <section id="interpreter-pane" class="interpreter-hidden">
-      <div class="pane-header">
-        <h2>Memory</h2>
+      <div id="code-container">
+        <div id="line-numbers" class="line-numbers"></div>
+        <textarea id="code-editor" placeholder="Write your code here..."></textarea>
+        <div id="code-display-line-numbers" class="line-numbers hidden"></div>
+        <pre id="code-display" class="code-display hidden"></pre>
       </div>
-      <div id="tab-memory" class="tab-panel active"></div>
+      <div id="debug-panel" class="hidden">
+        <div class="debug-panel-header">Stack Frames</div>
+        <div id="debug-stack-frames"></div>
+      </div>
     </section>
 
     <!-- Section 3: Output -->

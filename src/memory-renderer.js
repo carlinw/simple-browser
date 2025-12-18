@@ -4,7 +4,7 @@
 export class MemoryRenderer {
   constructor(container) {
     this.container = container;
-    this.callStack = [];  // Stack of { name, args, environment } frames
+    this.callStack = [];  // Stack of { name, args, environment, callLine } frames
   }
 
   // Build legend HTML (used at bottom of tab)
@@ -46,8 +46,8 @@ export class MemoryRenderer {
   }
 
   // Push a new stack frame (called on function call)
-  pushFrame(funcName, args, environment) {
-    this.callStack.push({ name: funcName, args, environment });
+  pushFrame(funcName, args, environment, callLine) {
+    this.callStack.push({ name: funcName, args, environment, callLine });
     this.render();
   }
 
@@ -90,7 +90,8 @@ export class MemoryRenderer {
         html += `<div class="frame-header">&lt;global&gt;</div>`;
       } else {
         const argsStr = frame.args.map(a => this.formatValue(a)).join(', ');
-        html += `<div class="frame-header">${frame.name}(${argsStr})</div>`;
+        const lineInfo = frame.callLine ? ` <span class="frame-line">called from line ${frame.callLine}</span>` : '';
+        html += `<div class="frame-header">${frame.name}(${argsStr})${lineInfo}</div>`;
       }
 
       // Frame variables
